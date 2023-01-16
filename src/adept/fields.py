@@ -5,7 +5,7 @@ from spacy.tokens import Span
 import re
 import yaml
 
-from adept.config import unit_registry
+from adept.config import unit_registry, logger
 from adept.utils.helpers import flatten_dict
 
 class Field(ABC):
@@ -33,7 +33,8 @@ class MeasurementField(Field):
     unique = True
 
     def set_value(self, measurements):        
-        if self.value: raise Exception(f'Field {self.name} already has a value')
+        if self.value: 
+            logger.error(f'Field {self.name} already has a value')
         self._set_value(measurements)
         
     def get_value(self, axis=None, minmax=None, unit=None):
@@ -53,10 +54,10 @@ class MeasurementField(Field):
         # FIXME: If minmax set, and not axis, this will fail
         try:         
             if axis: data = data[axis]
-            if minmax: data = data[minmax]
+            if minmax: data = data[minmax]             
         except KeyError:
             # We can ignore this: measurements that have just length will not contain x axis
-            pass
+            return None       
         return data
     
     @staticmethod 
