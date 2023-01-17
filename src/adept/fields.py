@@ -145,7 +145,8 @@ class DiscreteField(Field):
 
 class NumericField(Field):
     def set_value(self, num_ent: Span):
-        self.value = num_ent._.get("numeric_range") or num_ent.text
+        # FIXME: This could be a numeric range num_ent._.get("numeric_range")
+        self.value = num_ent.text
     def get_value(self):
         return self.value
 
