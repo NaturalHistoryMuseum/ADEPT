@@ -6,7 +6,7 @@ import urllib
 
 from adept.config import INTERMEDIATE_DATA_DIR, logger
 from adept.utils.soup import RequestSoup
-from adept.tasks.descriptions.base import DescriptionTask
+from adept.tasks.descriptions.description import DescriptionTask
 
 
 class EcofloraIndexTask(luigi.ExternalTask):
@@ -81,4 +81,4 @@ class EcofloraDescriptionTask(DescriptionTask):
         return luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'ecoflora' / f'{self.taxon}.txt')    
     
 if __name__ == "__main__":    
-    luigi.build([EcofloraDescriptionTask(taxon='Eleocharis palustris')], local_scheduler=True)      
+    luigi.build([EcofloraDescriptionTask(taxon='Eleocharis palustris', force=True)], local_scheduler=True)      

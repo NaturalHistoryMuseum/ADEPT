@@ -11,7 +11,7 @@ from adept.config import INTERMEDIATE_DATA_DIR, logger
 from adept.utils.soup import RequestSoup
 from adept.utils.enum import Enum
 from adept.traits import SimpleTraitTextClassifier
-from adept.tasks.descriptions.base import DescriptionTask
+from adept.tasks.descriptions.description import DescriptionTask
 
 
 class EflorasSearchTask(luigi.ExternalTask):
@@ -150,5 +150,4 @@ class EflorasMossChinaDescriptionTask(EcofloraDescriptionTask):
     flora_id = EcofloraDescriptionTask.Floras.MOSS_FLORA_OF_CHINA   
 
 if __name__ == "__main__":    
-    pass
-    # luigi.build([EflorasMossChinaDescriptionSource(taxon='Phalaris arundinacea')], local_scheduler=True)  
+    luigi.build([EflorasChinaDescriptionTask(taxon='Phalaris arundinacea', force=True)], local_scheduler=True)  
