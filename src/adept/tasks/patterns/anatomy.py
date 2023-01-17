@@ -4,6 +4,7 @@ import yaml
 from adept.config import RAW_DATA_DIR, PROCESSED_DATA_DIR
 from adept.traits import Traits
 from adept.utils.patterns import Patterns
+from adept.tasks.base import BaseTask
 
 class AnatomicalPartsTask(luigi.ExternalTask):
     """
@@ -18,7 +19,7 @@ class AnatomicalPartsTask(luigi.ExternalTask):
         return luigi.LocalTarget(RAW_DATA_DIR / 'anatomical-parts.yml')
 
 
-class AnatomyPatternsTask(luigi.Task):
+class AnatomyPatternsTask(BaseTask):
     
     def requires(self):
         """

@@ -11,10 +11,10 @@ from adept.tasks.descriptions.ecoflora import EcofloraDescriptionTask
 from adept.tasks.descriptions.efloras import EflorasChinaDescriptionTask, EflorasMossChinaDescriptionTask, EflorasNorthAmericaDescriptionTask, EflorasPakistanDescriptionTask
 from adept.pipeline import Pipeline
 from adept.config import taxonomic_groups, logger
+from adept.tasks.base import BaseTask
 
 
-
-class PipelineTask(luigi.Task):
+class PipelineTask(BaseTask):
         
     taxon = luigi.Parameter()  
     taxonomic_group = luigi.ChoiceParameter(choices=taxonomic_groups, var_type=str, default="angiosperm")  
@@ -23,9 +23,9 @@ class PipelineTask(luigi.Task):
 
     def requires(self):
         return [
-            EcofloraDescriptionTask(self.taxon),
-            EflorasNorthAmericaDescriptionTask(self.taxon),
-            EflorasChinaDescriptionTask(self.taxon)
+            EcofloraDescriptionTask(taxon=self.taxon),
+            EflorasNorthAmericaDescriptionTask(taxon=self.taxon),
+            EflorasChinaDescriptionTask(taxon=self.taxon)
         ]
         
     def run(self):
@@ -42,8 +42,8 @@ class PipelineTask(luigi.Task):
             
             with i.open('r') as f:
                 record = {}
-                if description := f.read():
-                    fields = self.pipeline(description, self.taxonomic_group)
+                if description := f.read():                    
+                    fields = self.pipeline(description, self.taxonomic_group)                    
                     if self.template_path:
                         record = fields.to_template(self.template_path)
                     else:
@@ -55,9 +55,8 @@ class PipelineTask(luigi.Task):
                 record['source'] = source                   
                 data.append(record)
               
-        # with self.output().open('w') as f:
-        #     # f.write(json.dumps(data, indent=4))
-        #     pass
+        with self.output().open('w') as f:
+            f.write(json.dumps(data, indent=4))
 
     def output(self):
         file_name = self.taxon.replace(' ', '-').lower()
@@ -66,4 +65,4 @@ class PipelineTask(luigi.Task):
     
 
 if __name__ == "__main__":    
-    luigi.build([PipelineTask(taxon='Phalaris arundinacea'), PipelineTask(taxon='Isachne globosa')], local_scheduler=True)  
+    luigi.build([PipelineTask(taxon='Phalaris arundinacea', force=True)], local_scheduler=True)  
