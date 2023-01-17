@@ -46,7 +46,10 @@ class Traits():
     
     def get_unique_discrete_terms(self, group=None):
         df = self._get_traits_by_type('discrete', group)
-        return df.term.unique()
+        # Use both terms and character values - if a character exists in the text
+        # we want tofind and use it
+        return np.concatenate([df.term.unique(), df.character.unique()])
+    
         
     def _read_sql_query(self, sql):
         return pd.read_sql_query(sql, self._connection)
