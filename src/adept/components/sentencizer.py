@@ -37,5 +37,5 @@ class Sentencizer(BaseComponent):
     @staticmethod
     def _is_period(doc, token):
         next_token = doc[token.i + 1]                
-        # Ensure the next word starts with a capital or a number         
-        return token.text == "." and (next_token.shape_.startswith('X') or next_token.shape_.startswith('d')) 
+        # Ensure the next word starts with a capital or a number      
+        return token.text == "." and (next_token.shape_.startswith('X')) 
