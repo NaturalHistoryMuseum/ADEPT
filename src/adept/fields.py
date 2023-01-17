@@ -31,10 +31,12 @@ class MeasurementField(Field):
     # Length/height measurements are provided first, followed by width. 
     dimension_axes = ['y', 'x']    
     unique = True
+    num_re = re.compile(r'(\d+(?:\.\d+)?)')
 
     def set_value(self, measurements):        
         if self.value: 
             logger.error(f'Field {self.name} already has a value')
+            return
         self._set_value(measurements)
         
     def get_value(self, axis=None, minmax=None, unit=None):
@@ -42,7 +44,7 @@ class MeasurementField(Field):
             unit = unit_registry(unit)
         
         data = {}
-        # Build a dict of the values x.min         
+        # Build a dict of the values x.min       
         for value_axis, value_dict in self.value.items():
             data.setdefault(value_axis, {})
             for mm, value in value_dict.items():
@@ -89,6 +91,7 @@ class MeasurementField(Field):
         if not unit: return
         value_dict = self._get_ent_value(measurement)
         unpack = lambda ks: ([v for k in ks if (v := value_dict.get(k))])
+
         return {
             'min': self._to_unit(min(unpack(['lower', 'from']), default=None), unit),
             'max': self._to_unit(max(unpack(['to', 'upper']), default=None), unit)
@@ -99,14 +102,13 @@ class MeasurementField(Field):
         if value:
             return float(value) * unit
     
-    @staticmethod
-    def _get_ent_value(ent: Span):
+    def _get_ent_value(self, ent: Span):
         if ent._.numeric_range:
             value = ent._.numeric_range
         else:
-            # Also validate shape is d, dd, so cast to int won't fail
-            num = [int(token.text) for token in ent if token.pos_ == 'NUM' and set(token.shape_) == set('d')]
-            value = {'from': min(num, default=None), 'to': max(num, default=None)} 
+            # Extract numerical parts from the ent string             
+            numeric = [float(m) for m in self.num_re.findall(ent.text)]
+            value = {'from': min(numeric, default=None), 'to': max(numeric, default=None)} 
    
         return value  
       
