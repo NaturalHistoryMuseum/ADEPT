@@ -48,6 +48,7 @@ class PreprocessAbbreviations(object):
 
     def __call__(self, text):
         text = self._replace_abbreviations(text)
+        text = self._replace_ca(text)
         text = self._remove_double_spaces(text)
         text = self._remove_double_dashes(text)
         text = self._replace_long_dashes(text)
@@ -72,6 +73,10 @@ class PreprocessAbbreviations(object):
 
     def _remove_double_dashes(self, text):
         return text.replace('--', '-')
+    
+    def _replace_ca(self, text):
+        # ca 123 => ca. 1234 (otherwise it screws up parsing)
+        return re.sub('\sca\s', ' ca. ', text)
     
     def _replace_long_dashes(self, text):
         return text.replace('–', '-')  
