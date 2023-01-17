@@ -19,12 +19,12 @@ class Postproccess():
     def __call__(self, doc, taxon_group):
         fields = Fields()
         for sent in doc.sents:
-            part = self._sent_get_part(sent)
-            self._process_colours_fields(sent, fields, part)
+            part = self._sent_get_part(sent)            
             self._process_discrete_fields(sent, fields, part, taxon_group)
             self._process_custom_fields(sent, fields)
             if part:
                 self._process_measurement_fields(sent, fields, part)
+                self._process_colours_fields(sent, fields, part)
             self._process_numeric_fields(sent, fields)
                 
         return fields
@@ -36,7 +36,7 @@ class Postproccess():
     def _process_colours_fields(self, sent: Doc, fields: Fields, part: str):
         colour_ents = [ent for ent in sent.ents if ent.label_ == 'COLOUR']
         for ent in colour_ents:
-            fields.upsert(f'{part}_colour', 'discrete', ent.lemma_)
+            fields.upsert(f'{part} colour', 'discrete', ent.lemma_)
             
     def _process_discrete_fields(self, sent: Doc, fields: Fields, part: str, taxon_group: str):
         
@@ -44,8 +44,9 @@ class Postproccess():
         
         trait_ents = [ent for ent in sent.ents if ent.label_ == 'TRAIT']
         # Process entities     
-        for ent in trait_ents:                
-            mask = ((df.term == ent.lemma_) | (df.term == ent.text))
+        for ent in trait_ents:               
+            # Match on either term or character 
+            mask = (((df.term == ent.lemma_) | (df.term == ent.text)) | ((df.character == ent.lemma_) | (df.character == ent.text)))
             # If the trait ent is a part, no need to filter on part         
             if part != ent.lemma_:
                 # Plant part is an artificial construct, so we treate it as sent having no part             
@@ -68,13 +69,13 @@ class Postproccess():
 
     def _process_measurement_fields(self, sent: Doc, fields: Fields, part: str):
         if sent._.dimensions:     
-            field_name = f'{part}_measurement'
+            field_name = f'{part} measurement'
             fields.upsert(field_name, 'dimension', sent._.dimensions[0])
         elif sent._.measurements:            
-            field_name = f'{part}_measurement'
+            field_name = f'{part} measurement'
             fields.upsert(field_name, 'measurement', sent._.measurements)
         elif sent._.volume_measurements:
-            field_name = f'{part}_volume'
+            field_name = f'{part} volume'
             fields.upsert(field_name, 'volume', sent._.volume_measurements[0])
             
             
@@ -89,4 +90,4 @@ class Postproccess():
             if root.dep_ == 'nummod' and root.head.pos_ == 'NOUN':
                 if ent:= token_get_ent(root.head, ['PART', 'TRAIT']): 
                     field_name = ent._.get("anatomical_part") or ent.lemma_
-                    fields.upsert(f'{field_name}_number', 'numeric', num_ent)
+                    fields.upsert(f'{field_name} number', 'numeric', num_ent)
