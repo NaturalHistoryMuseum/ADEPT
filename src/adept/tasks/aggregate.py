@@ -3,30 +3,24 @@ import pandas as pd
 import numpy as np
 import re
 from luigi import parameter
+from pandas.api.types import is_numeric_dtype
+from pathlib import Path
+import itertools
 
-from adept.config import RAW_DATA_DIR, taxonomic_groups, logger
+
+from adept.config import RAW_DATA_DIR, taxonomic_groups, logger, PROCESSED_DATA_DIR
 from adept.tasks.pipeline import PipelineTask
+from adept.tasks.base import BaseTask
 
-class AggregateTask(luigi.Task):
-    taxon = luigi.Parameter()  
-    taxonomic_group = luigi.ChoiceParameter(choices=taxonomic_groups, var_type=str, default="angiosperm") 
     
-    def run(self):
-        # print('HHHH')
-        logger.error('RUN')
-        
-    def requires(self):
-        return [
-            PipelineTask(taxon=self.taxon, taxonomic_group=self.taxonomic_group)
-        ]
-    
-
-class AggregateFileTask(luigi.Task):
+class AggregateTask(BaseTask):
     
     file_path = luigi.PathParameter(exists=True, default=RAW_DATA_DIR / 'species-example.csv')
     taxon_column = luigi.Parameter(default='Species name')
     taxon_group_column = luigi.OptionalStrParameter(default=None)
     taxonomic_group = luigi.OptionalChoiceParameter(choices=taxonomic_groups, var_type=str, default=None)  
+ 
+    num_unit_regex = re.compile('([\d\.]+)\s([a-z]+)')
  
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)        
@@ -53,7 +47,7 @@ class AggregateFileTask(luigi.Task):
             if not taxon_group in taxonomic_groups: 
                 raise Exception('Unknown taxonomic group %s - must be one of %s '% (taxon_group, ' '.join(taxonomic_groups)))
 
-            yield AggregateTask(taxon=taxon, taxonomic_group=taxon_group)
+            yield PipelineTask(taxon=taxon, taxonomic_group=taxon_group)
     
     def _read_names_from_file(self):        
         df = self._read_file()
@@ -73,6 +67,64 @@ class AggregateFileTask(luigi.Task):
         
         raise Exception('Only .csv and .xslx files are supported')
     
+    def run(self):
+        
+        dfs = []    
+        combined_dfs = []
+        
+        for input_json in self.input():
+            input_json_path = Path(input_json.path)
+            taxon = input_json_path.stem.replace('-', ' ').capitalize()
+            df = pd.read_json(input_json_path)
+            df.insert(0, 'taxon', taxon)
+            combined = df.groupby('taxon').agg(self._series_merge).reset_index()
+            dfs.append(df)
+            combined_dfs.append(combined)            
+            
+        combined_dfs = pd.concat(combined_dfs)
+        combined_dfs = combined_dfs.drop(columns='source')
+        dfs = pd.concat(dfs)
+        cols = set(dfs.columns).difference(set(['taxon', 'source']))
+        
+        with pd.ExcelWriter(self.output().path) as writer:    
+            combined_dfs = combined_dfs.dropna(subset=cols, how="all")    
+            combined_dfs.to_excel(writer, sheet_name="combined", index=False)
+            for source, group in dfs.groupby('source'):
+                sheet_name = source.replace('/', '-')
+                # If we don't have any values in a row, drop it         
+                group = group.dropna(subset=cols, how="all")
+                group.to_excel(writer, sheet_name=sheet_name, index=False)  
+        
+        
+    def output(self):
+        input_file_name = Path(self.file_path).stem
+        return luigi.LocalTarget(PROCESSED_DATA_DIR / f'{input_file_name}.traits.xlsx')           
+    
+    def _series_merge(self, rows):
+        # Remove any empty rows     
+        rows = rows[rows.notnull()]
+            
+        if rows.empty:
+            return
+        
+        if is_numeric_dtype(rows):
+            return rows.mean().round(2)
+        
+        num_unit = [g for row in rows if (g := self.num_unit_regex.match(row))]
+        
+        if num_unit:
+            num = np.array([float(n.group(1)) for n in num_unit]).mean().round(2)
+            unit = num_unit[0].group(2)   
+            return f'{num} {unit}'
+        
+        # Ploidy 2n contains , so we don't want to split or concatenate on ','     
+        text_list = [s.split(',') for s in rows if not s.startswith('2n')]
+        if text_list:
+            return ', '.join(set([t.strip() for t in itertools.chain(*text_list)]))
+        else:
+            return '| '.join(rows)         
+    
     
 if __name__ == "__main__":    
-    luigi.build([AggregateTask(taxon="Prunus cerasifera")], local_scheduler=True)      
+    # luigi.build([AggregateTask(taxon="Prunus cerasifera")], local_scheduler=True)    
+    luigi.build([AggregateTask(taxonomic_group='angiosperm', force=True)], local_scheduler=True)
