@@ -1,6 +1,7 @@
 
 import re
 from unidecode import unidecode
+from fractions import Fraction
 
 
 class PreproccessUnicode():
@@ -114,12 +115,22 @@ class PreprocessConjoined(object):
         return text        
  
 
+class PreprocessFractions(object):
+    
 
-
+    re_fraction = re.compile(r'[0-9]+\/[0-9]+')         
+        
+    def __call__(self, text):
+        for m in self.re_fraction.finditer(text):        
+            fraction = Fraction(m.group())
+            text = text[:m.start()] + str(float(fraction)) + text[m.end():]
+        return text
+    
 
 class Preprocess(object):  
     
     preprocessors = [
+        PreprocessFractions(),
         PreprocessAbbreviations(),
         PreprocessConjoined(),
         PreproccessUnicode()
@@ -133,8 +144,8 @@ class Preprocess(object):
 
 if __name__ == '__main__':
     
-    d = 'Ray florets8-10(-13), 2cm3 and sterile'        
+    d = 'Ray florets8-10(-13), 1/2 cm3 and sterile'        
 
-    preproccessor = PreprocessConjoined()
+    preproccessor = Preprocess()
     text = preproccessor(d)
     print(text)
