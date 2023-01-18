@@ -10,7 +10,7 @@ import uuid
 import pickle
 from abc import ABC, abstractmethod,ABCMeta
 
-from adept.config import RAW_DATA_DIR, taxonomic_groups, logger, PROCESSED_DATA_DIR
+from adept.config import RAW_DATA_DIR, taxonomic_groups, logger, PROCESSED_DATA_DIR, DATA_DIR
 from adept.tasks.pipeline import PipelineTask
 from adept.tasks.base import BaseTask
 
@@ -63,8 +63,6 @@ class AggregateBaseTask(BaseTask, metaclass=ABCMeta):
             return
         
         if is_numeric_dtype(rows):
-            print("HSHSHSHSHSSH")
-            print(rows)
             return rows.mean().round(2)
         
         num_unit = [g for row in rows if (g := self.num_unit_regex.match(row))]
@@ -103,8 +101,8 @@ class AggregateTask(AggregateBaseTask):
                     
 class AggregateFileTask(AggregateBaseTask):
     
-    file_path = luigi.PathParameter(exists=True, default=RAW_DATA_DIR / 'species-example.csv')
-    taxon_column = luigi.Parameter(default='Species name')
+    file_path = luigi.PathParameter(exists=True)
+    taxon_column = luigi.Parameter(default='scientificName')
     taxon_group_column = luigi.OptionalStrParameter(default=None)
     taxonomic_group = luigi.OptionalChoiceParameter(choices=taxonomic_groups, var_type=str, default=None)  
  
@@ -162,5 +160,7 @@ class AggregateFileTask(AggregateBaseTask):
     
     
 if __name__ == "__main__":    
-    luigi.build([AggregateTask(taxon_names=["Hedychium brevicaule"], taxonomic_group='angiosperm', force=True)], local_scheduler=True)    
-    # luigi.build([AggregateFileTask(taxonomic_group='angiosperm', force=True)], local_scheduler=True)
+    # luigi.build([AggregateTask(taxon_names=["Acer caudatum"], taxonomic_group='angiosperm', force=True)], local_scheduler=True)    
+    
+    file_path = DATA_DIR / 'input/north-american-assessments.csv'
+    luigi.build([AggregateFileTask(taxonomic_group='angiosperm', force=True, file_path=file_path)], local_scheduler=True)
