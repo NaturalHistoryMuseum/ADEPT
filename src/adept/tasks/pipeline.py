@@ -25,7 +25,9 @@ class PipelineTask(BaseTask):
         return [
             EcofloraDescriptionTask(taxon=self.taxon),
             EflorasNorthAmericaDescriptionTask(taxon=self.taxon),
-            EflorasChinaDescriptionTask(taxon=self.taxon)
+            EflorasChinaDescriptionTask(taxon=self.taxon),
+            EflorasMossChinaDescriptionTask(taxon=self.taxon),
+            EflorasPakistanDescriptionTask(taxon=self.taxon),
         ]
         
     def run(self):
@@ -55,14 +57,19 @@ class PipelineTask(BaseTask):
                 record['source'] = source                   
                 data.append(record)
               
-        with self.output().open('w') as f:
+        with self.output().open('w') as f:            
             f.write(json.dumps(data, indent=4))
 
     def output(self):
-        file_name = self.taxon.replace(' ', '-').lower()
+        file_name = self.taxon.replace(' ', '-').lower() 
+        
+        # FIXME: Could potentially break if dict is used - add dict to path
+        # if not self.template_path:
+        #     file_name = f'{file_name}-{self.template_path.stem}'     
+        #     print(file_name)       
         return luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'descriptions' / f'{file_name}.json')             
     
     
 
 if __name__ == "__main__":    
-    luigi.build([PipelineTask(taxon='Phalaris arundinacea', force=True)], local_scheduler=True)  
+    luigi.build([PipelineTask(taxon='Amelanchier arborea', force=True)], local_scheduler=True)  
