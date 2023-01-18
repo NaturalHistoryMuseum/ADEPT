@@ -97,13 +97,16 @@ class EcofloraDescriptionTask(DescriptionTask, metaclass=ABCMeta):
                     
         with self.input().open('r') as f:        
             search_results = yaml.full_load(f) 
+            
+        if not search_results:
+            return None
 
-        try:
-            taxon_id =  search_results[self.flora_id.value]
-        except KeyError:
+        taxon_id =  search_results.get(self.flora_id.value)
+        if not taxon_id:
             logger.debug('No results for %s - %s', self.taxon, self.flora_id.value) 
-        else:            
-            return self._parse_description(taxon_id)     
+            return None
+           
+        return self._parse_description(taxon_id)     
            
     def _parse_description(self, taxon_id):
                         
@@ -150,4 +153,4 @@ class EflorasMossChinaDescriptionTask(EcofloraDescriptionTask):
     flora_id = EcofloraDescriptionTask.Floras.MOSS_FLORA_OF_CHINA   
 
 if __name__ == "__main__":    
-    luigi.build([EflorasChinaDescriptionTask(taxon='Phalaris arundinacea', force=True)], local_scheduler=True)  
+    luigi.build([EflorasChinaDescriptionTask(taxon='Metopium toxiferum', force=True)], local_scheduler=True)  

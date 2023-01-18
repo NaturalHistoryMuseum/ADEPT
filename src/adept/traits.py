@@ -164,6 +164,8 @@ class SimpleTraitTextClassifier:
     def is_description(self, text):
         words = self._to_lower_set(get_words(text))
         matching_terms = words.intersection(self._trait_terms) if words else [] 
+        if not words or matching_terms:
+            return False
         ratio = len(matching_terms) / len(words) 
         # If the percentage of parts is greater than 5% (for short descriptions)
         if ratio >= 0.05 or len(matching_terms) >= 3:
