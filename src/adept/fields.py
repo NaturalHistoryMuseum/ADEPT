@@ -69,7 +69,8 @@ class MeasurementField(Field):
 
     @staticmethod 
     def convert_value(value, unit):
-        return value.to(unit)
+        if value:
+            return value.to(unit)
         
     def _set_value(self, measurements):  
         # If we have two measurements, treat them as y, x         
@@ -100,7 +101,11 @@ class MeasurementField(Field):
     @staticmethod
     def _to_unit(value, unit):
         if value:
-            return float(value) * unit
+            # FIXME: ANother added just to get it to run
+            try:
+                return float(value) * unit
+            except ValueError:
+                return None
     
     def _get_ent_value(self, ent: Span):
         if ent._.numeric_range:
@@ -118,10 +123,19 @@ class DimensionField(MeasurementField):
         for i, axis in enumerate(self.dimension_axes):                    
              # 0 => 1; 1 => 0
             adj_i = (i-1)**2
-            ent = dimension.ents[i]
-            # Sometimes the unit is only attached to one of the dimensions e.g. 1.5-2 x 1.7-2.2 cm             
-            unit = ent._.measurement_unit or dimension.ents[adj_i]._.measurement_unit            
-            self._set_axis_value(axis, ent, unit)  
+            try:
+                ent = dimension.ents[i]
+            except IndexError:
+                # FIXME: This should not be happening for dimensions
+                logger.critical(f'Dimension {i} not found in dimension')                
+            except AttributeError:
+                # FIXME: dimension.ents is a list?
+                # Prunus virginiana
+                logger.critical(f'Dimension {i} not found in dimension')
+            else:
+                # Sometimes the unit is only attached to one of the dimensions e.g. 1.5-2 x 1.7-2.2 cm             
+                unit = ent._.measurement_unit or dimension.ents[adj_i]._.measurement_unit            
+                self._set_axis_value(axis, ent, unit)  
 
 class VolumeField(MeasurementField):   
     def _set_value(self, volume):          
