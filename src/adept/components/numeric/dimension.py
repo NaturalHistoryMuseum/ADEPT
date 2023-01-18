@@ -66,9 +66,18 @@ class NumericDimension(BaseComponent):
                 ents.extend(spans)
             # The next ent is part of the dimension, but hasn't been included in the ent
             else:
-                if sibling_ent := token_get_ent(doc[end+1], ['QUANTITY', 'CARDINAL']):                
-                    spans = [ent, sibling_ent]
-                    token.sent._.dimensions.append(Span(doc, ent.start, sibling_ent.end))
+                # FIXME: Need to handle better ent being at end of doc
+                # IndexError: [E040] Attempt to access token at 228, max length 227.
+                # FIXME: Amelanchier cusickii
+                try:
+                    sibling_ent = token_get_ent(doc[end+1], ['QUANTITY', 'CARDINAL'])
+                except IndexError:
+                    pass
+                else:
+                    
+                    if sibling_ent:                
+                        spans = [ent, sibling_ent]
+                        token.sent._.dimensions.append(Span(doc, ent.start, sibling_ent.end))
                     
             for span in spans:
                 for token in span:
