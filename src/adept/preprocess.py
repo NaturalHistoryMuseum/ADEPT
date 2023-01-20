@@ -25,6 +25,7 @@ class PreprocessAbbreviations(object):
         'lfless': 'leafless',
         'fl': 'flower',
         'fls': 'flowers',
+        'flrs': 'flowers',
         'fr': 'fruit',
         'frt': 'fruit',
         'frts': 'fruits',
@@ -77,7 +78,9 @@ class PreprocessAbbreviations(object):
     
     def _replace_ca(self, text):
         # ca 123 => ca. 1234 (otherwise it screws up parsing)
-        return re.sub('\sca\s', ' ca. ', text)
+        text = re.sub('\sca\s', ' ca. ', text)
+        text = re.sub('\sc\s', ' ca. ', text)
+        return text
     
     def _replace_long_dashes(self, text):
         return text.replace('–', '-')  
@@ -93,8 +96,8 @@ class PreprocessConjoined(object):
     # Split numeric values from text
     def __init__(self):
         self._re_conjoined_numeric = [
-            re.compile(r'(?!m3)([a-z])([\d])'), # a1 => a 1 (but excluding m3 - cm3, m3, mm3)
-            re.compile(r'(?!2n)([\d])([a-z])') # 1a => 1 a (but excluding 2n)       
+            re.compile(r'(?!m3)([a-z])([\(\d])'), # a1 => a 1 (but excluding m3 - cm3, m3, mm3)
+            re.compile(r'(?!2n)([\d\)])([a-z])') # 1a => 1 a (but excluding 2n)       
         ]
         self._re_conjoined_punct = re.compile(r'(?<=\D)([,.])(?=\S)')              
         
@@ -123,7 +126,7 @@ class PreprocessFractions(object):
     def __call__(self, text):
         for m in self.re_fraction.finditer(text):        
             fraction = Fraction(m.group())
-            text = text[:m.start()] + str(float(fraction)) + text[m.end():]
+            text = text[:m.start()] + str(round(float(fraction), 1)) + text[m.end():]
         return text
     
 
