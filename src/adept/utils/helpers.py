@@ -1,7 +1,8 @@
 from collections.abc import MutableMapping
 import pandas as pd
 import re
-
+import uuid
+import pickle
 
 def get_variety_higher_taxa(name):
     # Regex to match species name before var. or subsp.  
@@ -22,6 +23,9 @@ def token_get_ent(token, ent_types=None):
             if ent.start <= token.i < ent.end:
                 return ent        
             
-def flatten_dict(d: MutableMapping, sep: str= '.') -> MutableMapping:
+def flatten_dict(d: MutableMapping, sep: str= '.'):
     [flat_dict] = pd.json_normalize(d, sep=sep).to_dict(orient='records')
     return flat_dict            
+
+def list_uuid(items):
+    return uuid.uuid5(uuid.NAMESPACE_URL, str(pickle.dumps(items))).hex 
