@@ -22,6 +22,8 @@ class NumericMeasurement(BaseComponent):
     pipeline_config = {'after': 'numeric_dimensions'}
        
     name = 'numeric_measurements'
+    
+    measurement_units = ['cm', 'ft', 'm', 'meter', 'metre', 'km', 'kilometer', 'kilometre', 'centimeter', 'centimetre', 'mm', 'millimeter', 'millimetre', 'um', 'micrometer', 'micrometre', 'micron', 'nm', 'nanometer', 'nanometre', 'pm', 'inch']
 
     def __init__(self, nlp):                 
 
@@ -29,7 +31,16 @@ class NumericMeasurement(BaseComponent):
         self.nlp = nlp
         self.matcher = Matcher(nlp.vocab)
         
-        measurement_regex = r'^cm$|^mm$|^m$'  
+        
+        
+        # measurement_regex = r'^cm$|^mm$|^m$'
+        measurement_regex = r'|'.join([f'^{u}$' for u in self.measurement_units])
+        print(measurement_regex)
+   
+        
+        
+        
+        
         volume_regex = r'^mm³$|^mm3$|^cm³$|^cm3$'
         
         self.matcher.add('MEASUREMENT', [[{"ENT_TYPE": "QUANTITY", "OP": "+"}, {"LOWER": {"REGEX": measurement_regex}}]]) 
