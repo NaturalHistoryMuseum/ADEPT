@@ -6,13 +6,14 @@ from luigi import parameter
 from pandas.api.types import is_numeric_dtype
 from pathlib import Path
 import itertools
-import uuid
-import pickle
 from abc import ABC, abstractmethod,ABCMeta
 
-from adept.config import RAW_DATA_DIR, taxonomic_groups, logger, PROCESSED_DATA_DIR, DATA_DIR
+from adept.config import taxonomic_groups, logger, PROCESSED_DATA_DIR, DATA_DIR, INTERMEDIATE_DATA_DIR
 from adept.tasks.pipeline import PipelineTask
 from adept.tasks.base import BaseTask
+from adept.tasks.descriptions.ecoflora import EcofloraDescriptionTask
+from adept.tasks.descriptions.efloras import EflorasChinaDescriptionTask, EflorasMossChinaDescriptionTask, EflorasNorthAmericaDescriptionTask, EflorasPakistanDescriptionTask
+from adept.utils.helpers import list_uuid
 
 class AggregateBaseTask(BaseTask, metaclass=ABCMeta):
     
@@ -88,16 +89,10 @@ class AggregateTask(AggregateBaseTask):
     def _get_taxa_and_group(self):
         for taxon in self.taxon_names:
             yield taxon, self.taxonomic_group
-
-    @property           
-    def uuid(self):
-        """
-        Create a uuid from the names list to use as a unique file output name
-        """
-        return uuid.uuid5(uuid.NAMESPACE_URL, str(pickle.dumps(self.taxon_names))).hex 
         
     def output(self):
-        return luigi.LocalTarget(PROCESSED_DATA_DIR / f'{self.uuid}.traits.xlsx')                  
+        uuid = list_uuid(self.taxon_names)
+        return luigi.LocalTarget(PROCESSED_DATA_DIR / f'{uuid}.traits.xlsx')                  
                     
 class AggregateFileTask(AggregateBaseTask):
     
@@ -156,11 +151,59 @@ class AggregateFileTask(AggregateBaseTask):
         output_file_name = Path(self.file_path).stem
         return luigi.LocalTarget(PROCESSED_DATA_DIR / f'{output_file_name}.traits.xlsx')           
     
+class AggregateDescriptionsTask(BaseTask):    
+    """
+    Aggregate descriptions 
+
+    Args:
+        BaseTask (_type_): _description_
+    """
+        
+    taxon_names = luigi.ListParameter()
+
+    def requires(self):
+        for taxon in self.taxon_names:
+            yield from [
+                EcofloraDescriptionTask(taxon=taxon),
+                EflorasNorthAmericaDescriptionTask(taxon=taxon),
+                EflorasChinaDescriptionTask(taxon=taxon),
+                EflorasMossChinaDescriptionTask(taxon=taxon),
+                EflorasPakistanDescriptionTask(taxon=taxon),
+            ]    
+        
+    def run(self):
+        data = []
+        for i in self.input():
+            taxon = Path(i.path).stem
+            with i.open('r') as f:
+                if description := f.read():    
+                    data.append({
+                        'taxon': taxon,
+                        'description':description
+                    })
+        
+        pd.DataFrame(data).to_csv(self.output().path, index=False)
     
-    
+    def output(self):
+        uuid = list_uuid(self.taxon_names)
+        return luigi.LocalTarget(PROCESSED_DATA_DIR / f'{uuid}.descriptions.csv')    
     
 if __name__ == "__main__":    
+    
+    
+    
     # luigi.build([AggregateTask(taxon_names=["Acer caudatum"], taxonomic_group='angiosperm', force=True)], local_scheduler=True)    
     
     file_path = DATA_DIR / 'input/north-american-assessments.csv'
-    luigi.build([AggregateFileTask(taxonomic_group='angiosperm', force=True, file_path=file_path)], local_scheduler=True)
+    # luigi.build([AggregateFileTask(taxonomic_group='angiosperm', force=True, file_path=file_path)], local_scheduler=True)
+    
+    
+    taxa = [        
+        "Gluta gracilis",
+        "Sium sisarum",
+        "Breynia pierrei",
+        "Ilex pubilimba",
+        "Ilex cinerea",        
+    ]
+    luigi.build([AggregateDescriptionsTask(taxon_names=taxa, force=True)], local_scheduler=True)
+    
