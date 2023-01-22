@@ -20,7 +20,7 @@ vars:
   lang: "en"
   version: "0.0.1"
   # Set your GPU ID, -1 is CPU
-  gpu_id: 1
+  gpu_id: 0
   # Vectors model for train-with-vectors
   # vectors_model: "en_core_web_trf"
   vectors_model: "en_core_web_lg"  
