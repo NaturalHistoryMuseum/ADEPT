@@ -2,38 +2,54 @@
 # https://spacy.io/usage/training#config
 # https://explosion.ai/blog/spacy-v3-project-config-systems#spacy-config-system
 # https://stackoverflow.com/questions/72904855/no-pos-tags-in-newly-trained-spacy-ner-model-how-to-enable
+# https://github.com/explosion/spaCy/discussions/6777
+
+# Transformer example: https://github.com/explosion/projects/blob/1ba2ba72ca3a0edb2dee1b8b8f0f7b2bffe53c87/tutorials/ner_pytorch_medical/configs/spacy_config_trf.cfg
+# https://github.com/explosion/projects/blob/1ba2ba72ca3a0edb2dee1b8b8f0f7b2bffe53c87/tutorials/textcat_goemotions/configs/bert.cfg
+
+# It's using tok2vec spacy-transformers
+
+# https://github.com/explosion/spaCy/discussions/10330
+# 
 
 title: ""
 description: ""
 
 vars:
-  name: "ner_demo"
+  name: "numeric_ner"
   lang: "en"
   version: "0.0.1"
   # Set your GPU ID, -1 is CPU
-  gpu_id: -1
+  gpu_id: 1
   # Vectors model for train-with-vectors
-  vectors_model: "en_core_web_trf"
+  # vectors_model: "en_core_web_trf"
+  vectors_model: "en_core_web_lg"  
+  dir: 
+    corpus: 'data/corpus'
+    assets: 'data/assets'
+    training: 'data/training'
+    packages: 'data/packages'
   file:
-    train: 
-      json: "data/assets/train_numeric.json"
-      spacy: "data/corpus/train_numeric.spacy"
-    test: 
-      json: "data/assets/test_numeric.json"
-      spacy: "data/corpus/test_numeric.spacy"
+    train: '${vars.dir.assets}/train_numeric.json'
+    spacy:
+      train: '${vars.dir.corpus}/train_numeric.spacy'    
+      test: '${vars.dir.corpus}/test_numeric.spacy' 
+      val: '${vars.dir.corpus}/val_numeric.spacy' 
 
-
-directories: ["data/assets", "data/corpus", "configs", "training", "scripts"]
+directories: ['data/corpus', 'data/assets', 'data/packages', 'data/training', "configs", "scripts"]
 
 assets:
-  - dest: "${vars.file.train.json}"
-  - dest: "${vars.file.test.json}"
+  - dest: "${vars.file.train}"
+  - dest: "${vars.dir.corpus}"
+  - dest: "${vars.dir.training}"
+  - dest: "${vars.dir.assets}"
+  - dest: "${vars.dir.packages}"
 
 workflows:
   all:
     - convert
     - init-config
-    - train-trf
+    - train
     - evaluate
 
 commands:
@@ -45,63 +61,60 @@ commands:
   - name: "convert"
     help: "Convert the data to spaCy's binary format"
     script:
-      # FIXME: Create scripts dir 
-      - python configs/ner_demo/scripts/convert.py ${vars.lang} ${vars.file.test.json} ${vars.file.test.spacy}
-      - python configs/ner_demo/scripts/convert.py ${vars.lang} ${vars.file.train.json} ${vars.file.train.spacy}
-      # - "python -m spacy convert ${vars.file.train.json} data/corpus"
-      # - "python -m spacy convert ${vars.file.test.json} data/corpus"
+      - python scripts/convert.py ${vars.lang} ${vars.file.train} ${vars.dir.corpus}
     deps:
-      - "${vars.file.train.json}"
-      - "${vars.file.test.json}"
+      - "${vars.file.train}"
     outputs:
-      - "${vars.file.train.spacy}"
-      - "${vars.file.test.spacy}"
+      - "${vars.file.spacy.train}"
+      - "${vars.file.spacy.test}"
+      - "${vars.file.spacy.val}"
 
   - name: "init-config"
     help: "Fill config defaults"
     script:
       - "python -m spacy init fill-config configs/base_config.cfg configs/config.cfg"      
+      - "python -m spacy init fill-config configs/base_trf_config.cfg configs/trf_config.cfg"
 
   - name: "train"
     help: "Train the NER model"
     script:
-      - "python -m spacy train configs/config.cfg --output training/ --paths.train ${vars.file.train.spacy} --paths.dev ${vars.file.test.spacy} --gpu-id ${vars.gpu_id}"
+      - "python -m spacy train configs/config.cfg --output ${vars.dir.training} --paths.train ${vars.file.spacy.train} --paths.dev ${vars.file.spacy.val} --gpu-id ${vars.gpu_id} --initialize.vectors ${vars.vectors_model}"
     deps:
       - "configs/config.cfg"
-      - "${vars.file.train.spacy}"
-      - "${vars.file.test.spacy}"
+      - "${vars.file.spacy.train}"
+      - "${vars.file.spacy.val}"
     outputs:
-      - "training/model-best"
+      - "${vars.dir.training}/model-best"
 
   - name: "train-trf"
     help: "Train the NER model with vectors"
     script:
-      - "python -m spacy train configs/config.cfg --output training/ --paths.train ${vars.file.train.spacy} --paths.dev ${vars.file.test.spacy} --gpu-id ${vars.gpu_id} --initialize.vectors ${vars.vectors_model}"
+      - "python -m spacy train configs/trf_config.cfg --output ${vars.dir.training} --paths.train ${vars.file.spacy.train} --paths.dev ${vars.file.spacy.val} --gpu-id ${vars.gpu_id}"
     deps:
       - "configs/config.cfg"
-      - "${vars.file.train.spacy}"
-      - "${vars.file.test.spacy}"
+      - "${vars.file.spacy.train}"
+      - "${vars.file.spacy.val}"
     outputs:
-      - "training/model-best"
+      - "${vars.dir.training}/model-best"
 
   - name: "evaluate"
     help: "Evaluate the model and export metrics"
     script:
-      - "python -m spacy evaluate training/model-best corpus/dev.spacy --output training/metrics.json"
+      - "python -m spacy evaluate ${vars.dir.training}/model-best ${vars.file.spacy.test} --output ${vars.dir.training}/metrics.json"
     deps:
-      - "corpus/dev.spacy"
-      - "training/model-best"
+      - "${vars.file.spacy.test}"
+      - "${vars.dir.training}/model-best"
     outputs:
-      - "training/metrics.json"
+      - "${vars.dir.training}/metrics.json"
 
   - name: package
     help: "Package the trained model as a pip package"
     script:
-      - "python -m spacy package training/model-best packages --name ${vars.name} --version ${vars.version} --force"
+      - "python -m spacy package ${vars.dir.training}/model-best ${vars.dir.packages} --name ${vars.name} --version ${vars.version} --force"
     deps:
-      - "training/model-best"
+      - "${vars.dir.training}/model-best"
     outputs_no_cache:
-      - "packages/${vars.lang}_${vars.name}-${vars.version}/dist/${vars.lang}_${vars.name}-${vars.version}.tar.gz"
+      - "${vars.dir.packages}/${vars.lang}_${vars.name}-${vars.version}/dist/${vars.lang}_${vars.name}-${vars.version}.tar.gz"
 
   - name: visualize-model
     help: Visualize the model's output interactively using Streamlit
