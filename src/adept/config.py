@@ -15,6 +15,7 @@ DATA_DIR = Path(ROOT_DIR / 'data')
 RAW_DATA_DIR = Path(DATA_DIR / 'raw')
 INTERMEDIATE_DATA_DIR = Path(DATA_DIR / 'intermediate')
 PROCESSED_DATA_DIR = Path(DATA_DIR / 'processed')
+PACKAGES_DATA_DIR = Path(DATA_DIR / 'packages')
 
 CACHE_DIR = Path(ROOT_DIR / '.cache')
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
