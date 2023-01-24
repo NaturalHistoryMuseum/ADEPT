@@ -26,7 +26,7 @@ vars:
   version: "0.0.1"
   # Set your GPU ID, -1 is CPU
   # gpu_id: 0
-  gpu_id: 0
+  gpu_id: -1
   vectors_model: "en_core_web_sm"  
   dir: 
     corpus: 'data/corpus'
@@ -110,7 +110,7 @@ commands:
       - "python -m spacy evaluate ${vars.dir.training}/model-best ${vars.file.spacy.test} --output ${vars.dir.training}/metrics.json --code ${vars.file.code}"
     deps:
       - "${vars.file.spacy.test}"
-      - "${vars.dir.training}/numeric/model-best"
+      - "${vars.dir.training}/model-best"
     outputs:
       - "${vars.dir.training}/metrics.json"
 
