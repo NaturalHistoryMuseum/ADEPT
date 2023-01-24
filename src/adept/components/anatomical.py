@@ -18,10 +18,10 @@ from adept.tasks.patterns.anatomy import AnatomyPatternsTask, AnatomicalPartsTas
 
 class AnatomicalEntity(EntityRuler, BaseComponent):
     
-    name = 'anatomical_entity'
+    # name = 'anatomical_entity'
     
-    # We want this to run before the main NER, so it will 
-    pipeline_config = {'before': 'ner'}        
+    # # We want this to run before the main NER, so it will 
+    # pipeline_config = {'before': 'ner'}        
     patterns_file_path = AnatomyPatternsTask().output().path
     anatomical_parts_file_path = Path(AnatomicalPartsTask().output().path)
     

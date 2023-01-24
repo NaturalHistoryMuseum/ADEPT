@@ -1,21 +1,23 @@
+import spacy
+from spacy.language import Language
+from spacy.tokens import Doc
 
-from adept.components.base import BaseComponent
 
-class Sentencizer(BaseComponent):
+
+class SentencizerComponent:
     
     """
     Sentencizer, to split sentences on semicolons and periods.
     
-    NB: If we just add is_sent_start for each semicolon, the default
+    If we just add is_sent_start for each semicolon, the default
     parser will split incorrectly
     """
     
-    name = 'custom_sentencizer'
-
-    pipeline_config = {'first': True}
-
-    def __call__(self, doc):
-        
+    def __init__(self, nlp: Language):
+        self.nlp = nlp
+        print('FFFF')    
+    
+    def __call__(self, doc):        
         for token in doc[1:]:
             if self._is_sent_end(doc, doc[token.i - 1]):
                 token.is_sent_start = True
