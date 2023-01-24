@@ -8,6 +8,7 @@ __pycache__/
 data/training
 data/intermediate
 data/packages
+temp
 
 # C extensions
 *.so
