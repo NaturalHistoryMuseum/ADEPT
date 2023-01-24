@@ -10,27 +10,34 @@
 # It's using tok2vec spacy-transformers
 
 # https://github.com/explosion/spaCy/discussions/10330
-# 
+# https://github.com/explosion/projects/blob/15e180e28d834ee594ea4b8154c5132d7895bc23/experimental/coref/project.yml
+
+
+
 
 title: ""
 description: ""
 
+spacy_version: ">=3.3.0,<4.0.0"
+
 vars:
-  name: "numeric_ner"
+  name: "adept"
   lang: "en"
   version: "0.0.1"
   # Set your GPU ID, -1 is CPU
+  # gpu_id: 0
   gpu_id: 0
-  # Vectors model for train-with-vectors
-  # vectors_model: "en_core_web_trf"
-  vectors_model: "en_core_web_lg"  
+  vectors_model: "en_core_web_sm"  
   dir: 
     corpus: 'data/corpus'
     assets: 'data/assets'
     training: 'data/training'
     packages: 'data/packages'
+    config: 'configs'
+    scripts: 'scripts'
   file:
     train: '${vars.dir.assets}/train_numeric.json'
+    code: '${vars.dir.scripts}/components.py'
     spacy:
       train: '${vars.dir.corpus}/train_numeric.spacy'    
       test: '${vars.dir.corpus}/test_numeric.spacy' 
@@ -48,7 +55,7 @@ assets:
 workflows:
   all:
     - convert
-    - init-config
+    - fill-config
     - train
     - evaluate
 
@@ -69,29 +76,29 @@ commands:
       - "${vars.file.spacy.test}"
       - "${vars.file.spacy.val}"
 
-  - name: "init-config"
+  - name: "fill-config"
     help: "Fill config defaults"
     script:
-      - "python -m spacy init fill-config configs/base_config.cfg configs/config.cfg"      
-      - "python -m spacy init fill-config configs/base_trf_config.cfg configs/trf_config.cfg"
+      - "python -m spacy init fill-config ${vars.dir.config}/base_config.cfg ${vars.dir.config}/config.cfg --code ${vars.file.code}"      
+      - "python -m spacy init fill-config ${vars.dir.config}/base_trf_config.cfg ${vars.dir.config}/trf_config.cfg --code ${vars.file.code}"
 
   - name: "train"
     help: "Train the NER model"
     script:
-      - "python -m spacy train configs/config.cfg --output ${vars.dir.training} --paths.train ${vars.file.spacy.train} --paths.dev ${vars.file.spacy.val} --gpu-id ${vars.gpu_id} --initialize.vectors ${vars.vectors_model}"
+      - "python -m spacy train ${vars.dir.config}/config.cfg --output ${vars.dir.training} --paths.train ${vars.file.spacy.train} --paths.dev ${vars.file.spacy.val} --gpu-id ${vars.gpu_id} --initialize.vectors ${vars.vectors_model} --code ${vars.file.code}"
     deps:
-      - "configs/config.cfg"
+      - "${vars.dir.config}/config.cfg"
       - "${vars.file.spacy.train}"
       - "${vars.file.spacy.val}"
     outputs:
       - "${vars.dir.training}/model-best"
 
   - name: "train-trf"
-    help: "Train the NER model with vectors"
+    help: "Train the transformer model"
     script:
-      - "python -m spacy train configs/trf_config.cfg --output ${vars.dir.training} --paths.train ${vars.file.spacy.train} --paths.dev ${vars.file.spacy.val} --gpu-id ${vars.gpu_id}"
+      - "python -m spacy train ${vars.dir.config}/trf_config.cfg --output ${vars.dir.training} --paths.train ${vars.file.spacy.train} --paths.dev ${vars.file.spacy.val} --gpu-id ${vars.gpu_id} --code ${vars.file.code}"
     deps:
-      - "configs/config.cfg"
+      - "${vars.dir.config}/config.cfg"
       - "${vars.file.spacy.train}"
       - "${vars.file.spacy.val}"
     outputs:
@@ -100,26 +107,34 @@ commands:
   - name: "evaluate"
     help: "Evaluate the model and export metrics"
     script:
-      - "python -m spacy evaluate ${vars.dir.training}/model-best ${vars.file.spacy.test} --output ${vars.dir.training}/metrics.json"
+      - "python -m spacy evaluate ${vars.dir.training}/model-best ${vars.file.spacy.test} --output ${vars.dir.training}/metrics.json --code ${vars.file.code}"
     deps:
       - "${vars.file.spacy.test}"
-      - "${vars.dir.training}/model-best"
+      - "${vars.dir.training}/numeric/model-best"
     outputs:
       - "${vars.dir.training}/metrics.json"
 
   - name: package
-    help: "Package the trained model as a pip package"
+    help: "Package the trained numeric model as a pip package"
     script:
-      - "python -m spacy package ${vars.dir.training}/model-best ${vars.dir.packages} --name ${vars.name} --version ${vars.version} --force"
+      - "python -m spacy package ${vars.dir.training}/model-best ${vars.dir.packages} --name ${vars.name} --version ${vars.version} --force --code ${vars.file.code}"
     deps:
-      - "${vars.dir.training}/model-best"
+      - "${vars.dir.training}/numeric/model-best"
     outputs_no_cache:
       - "${vars.dir.packages}/${vars.lang}_${vars.name}-${vars.version}/dist/${vars.lang}_${vars.name}-${vars.version}.tar.gz"
 
   - name: visualize-model
     help: Visualize the model's output interactively using Streamlit
     script:
-      - "streamlit run scripts/visualize_model.py training/model-best \"I saw Shaka Khan in London.\""
+      - "streamlit run scripts/visualize_model.py ${vars.dir.training}/model-best \"I saw Shaka Khan in London.\""
     deps:
       - "scripts/visualize_model.py"
-      - "training/model-best"
+      - "${vars.dir.training}/numeric/model-best"
+
+  - name: "assemble"
+    help: "Assemble all parts into the complete ADEPT pipeline."
+    script:
+      - spacy assemble ${vars.dir.config}/adept.cfg ${vars.dir.training}/adept --code ${vars.dir.config}/components.py
+    deps:
+      - ${vars.dir.training}/numeric/model-best
+      - ${vars.dir.config}/adept.cfg      
