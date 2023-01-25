@@ -22,11 +22,11 @@ class Pipeline():
             AnatomicalEntity,
             DiscreteTraitsEntity,
             CustomTraitsEntity,
-            NumericExpand,
-            NumericDimension,
-            NumericMeasurement,
-            NumericRange,
-            NumericFraction,
+            # NumericExpand,
+            # NumericDimension,
+            # NumericMeasurement,
+            # NumericRange,
+            # NumericFraction,
         ])
         
         self.preprocess = Preprocess()        
