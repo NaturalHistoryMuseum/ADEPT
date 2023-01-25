@@ -15,7 +15,6 @@ class SentencizerComponent:
     
     def __init__(self, nlp: Language):
         self.nlp = nlp
-        print('FFFF')    
     
     def __call__(self, doc):        
         for token in doc[1:]:
