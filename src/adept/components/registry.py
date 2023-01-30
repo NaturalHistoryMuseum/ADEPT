@@ -2,17 +2,17 @@
 from spacy.language import Language
 
 from adept.components.sentencizer import SentencizerComponent
-from adept.components.numeric import NumericRangeComponent
+from adept.components.numeric import NumericComponent
 from adept.components.anatomical import AnatomicalComponent
-from adept.components.traits import NumericTraitsComponent, DiscreteTraitsComponent
+from adept.components.traits import CustomTraitsComponent, DiscreteTraitsComponent
 
 @Language.factory("semicolon_sentencizer")
 def create_sentencizer_component(nlp: Language, name: str):
     return SentencizerComponent(nlp)
 
-@Language.factory("numeric_range")
-def create_numeric_range_component(nlp: Language, name: str):
-    return NumericRangeComponent(nlp)
+@Language.factory("numeric")
+def create_numeric_component(nlp: Language, name: str):
+    return NumericComponent(nlp)
 
 @Language.factory("anatomical_ner")
 def create_anatomical_component(nlp: Language, name: str):
@@ -22,16 +22,16 @@ def create_anatomical_component(nlp: Language, name: str):
 def create_discrete_traits_component(nlp: Language, name: str):
     return DiscreteTraitsComponent(nlp)
 
-@Language.factory("traits_numeric_ner")
+@Language.factory("traits_custom_ner")
 def create_numeric_traits_component(nlp: Language, name: str):
-    return NumericTraitsComponent(nlp)
+    return CustomTraitsComponent(nlp)
 
 
 class ComponentsRegistry(object):
     def __init__(self, nlp):
         self.nlp = nlp
         
-    def add_component(self, name, **kwargs):
+    def add_component(self, name: str, **kwargs):
         """
         Add a component
         name - the language factory name
