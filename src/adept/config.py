@@ -27,16 +27,11 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 taxonomic_groups = ['angiosperm', 'bryophyte', 'pteridophyte', 'gymnosperm']
 
-
-# BHL_API_KEY = os.getenv('BHL_API_KEY')
-
-# MONGO_CONNECTION_STRING = "mongodb://root:pass@localhost:27017"
-
 unit_registry = UnitRegistry()
 unit_registry.default_format = '~P'
 
-measurement_units = ['cm', 'mm', 'm']
-
+measurement_units = ['cm', 'ft', 'm', 'meter', 'metre', 'km', 'kilometer', 'kilometre', 'centimeter', 'centimetre', 'mm', 'millimeter', 'millimetre', 'um', 'micrometer', 'micrometre', 'micron', 'nm', 'nanometer', 'nanometre', 'pm', 'inch']
+volume_units = ['mm³', 'mm3', 'cm³', 'cm3', 'm³', 'm3']
 
 DEBUG = os.getenv('DEBUG')
 
