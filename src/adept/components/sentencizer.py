@@ -1,6 +1,6 @@
 import spacy
 from spacy.language import Language
-from spacy.tokens import Doc
+from spacy.tokens import Doc, Token
 
 
 
@@ -16,27 +16,30 @@ class SentencizerComponent:
     def __init__(self, nlp: Language):
         self.nlp = nlp
     
-    def __call__(self, doc):        
-        for token in doc[1:]:
-            if self._is_sent_end(doc, doc[token.i - 1]):
-                token.is_sent_start = True
+    def __call__(self, doc: Doc) -> Doc:        
+        for token in doc[:-1]:
+            next_token = doc[token.i + 1]
+            if self._is_semicolon(token):
+                next_token.is_sent_start = True
+            elif self._is_period(token):
+                # period then capital: new sentence                 
+                if next_token.shape_.startswith('X'):
+                    next_token.is_sent_start = True
+                # period then number: possibly new sentence. let the default parse evaluate it    
+                elif next_token.shape_.startswith('d'):
+                    next_token.is_sent_start = None
+                else:
+                    next_token.is_sent_start = False
             else:
-                token.is_sent_start = False
+                next_token.is_sent_start = False
+
                 
         return doc
-    
-    def _is_sent_end(self, doc, token):
-        return any([
-            self._is_semicolon(doc, token),
-            self._is_period(doc, token),
-        ])
-    
+
     @staticmethod
-    def _is_semicolon(doc, token):
+    def _is_semicolon(token) -> Token:
         return token.text == ";"
     
     @staticmethod
-    def _is_period(doc, token):
-        next_token = doc[token.i + 1]                
-        # Ensure the next word starts with a capital or a number      
-        return token.text == "." and (next_token.shape_.startswith('X')) 
+    def _is_period(token) -> Token:            
+        return token.text == "."  
