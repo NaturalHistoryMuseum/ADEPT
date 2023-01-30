@@ -34,15 +34,13 @@ class Postproccess():
         return sent._.anatomical_part if sent._.anatomical_part else None
     
     def _process_colours_fields(self, sent: Doc, fields: Fields, part: str):
-        colour_ents = [ent for ent in sent.ents if ent.label_ == 'COLOUR']
+        colour_ents = self._filter_ents(sent, ['COLOUR'])
         for ent in colour_ents:
             fields.upsert(f'{part} colour', 'discrete', ent.lemma_)
             
-    def _process_discrete_fields(self, sent: Doc, fields: Fields, part: str, taxon_group: str):
-        
-        df = self.traits.get_discrete_traits(taxon_group)
-        
-        trait_ents = [ent for ent in sent.ents if ent.label_ == 'TRAIT']
+    def _process_discrete_fields(self, sent: Doc, fields: Fields, part: str, taxon_group: str):        
+        df = self.traits.get_discrete_traits(taxon_group)        
+        trait_ents = self._filter_ents(sent, ['TRAIT'])
         # Process entities     
         for ent in trait_ents:               
             # Match on either term or character 
@@ -56,8 +54,7 @@ class Postproccess():
                 else:
                     mask &= ((df.part.isna()) & (df.unique == True))
                 
-            rows = df[mask]     
-                            
+            rows = df[mask]        
             for row in rows.itertuples():   
                 fields.upsert(row.trait, 'discrete', row.character)   
                 
@@ -68,26 +65,29 @@ class Postproccess():
         
 
     def _process_measurement_fields(self, sent: Doc, fields: Fields, part: str):
-        if sent._.dimensions:     
-            field_name = f'{part} measurement'
-            fields.upsert(field_name, 'dimension', sent._.dimensions[0])
-        elif sent._.measurements:            
-            field_name = f'{part} measurement'
-            fields.upsert(field_name, 'measurement', sent._.measurements)
-        elif sent._.volume_measurements:
-            field_name = f'{part} volume'
-            fields.upsert(field_name, 'volume', sent._.volume_measurements[0])
-            
-            
-    def _process_numeric_fields(self, sent: Doc, fields: Fields):
-        
-        # Process numeric values (those not measurements or dimensions)     
-        numeric_ents = [ent for ent in sent.ents if ent.label_ in ['CARDINAL', 'QUANTITY'] and not (ent[0]._.is_measurement or ent[0]._.is_dimension)]
+        ents = self._filter_ents(sent, ['MEASUREMENT', 'DIMENSION', 'VOLUME'])
+        for ent in ents:
+            field_type = ent.label_.lower()
+            if ent.label_ == 'VOLUME':
+                field_name = f'{part} volume'
+            else:
+                field_name = f'{part} measurement'
 
-        # We use the dependency parse to find nummod noun, that's also an entity     
-        for num_ent in numeric_ents:
-            root = num_ent.root
-            if root.dep_ == 'nummod' and root.head.pos_ == 'NOUN':
-                if ent:= token_get_ent(root.head, ['PART', 'TRAIT']): 
+            fields.upsert(field_name, field_type, ent)            
+            
+    def _process_numeric_fields(self, sent: Doc, fields: Fields):        
+        # Process numeric values (those not measurements or dimensions)     
+        cardinal_ents = self._filter_ents(sent, ['CARDINAL'])       
+        # We use the dependency parse. If cardinal is a numeric modifier of a noun
+        # If dep_nummod noun, if the noun is a part or trait, set the value     
+        for cardinal_ent in cardinal_ents:
+            # The root token of the carinal ent - the one that will contain the ancestral dependency 
+            token = cardinal_ent.root
+            if token.dep_ == 'nummod':
+                if ent := token_get_ent(token.head, ['PART', 'TRAIT']):            
                     field_name = ent._.get("anatomical_part") or ent.lemma_
-                    fields.upsert(f'{field_name} number', 'numeric', num_ent)
+                    fields.upsert(f'{field_name} number', 'numeric', cardinal_ent)
+                
+    @staticmethod
+    def _filter_ents(sent: Span, label: list):
+        return [ent for ent in sent.ents if ent.label_ in label]
