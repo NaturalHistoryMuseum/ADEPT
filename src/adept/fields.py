@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from pathlib import Path
-from spacy.tokens import Span
+from spacy.tokens import Span, Doc
 import re
 import yaml
 
@@ -14,202 +14,122 @@ class Field(ABC):
     
     def __init__(self, name):
         self.name = name
-        self.value = {} if self.unique else set()
-        
+        self.value = set()
+
+    @property
     @abstractmethod
+    def field_type(self):
+        pass        
+        
     def set_value(self, value):
-        pass
+        self.value.add(value)
     
     def get_value(self):
         return ', '.join(self.value)
     
     def __repr__(self):
         return f'{self.__class__.__name__}({self.value})'
-
-class MeasurementField(Field):
     
-    # Length/height measurements are provided first, followed by width. 
-    dimension_axes = ['y', 'x']    
-    unique = True
+class NumericField(Field):
+    
     num_re = re.compile(r'(\d+(?:\.\d+)?)')
-
-    def set_value(self, measurements):        
-        if self.value: 
-            logger.error(f'Field {self.name} already has a value')
-            return
-        self._set_value(measurements)
-        
-    def get_value(self, axis=None, minmax=None, unit=None):
-        if unit:
-            unit = unit_registry(unit)
-        
-        data = {}
-        # Build a dict of the values x.min       
-        for value_axis, value_dict in self.value.items():
-            data.setdefault(value_axis, {})
-            for mm, value in value_dict.items():
-                if unit:
-                    value = self.convert_value(value, unit)
-                data[value_axis][mm] = self._to_string(value)
-
-        # If axis / minmax set, filter the data
-        # FIXME: If minmax set, and not axis, this will fail
-        try:         
-            if axis: data = data[axis]
-            if minmax: data = data[minmax]             
-        except KeyError:
-            # We can ignore this: measurements that have just length will not contain x axis
-            return None       
-        return data
+    field_type = 'numeric'
     
-    @staticmethod 
-    def _to_string(value):
-        # Convert value to string - uses the default formatting set in adept.config unit_registry.default_format  
-        return f'{value}'
-
-    @staticmethod 
-    def convert_value(value, unit):
-        if value:
-            return value.to(unit)
+    def set_value(self, ent: Span):
+        self.value = self._get_ent_value(ent)
         
-    def _set_value(self, measurements):  
-        # If we have two measurements, treat them as y, x         
-        if len(measurements) == 2:
-            for axis, measurement in zip(self.dimension_axes, measurements):
-                self._set_axis_value(axis, measurement, measurement._.measurement_unit)
-        elif len(measurements) == 1:
-            measurement = measurements[0]
-            self._set_axis_value(self.dimension_axes[0], measurement, measurement._.measurement_unit)
-        
-    def _set_axis_value(self, axis, measurement: Span, unit):
-        if value := self._get_minmax_value(measurement, unit):
-            self.value[axis] = value
-
-    def _get_minmax_value(self, measurement: Span, unit):
-        # Some measurements are detected, but have no unit. 
-        # E.g. Petals white, suborbicular, 6-7 x 5-6.
-        # No unit = do not use the measurement        
-        if not unit: return
-        value_dict = self._get_ent_value(measurement)
-        unpack = lambda ks: ([v for k in ks if (v := value_dict.get(k))])
-
-        return {
-            'min': self._to_unit(min(unpack(['lower', 'from']), default=None), unit),
-            'max': self._to_unit(max(unpack(['to', 'upper']), default=None), unit)
-        }
-        
-    @staticmethod
-    def _to_unit(value, unit):
-        if value:
-            # FIXME: ANother added just to get it to run
-            try:
-                return float(value) * unit
-            except ValueError:
-                return None
+    def get_value(self):
+        return {k: str(v) for k, v in self.value.items()}
     
     def _get_ent_value(self, ent: Span):
         if ent._.numeric_range:
             value = ent._.numeric_range
         else:
-            # Extract numerical parts from the ent string             
-            numeric = [float(m) for m in self.num_re.findall(ent.text)]
-            value = {'from': min(numeric, default=None), 'to': max(numeric, default=None)} 
-   
-        return value  
-      
+            value = {'from': ent._.numeric_value, 'to': ent._.numeric_value}                
+        return self._to_min_max(value)
+
+
+    def _to_min_max(self, value_dict):
+        unpack = lambda ks: ([v for k in ks if (v := value_dict.get(k))])
+        return {
+            'min': min(unpack(['lower', 'from']), default=None),
+            'max': max(unpack(['to', 'upper']), default=None)
+        }  
+
+class MeasurementField(NumericField):
+    
+    field_type = 'measurement'
+    
+    def __init__(self, name):
+        self.name = name
+        self.value = {}
+    
+    # Length/height measurements are provided first, followed by width. 
+    dimension_axes = ['y', 'x']    
+
+    def set_value(self, ent, axis = None):   
+        
+        if len(self.value) == 2:
+            logger.error(f'Field {self.name} already has a value')
+            return
+        
+        if not axis:    
+            axis = self.dimension_axes[len(self.value)]
+
+        self._set_value(ent, axis)
+        
+    def get_value(self, target_unit=None):
+        data = {}        
+        for axis in self.dimension_axes:
+            if axis in self.value: 
+                data[axis] = {k: self._format_output(v, target_unit) for k, v in self.value.get(axis).items() if v}
+        return data
+    
+    def _format_output(self, value, target_unit=None):
+        if target_unit:
+            value = value.to(target_unit)
+
+        # Convert value to string - uses the default formatting set in adept.config unit_registry.default_format  
+        return f'{value}'
+
+    def _set_value(self, ent, axis):                  
+        unit = ent._.unit        
+        # Some measurements are detected, but have no unit. 
+        # E.g. Petals white, suborbicular, 6-7 x 5-6.
+        # No unit = do not use the measurement                
+        if not unit:
+            logger.error(f'No unit detected for measurement field {self.name} {ent.text}')
+            return
+        
+        value_dict = self._get_ent_value(ent)
+        value_dict = {x: self._to_unit(y, unit) for x, y in value_dict.items() if y}
+        self.value[axis] = value_dict        
+        
+    def _to_unit(self, value, unit):
+        if value:
+            return value * unit
+         
+
 class DimensionField(MeasurementField):
     
-    def _set_value(self, dimension):        
-        for i, axis in enumerate(self.dimension_axes):                    
-             # 0 => 1; 1 => 0
-            adj_i = (i-1)**2
-            try:
-                ent = dimension.ents[i]
-            except IndexError:
-                # FIXME: This should not be happening for dimensions
-                logger.critical(f'Dimension {i} not found in dimension')                
-            except AttributeError:
-                # FIXME: dimension.ents is a list?
-                # Prunus virginiana
-                logger.critical(f'Dimension {i} not found in dimension')
-            else:
-                # Sometimes the unit is only attached to one of the dimensions e.g. 1.5-2 x 1.7-2.2 cm             
-                unit = ent._.measurement_unit or dimension.ents[adj_i]._.measurement_unit            
-                self._set_axis_value(axis, ent, unit)  
+    def set_value(self, ent: Span):   
+        ents = ent._.get("dimension_parts")        
+        for axis, dim_ent in zip(self.dimension_axes, ents):        
+            self._set_value(dim_ent, axis)
+
 
 class VolumeField(MeasurementField):   
-    def _set_value(self, volume):          
-        self.value = self._get_minmax_value(volume, volume._.measurement_unit)
+    def _set_value(self, ent: Span):          
+        self.value = self._get_minmax_value(ent, ent._.measurement_unit)
 
-    def get_value(self, minmax=None, unit=None):
-        if unit:
-            unit = unit_registry(unit)        
-        data = {}        
-        for mm, value in self.value.items():
-            if unit:
-                value = self.convert_value(value, unit)  
-            data[mm] = self._to_string(value)
-        if minmax: data = data[minmax]
-        return data    
-    
+    def get_value(self, target_unit=None):           
+        return {k: self._format_output(v, target_unit) for k, v in self.value.items()}
+
             
 class DiscreteField(Field):
-    def set_value(self, value):
-        self.value.add(value)
-
-class NumericField(Field):
-    def set_value(self, num_ent: Span):
-        # FIXME: This could be a numeric range num_ent._.get("numeric_range")
-        self.value = num_ent.text
-    def get_value(self):
-        return self.value
-
-class FieldOutputTemplate():
     
-    """
-    Load output field defintions from a template file, and map the output to the field names
-    We do this, so th eoutput can be prepared for AC
-    """
-    
-    regexes = {
-        'unit': re.compile('\[([a-z³]+)\]'),
-        'minmax': re.compile(r'\b(min|max)\b'),
-        'axis': re.compile(r'\b(x|y)\b')
-    }
-
-    def __init__(self, template_path: Path):
-        with template_path.open('r') as f:
-            self._tpl = yaml.full_load(f)
-        
-    def get_data(self, fields):
-        return {src: self._get_value(src, targets, fields) for src, targets in self._tpl.items()}
-        
-    def _get_value(self, src, targets, fields):        
-        # Template can have a list of targets - so if just a string convert to a list         
-        if not isinstance(targets, list):
-            targets = [targets]
-            
-        for target in targets:
-            if value := self._get_field_value(src, target, fields):
-                return value
-            
-    def _get_field_value(self, src, target, fields):        
-        field_dict = {}
-        self._re('unit', src, field_dict)
-        if target:
-            field_name = target.split('.')[0]
-            self._re('minmax', target, field_dict)
-            self._re('axis', target, field_dict)
-        else:
-            field_name = src
-
-        if field := fields.get(field_name):
-            return field.get_value(**field_dict)
-            
-    def _re(self, name, field_name, field_dict):        
-        if match := self.regexes[name].search(field_name):
-            field_dict[name] = match.group(1)
-        
+    field_type = 'discrete'
+ 
 class Fields(object):
     
     _classes = {
@@ -219,6 +139,8 @@ class Fields(object):
         'numeric': NumericField,
         'volume': VolumeField,
     }    
+    
+    re_unit = re.compile('\[([a-z³]+)\]')
     
     def __init__(self):
         self._fields = OrderedDict()
@@ -233,19 +155,35 @@ class Fields(object):
     def _factory(self, field_type, field_name):
         return self._classes[field_type](field_name)  
     
-    def to_dict(self):
+    def to_dict(self, field_configs={}):
         data = OrderedDict()
-        for field in self._fields.values():    
-            value = field.get_value()
-            value_dict = {field.name: value}
-            if isinstance(value, dict):
-                # We want to turn measurement dicts etc into single dimension dicts e.g.
-                # {'field_name': {'y': {'min': 40.0, 'max': 100.0}}} => {'field_name.y.min': 40.0, 'field_name.y.max': 100.0}
-                value_dict = flatten_dict(value_dict)
-            data.update(value_dict)   
+        for field in self._fields.values():
+            field_config = field_configs.get(field.name, {})
+            if value := field.get_value(**field_config):            
+                value_dict = {field.name: value}
+                if isinstance(value, dict):
+                    # We want to turn measurement dicts etc into single dimension dicts e.g.
+                    # {'field_name': {'y': {'min': 40.0, 'max': 100.0}}} => {'field_name.y.min': 40.0, 'field_name.y.max': 100.0}
+                    value_dict = flatten_dict(value_dict)
+                data.update(value_dict)                   
         return data   
     
     def to_template(self, template_path: Path):
-        tpl = FieldOutputTemplate(template_path)
-        return tpl.get_data(self._fields)
+
+        with template_path.open('r') as f:
+            field_mappings = yaml.full_load(f)         
         
+        field_configs = {field_name.split('.')[0]: {'target_unit': unit} for template_name, field_name in field_mappings.items() if (unit := self.extract_unit(template_name))}
+        data_dict = self.to_dict(field_configs)
+        
+        def _get_value(field_name):
+            field_names = field_name if isinstance(field_name, list) else [field_name] 
+            for field_name in field_names:
+                if value := data_dict.get(field_name):
+                    return value
+        
+        return OrderedDict([(template_name, _get_value(field_name or template_name)) for template_name, field_name in field_mappings.items()])
+
+    def extract_unit(self, string):        
+        if match := self.re_unit.search(string):
+            return match.group(1)
