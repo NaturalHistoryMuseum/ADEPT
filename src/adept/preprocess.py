@@ -26,6 +26,7 @@ class PreprocessAbbreviations(object):
         'fl': 'flower',
         'fls': 'flowers',
         'flrs': 'flowers',
+        'fld': 'flowered',
         'fr': 'fruit',
         'frt': 'fruit',
         'frts': 'fruits',
@@ -43,7 +44,7 @@ class PreprocessAbbreviations(object):
     }
 
     def __init__(self):
-        self._re_abbreviations = re.compile(r'(?=\-|\b)(%s)(?=\s|$|[:,\-\.])' % '|'.join(
+        self._re_abbreviations = re.compile(r'(?=\-|\b)(%s)(?:\.|\b)' % '|'.join(
             [f'{k}' for k in self.abbrv.keys()]
         ), re.IGNORECASE)
         self._sentence_end_commas = re.compile(r',(\s+[A-Z])')        
@@ -135,8 +136,8 @@ class Preprocess(object):
     preprocessors = [
         PreprocessFractions(),
         PreprocessAbbreviations(),
-        PreprocessConjoined(),
-        PreproccessUnicode()
+        PreproccessUnicode(),
+        PreprocessConjoined(),        
     ]
 
     def __call__(self, text):
@@ -147,7 +148,8 @@ class Preprocess(object):
 
 if __name__ == '__main__':
     
-    d = 'Ray florets8-10(-13), 1/2 cm3 and sterile'        
+    d = '2-5(-15) x0.9-2.6 mm'    
+
 
     preproccessor = Preprocess()
     text = preproccessor(d)
