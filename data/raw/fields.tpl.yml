@@ -47,12 +47,20 @@ labellum min. width [cm]: 'labellum measurement.y.min'
 labellum max. width [cm]: 'labellum measurement.y.min'
 reproduction architecture:
 reproduction system:
-stamen number: stamen number
+stamen number: 
+  - stamen number.min
+  - stamen number.max
 stamen arrangement:
-stamenoids number: stamenoid number
+stamenoid number: 
+  - stamenoid number.min
+  - stamenoid number.max
+stamens length min. [cm]: stamens measurement.y.min
+stamens length max. [cm]: stamens measurement.y.max
 carpel/ovary number:
-  - carpel number
-  - ovary number
+  - carpel number.min
+  - carpel number.max
+  - ovary number.min
+  - ovary number.max
 gynoecium arrangement:
 pollination:
 fruit type:
