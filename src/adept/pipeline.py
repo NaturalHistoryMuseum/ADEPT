@@ -1,34 +1,24 @@
 import spacy
 
 from adept.components.registry import ComponentsRegistry
-from adept.components.sentencizer import Sentencizer
-from adept.components.numeric import (NumericDimension, NumericExpand, NumericFraction, NumericMeasurement, NumericRange)
-from adept.components.anatomical import AnatomicalEntity
-from adept.components.traits import DiscreteTraitsEntity
-from adept.components.traits import CustomTraitsEntity
 from adept.preprocess import Preprocess
 from adept.postprocess import Postproccess
+from adept.config import TRAINING_DIR
 
 
 class Pipeline():
     
     def __init__(self):
 
-        self.nlp = spacy.load("en_core_web_trf")
+        # self.nlp = spacy.load("en_core_web_trf")        
+        self.nlp = spacy.load(TRAINING_DIR / 'adept')
         
-        registry = ComponentsRegistry(self.nlp)
-        registry.add_components([
-            Sentencizer,
-            AnatomicalEntity,
-            DiscreteTraitsEntity,
-            CustomTraitsEntity,
-            # NumericExpand,
-            # NumericDimension,
-            # NumericMeasurement,
-            # NumericRange,
-            # NumericFraction,
-        ])
-        
+        registry = ComponentsRegistry(self.nlp)        
+        registry.add_component('numeric')
+        registry.add_component('anatomical_ner')
+        registry.add_component('traits_ner')
+        registry.add_component('traits_custom_ner')
+                
         self.preprocess = Preprocess()        
         self.postprocess = Postproccess()  
 
