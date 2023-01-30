@@ -8,7 +8,7 @@ import yaml
 from adept.tasks.patterns.anatomy import AnatomyPatternsTask, AnatomicalPartsTask
 
 
-class Anatomicalomponent(EntityRuler):
+class AnatomicalComponent(EntityRuler):
           
     patterns_file_path = AnatomyPatternsTask().output().path
     anatomical_parts_file_path = Path(AnatomicalPartsTask().output().path)
