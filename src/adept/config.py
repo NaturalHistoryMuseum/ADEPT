@@ -9,6 +9,8 @@ import enum
 
 load_dotenv()
 
+BHL_API_KEY = os.getenv('BHL_API_KEY')
+
 ROOT_DIR = Path(__file__).parent.parent.parent.resolve()
 
 DATA_DIR = Path(ROOT_DIR / 'data')
@@ -17,6 +19,8 @@ INTERMEDIATE_DATA_DIR = Path(DATA_DIR / 'intermediate')
 PROCESSED_DATA_DIR = Path(DATA_DIR / 'processed')
 PACKAGES_DIR = Path(DATA_DIR / 'packages')
 TRAINING_DIR = Path(DATA_DIR / 'training')
+MODEL_DIR = Path(DATA_DIR / 'model')
+CORPUS_DIR = Path(DATA_DIR / 'corpus')
 
 CACHE_DIR = Path(ROOT_DIR / '.cache')
 CACHE_DIR.mkdir(parents=True, exist_ok=True)

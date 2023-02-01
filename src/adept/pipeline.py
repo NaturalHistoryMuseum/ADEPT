@@ -14,10 +14,10 @@ class Pipeline():
         self.nlp = spacy.load(TRAINING_DIR / 'adept')
         
         registry = ComponentsRegistry(self.nlp)        
-        registry.add_component('numeric')
-        registry.add_component('anatomical_ner')
-        registry.add_component('traits_ner')
-        registry.add_component('traits_custom_ner')
+        # registry.add_component('numeric')
+        # registry.add_component('anatomical_ner')
+        # registry.add_component('traits_ner')
+        # registry.add_component('traits_custom_ner')
                 
         self.preprocess = Preprocess()        
         self.postprocess = Postproccess()  
