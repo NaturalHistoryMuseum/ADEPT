@@ -1,0 +1,56 @@
+fill-config:
+  cmd: python -m spacy run fill-config
+  script:
+    - python -m spacy init fill-config config/base_config.cfg config/config.cfg
+    - python -m spacy init fill-config config/base_trf_config.cfg config/trf_config.cfg
+  deps: []
+  outs: []
+  spacy_version: 3.4.4
+  spacy_git_version: 77833bfef
+convert:
+  cmd: python -m spacy run convert
+  script:
+    - python scripts/convert.py en assets/train-classifier.csv corpus
+  deps:
+    - path: assets/train-classifier.csv
+      md5: 6069fce061504d67cf438b0e0231a9b8
+  outs:
+    - path: corpus/train.spacy
+      md5: b0c48c5e193be7d5369544da07f00dcf
+    - path: corpus/test.spacy
+      md5: 438d334953049f874f86ec2d68b1da1f
+  spacy_version: 3.4.4
+  spacy_git_version: 77833bfef
+train:
+  cmd: python -m spacy run train
+  script:
+    - 'python -m spacy train config/config.cfg --output training/vector --paths.train
+      corpus/train.spacy --paths.dev corpus/test.spacy --gpu-id -1 --initialize.vectors
+      en_core_sci_sm '
+  deps:
+    - path: config/config.cfg
+      md5: 1d0e52a72697ca44cd478d7dd2335451
+    - path: corpus/train.spacy
+      md5: b0c48c5e193be7d5369544da07f00dcf
+    - path: corpus/test.spacy
+      md5: 438d334953049f874f86ec2d68b1da1f
+  outs:
+    - path: training/vector/model-best
+      md5: e8ceb287f46bac1423e9df530db591a6
+  spacy_version: 3.4.4
+  spacy_git_version: 77833bfef
+evaluate:
+  cmd: python -m spacy run evaluate
+  script:
+    - python -m spacy evaluate training/vector/model-best corpus/test.spacy --output
+      training/vector/metrics.json
+  deps:
+    - path: corpus/test.spacy
+      md5: 438d334953049f874f86ec2d68b1da1f
+    - path: training/vector/model-best
+      md5: e8ceb287f46bac1423e9df530db591a6
+  outs:
+    - path: training/vector/metrics.json
+      md5: a20e8743bd1ca456413e5f7202381eec
+  spacy_version: 3.4.4
+  spacy_git_version: 77833bfef

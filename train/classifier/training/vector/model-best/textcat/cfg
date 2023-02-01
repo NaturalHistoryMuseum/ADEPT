@@ -1,0 +1,8 @@
+{
+  "labels":[
+    "description",
+    "not_description"
+  ],
+  "threshold":0.5,
+  "positive_label":null
+}

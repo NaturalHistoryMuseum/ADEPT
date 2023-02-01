@@ -1,0 +1,131 @@
+title: "Description classifier"
+description: "Classifier for predicting if a piece of text is a botancial description."
+
+spacy_version: ">=3.3.0,<4.0.0"
+
+vars:
+  name: "adept-classifier"
+  lang: "en"
+  version: "0.0.1"
+  # Set your GPU ID, -1 is CPU
+  # gpu_id: 0
+  gpu_id: 0
+  vectors_model: "en_core_sci_sm"  
+  dir:
+    corpus: 'corpus'
+    assets: 'assets'
+    training: 'training'
+    packages: 'training/packages'
+    training_vector: '${vars.dir.training}/vector'
+    training_trf: '${vars.dir.training}/trf'
+    config: 'config'
+    scripts: 'scripts'    
+  file:
+    train: '${vars.dir.assets}/train-classifier.csv'
+    code: '${vars.dir.scripts}/components.py'
+    spacy:
+      train: '${vars.dir.corpus}/train.spacy'    
+      test: '${vars.dir.corpus}/test.spacy' 
+
+assets:
+  - dest: "${vars.file.train}"
+  - dest: "${vars.dir.corpus}"
+  - dest: "${vars.dir.training}"
+  - dest: "${vars.dir.assets}"
+  - dest: "${vars.dir.packages}"
+
+# workflows:
+#   all:
+#     - convert
+#     - fill-config
+#     - train
+#     - evaluate
+
+commands:
+  - name: "download"
+    help: "Download a spaCy model with pretrained vectors"
+    script:
+      - "python -m spacy download ${vars.vectors_model}"
+
+  - name: "convert"
+    help: "Convert the data to spaCy's binary format"
+    script:
+      - python ${vars.dir.scripts}/convert.py ${vars.lang} ${vars.file.train} ${vars.dir.corpus}
+    deps:
+      - "${vars.file.train}"
+    outputs:
+      - "${vars.file.spacy.train}"
+      - "${vars.file.spacy.test}"
+
+  - name: "fill-config"
+    help: "Fill config defaults"
+    script:
+      - "python -m spacy init fill-config ${vars.dir.config}/base_config.cfg ${vars.dir.config}/config.cfg"      
+      - "python -m spacy init fill-config ${vars.dir.config}/base_trf_config.cfg ${vars.dir.config}/trf_config.cfg"
+
+  - name: "train"
+    help: "Train the classifier"
+    script:
+      - "python -m spacy train ${vars.dir.config}/config.cfg --output ${vars.dir.training_vector} --paths.train ${vars.file.spacy.train} --paths.dev ${vars.file.spacy.test} --gpu-id -1 --initialize.vectors ${vars.vectors_model} "
+    deps:
+      - "${vars.dir.config}/config.cfg"
+      - "${vars.file.spacy.train}"
+      - "${vars.file.spacy.test}"
+    outputs:
+      - "${vars.dir.training_vector}/model-best"
+
+  - name: "train-trf"
+    help: "Train the transformer model"
+    script:
+      - "python -m spacy train ${vars.dir.config}/trf_config.cfg --output ${vars.dir.training_trf} --paths.train ${vars.file.spacy.train} --paths.dev ${vars.file.spacy.test} --gpu-id ${vars.gpu_id}"
+    deps:
+      - "${vars.dir.config}/config.cfg"
+      - "${vars.file.spacy.train}"
+      - "${vars.file.spacy.test}"
+    outputs:
+      - "${vars.dir.training_trf}/model-best"
+
+  - name: "evaluate"
+    help: "Evaluate the model and export metrics"
+    script:
+      - "python -m spacy evaluate ${vars.dir.training_vector}/model-best ${vars.file.spacy.test} --output ${vars.dir.training_vector}/metrics.json"
+    deps:
+      - "${vars.file.spacy.test}"
+      - "${vars.dir.training_vector}/model-best"
+    outputs:
+      - "${vars.dir.training_vector}/metrics.json"
+
+  - name: "evaluate-trf"
+    help: "Evaluate the model and export metrics"
+    script:
+      - "python -m spacy evaluate ${vars.dir.training_trf}/model-best ${vars.file.spacy.test} --output ${vars.dir.training_trf}/metrics.json"
+    deps:
+      - "${vars.file.spacy.test}"
+      - "${vars.dir.training_trf}/model-best"
+    outputs:
+      - "${vars.dir.training_trf}/metrics.json"      
+
+  # - name: package
+  #   help: "Package the trained numeric model as a pip package"
+  #   script:
+  #     - "python -m spacy package ${vars.dir.training}/model-best ${vars.dir.packages} --name ${vars.name} --version ${vars.version} --force --code ${vars.file.code}"
+  #   deps:
+  #     - "${vars.dir.training}/numeric/model-best"
+  #   outputs_no_cache:
+  #     - "${vars.dir.packages}/${vars.lang}_${vars.name}-${vars.version}/dist/${vars.lang}_${vars.name}-${vars.version}.tar.gz"
+
+  # - name: visualize-model
+  #   help: Visualize the model's output interactively using Streamlit
+  #   script:
+  #     - "streamlit run scripts/visualize_model.py ${vars.dir.training}/model-last \"I saw Shaka Khan in London.\""
+  #   deps:
+  #     - "scripts/visualize_model.py"
+  #     - "${vars.dir.training}/model-best"
+
+  # - name: "assemble"
+  #   help: "Assemble all parts into the complete ADEPT pipeline."
+  #   script:
+  #     - spacy assemble ${vars.dir.config}/adept.cfg ${vars.dir.training}/adept --code ${vars.file.code}
+  #   deps:
+  #     - ${vars.dir.training}/model-best
+  #     - ${vars.dir.config}/adept.cfg      

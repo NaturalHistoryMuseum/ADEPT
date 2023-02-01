@@ -1,0 +1,32 @@
+{
+  "token_acc":0.9997307883,
+  "token_p":0.9657353869,
+  "token_r":0.9866186523,
+  "token_f":0.9760653311,
+  "cats_score":0.9545080908,
+  "cats_score_desc":"macro F",
+  "cats_micro_p":0.9781879195,
+  "cats_micro_r":0.9781879195,
+  "cats_micro_f":0.9781879195,
+  "cats_macro_p":0.9499860491,
+  "cats_macro_r":0.9591676948,
+  "cats_macro_f":0.9545080908,
+  "cats_macro_auc":0.9909663566,
+  "cats_f_per_type":{
+    "description":{
+      "p":0.9107142857,
+      "r":0.9329268293,
+      "f":0.921686747
+    },
+    "not_description":{
+      "p":0.9892578125,
+      "r":0.9854085603,
+      "f":0.9873294347
+    }
+  },
+  "cats_auc_per_type":{
+    "description":0.9909663566,
+    "not_description":0.9909663566
+  },
+  "speed":235277.9427227178
+}
