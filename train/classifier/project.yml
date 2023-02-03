@@ -98,7 +98,7 @@ commands:
   - name: "evaluate-trf"
     help: "Evaluate the model and export metrics"
     script:
-      - "python -m spacy evaluate ${vars.dir.training_trf}/model-best ${vars.file.spacy.test} --output ${vars.dir.training_trf}/metrics.json"
+      - "python -m spacy evaluate ${vars.dir.training_trf}/model-best ${vars.file.spacy.test} --output ${vars.dir.training_trf}/metrics.json --gpu-id ${vars.gpu_id}"
     deps:
       - "${vars.file.spacy.test}"
       - "${vars.dir.training_trf}/model-best"

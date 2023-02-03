@@ -20,7 +20,6 @@ class Traits():
         self._connection = sqlite3.connect(RAW_DATA_DIR / "functional_traits.db")
         self.synonyms = self._select_synonyms()        
         self._df = self._get_db_traits()
-        # FIXME: We can here load measurement traits etc.,         
         
     def get_discrete_traits(self, group=None):                
         df = self._get_traits_by_type('discrete', group)
@@ -164,8 +163,8 @@ class SimpleTraitTextClassifier:
     def is_description(self, text):
         words = self._to_lower_set(get_words(text))
         matching_terms = words.intersection(self._trait_terms) if words else [] 
-        if not words or matching_terms:
-            return False
+        if not (words or matching_terms):
+            return False        
         ratio = len(matching_terms) / len(words) 
         # If the percentage of parts is greater than 5% (for short descriptions)
         if ratio >= 0.05 or len(matching_terms) >= 3:

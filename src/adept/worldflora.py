@@ -6,6 +6,8 @@ class WorldFlora():
     
     database = RAW_DATA_DIR / "wfo.db"
     
+    # FIXME: DB file is too large for Github, so lets download it
+    
     def __init__(self):
         conn = sqlite3.connect(self.database)
         conn.row_factory = sqlite3.Row
@@ -47,7 +49,6 @@ class WorldFlora():
         
         if taxon_status == 'ACCEPTED':
             synonyms = self.get_synonyms(taxon['taxonID'])
-            print(synonyms)
         elif taxon_status in ['SYNONYM', 'HOMOTYPICSYNONYM', 'HETEROTYPICSYNONYM']:
             accepted_name = self.get_taxon(taxon['acceptedNameUsageID'])
             names.add(accepted_name['scientificName'])

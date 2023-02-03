@@ -1,21 +1,36 @@
-from adept.config import MODEL_DIR
+from adept.config import MODEL_DIR, CACHE_DIR, TORCH_DEVICE
 from transformers import AutoTokenizer
 import torch
 
-# FIXME - Add map_location if not available
-model = torch.load(MODEL_DIR / 'model.pt', map_location=torch.device('cpu'))
-
-checkpoint = "allenai/scibert_scivocab_cased"
-tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR / 'scibert_scivocab_cased')
-
-def predict(text):
-    tokenised_text = tokenizer(text, truncation=True, max_length=512, return_tensors='pt')
-    model.eval()
+def load_tokeniser(checkpoint):
     
-    with torch.no_grad():
-        outputs = model(**tokenised_text)    
-        
-    logits = outputs.logits
-    predictions = torch.argmax(logits, dim=-1)   
+    tokeniser_path = CACHE_DIR / checkpoint.replace('/', '-')
+    if tokeniser_path.exists():
+        tokenizer = AutoTokenizer.from_pretrained(tokeniser_path)
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+        tokenizer.save_pretrained(tokeniser_path)              
+    return tokenizer
+
+class TextClassifier:  
+
+    model = torch.load(MODEL_DIR / 'en_classifier-scibert.pt', map_location=torch.device(TORCH_DEVICE))
+    tokenizer = load_tokeniser("allenai/scibert_scivocab_cased")
+
+    def tokenise(self, text):
+        return self.tokenizer(text, truncation=True, max_length=512, return_tensors='pt')
     
-    return predictions.numpy().take(0)  
+    def __call__(self, text):
+        tokenised_text = self.tokenise(text)
+        self.model.eval()
+
+        with torch.no_grad():
+            outputs = self.model(**tokenised_text)    
+
+        logits = outputs.logits
+        predictions = torch.argmax(logits, dim=-1)   
+
+        return predictions.numpy().take(0)  
+
+if __name__ == "__main__":
+    TextClassifier()

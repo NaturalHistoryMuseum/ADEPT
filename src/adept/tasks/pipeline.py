@@ -7,8 +7,8 @@ from adept.config import RAW_DATA_DIR, PROCESSED_DATA_DIR, INTERMEDIATE_DATA_DIR
 from adept.traits import Traits
 from adept.utils.patterns import Patterns
 
-from adept.tasks.descriptions.ecoflora import EcofloraDescriptionTask
-from adept.tasks.descriptions.efloras import EflorasChinaDescriptionTask, EflorasMossChinaDescriptionTask, EflorasNorthAmericaDescriptionTask, EflorasPakistanDescriptionTask
+from adept.tasks.descriptions.ecoflora.description import EcofloraDescriptionTask
+from adept.tasks.descriptions.efloras.description import EflorasChinaDescriptionTask, EflorasMossChinaDescriptionTask, EflorasNorthAmericaDescriptionTask, EflorasPakistanDescriptionTask
 from adept.pipeline import Pipeline
 from adept.config import taxonomic_groups, logger
 from adept.tasks.base import BaseTask

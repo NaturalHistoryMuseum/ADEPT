@@ -19,7 +19,7 @@ INTERMEDIATE_DATA_DIR = Path(DATA_DIR / 'intermediate')
 PROCESSED_DATA_DIR = Path(DATA_DIR / 'processed')
 PACKAGES_DIR = Path(DATA_DIR / 'packages')
 TRAINING_DIR = Path(DATA_DIR / 'training')
-MODEL_DIR = Path(DATA_DIR / 'model')
+MODEL_DIR = Path(DATA_DIR / 'models')
 CORPUS_DIR = Path(DATA_DIR / 'corpus')
 
 CACHE_DIR = Path(ROOT_DIR / '.cache')
@@ -37,7 +37,8 @@ unit_registry.default_format = '~P'
 measurement_units = ['cm', 'ft', 'm', 'meter', 'metre', 'km', 'kilometer', 'kilometre', 'centimeter', 'centimetre', 'mm', 'millimeter', 'millimetre', 'um', 'micrometer', 'micrometre', 'micron', 'nm', 'nanometer', 'nanometre', 'pm', 'inch']
 volume_units = ['mm³', 'mm3', 'cm³', 'cm3', 'm³', 'm3']
 
-DEBUG = os.getenv('DEBUG')
+DEBUG = os.getenv('DEBUG') or 0
+TORCH_DEVICE = 'cpu'
 
 http.client.HTTPConnection.debuglevel = DEBUG
 
