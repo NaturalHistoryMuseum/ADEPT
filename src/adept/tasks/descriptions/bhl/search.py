@@ -16,20 +16,17 @@ from urllib.request import urlretrieve
 from requests.models import PreparedRequest
 
 from adept.config import INTERMEDIATE_DATA_DIR, logger, BHL_API_KEY
-from adept.utils.soup import RequestSoup
-from adept.utils.enum import Enum
-from adept.traits import SimpleTraitTextClassifier
-from adept.tasks.descriptions.description import DescriptionTask
-from adept.tasks.base import BaseTask
+from adept.tasks.base import BaseTask, BaseExternalTask
 from adept.utils.request import CachedRequest
+from adept.tasks.descriptions.bhl import BHL_BASE_URL
 
 
-
-class BHLNameListTask(luigi.ExternalTask):
+class BHLNameListTask(BaseExternalTask):
     
     taxon = luigi.Parameter()
     # https://www.biodiversitylibrary.org/namelistdownload/?type=c&name=Ancistrocladus_guineensis
-    base_url = 'https://www.biodiversitylibrary.org/namelistdownload'
+    base_url = f'{BHL_BASE_URL}/namelistdownload'
+    output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'name-list'
     
     def run(self):
         params = {
@@ -41,7 +38,7 @@ class BHLNameListTask(luigi.ExternalTask):
         urlretrieve(req.url, self.output().path)
 
     def output(self):
-        return luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'bhl' / 'name-list' / f'{self.encoded_taxon}.csv')   
+        return luigi.LocalTarget(self.output_dir / f'{self.encoded_taxon}.csv')   
 
     @property
     def encoded_taxon(self):
@@ -59,11 +56,12 @@ class BHLSearchTask(BaseTask):
     """
     
     taxon = luigi.Parameter()
-    endpoint = f'https://www.biodiversitylibrary.org/api3'
+    endpoint = f'{BHL_BASE_URL}/api3'
+    output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'search'
     
     def requires(self):        
         if taxon_name := self._search():
-            return BHLNameListTask(taxon_name) 
+            return BHLNameListTask(taxon=taxon_name) 
         else: 
             logger.warning('No results for %s in efloras', self.taxon)
             
@@ -79,7 +77,7 @@ class BHLSearchTask(BaseTask):
             df.to_csv(self.output().path)
                            
     def output(self):
-        return luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'bhl' / 'search' / f'{self.taxon}.en.csv')              
+        return luigi.LocalTarget(self.output_dir / f'{self.taxon}.en.csv')              
             
     @staticmethod 
     def _detect_language(title):

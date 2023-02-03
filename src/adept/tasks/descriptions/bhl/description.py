@@ -1,4 +1,5 @@
 
+from pydoc import describe
 import luigi
 import json
 import re
@@ -15,99 +16,69 @@ import numpy as np
 from urllib.request import urlretrieve
 from requests.models import PreparedRequest
 from taxonerd import TaxoNERD
+from pathlib import Path
 
 from adept.config import INTERMEDIATE_DATA_DIR, logger, BHL_API_KEY
 from adept.utils.soup import RequestSoup
 from adept.utils.enum import Enum
 from adept.traits import SimpleTraitTextClassifier
-from adept.tasks.descriptions.description import DescriptionTask
+
+
+from adept.bhl.postprocess import BHLPostprocess
 
 from adept.tasks.descriptions.bhl.search import BHLSearchTask
-from adept.tasks.descriptions.bhl.ocr import OCRTask
+from adept.tasks.descriptions.bhl.ocr import BHLAggregateOCRTask
 from adept.tasks.base import BaseTask
-from adept.utils.request import CachedRequest
-
-def something():
-    print("XXX")
-    print("SOMETHING")
-    print("XXX")
-    return
-
-
+   
 
 class BHLDescriptionTask(BaseTask):
-    
-    bhl_id = luigi.IntParameter()
-    # taxonerd = TaxoNERD(prefer_gpu=False)
-    # nlp = taxonerd.load(model="en_core_eco_biobert")
-    some = something()
-    
-    def requires(self):        
-       return OCRTask(bhl_id=self.bhl_id)    
-
-    def run(self):        
-        description = self.get_taxon_description()        
-        with self.output().open('w') as f:
-            f.write(description or '')
-
-    def get_taxon_description(self): 
-        
-        with self.input().open('r') as f:
-            paragraphs =  yaml.safe_load(f)
-            
-               
-        return 'HELLO'
-
-        
-    def output(self):
-        return luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'bhl' / 'text' / f'{self.bhl_id}2.txt')      
-
-class BHLDescriptionsTask(BaseTask):
     
     """
     Search BHL for a taxon            
     """
 
     taxon = luigi.Parameter()
+    output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'description'
+    postprocess = BHLPostprocess()
     
     def requires(self):        
        return BHLSearchTask(taxon=self.taxon)
-        # return BHLDescriptionTask(bhl_id=27274329)
             
     def run(self):
         
+        data = []
         
-        # for page_id in self.page_ids():
-        #     print(page_id)
-        # yield [BHLDescriptionTask(bhl_id=27274329)]
-        
-        # yield self.clone(BHLDescriptionTask, bhl_id=27274329)
-        yield BHLDescriptionTask(bhl_id=27274329)
-                      
+        with self.input().open('r') as f: 
+            df = pd.read_csv(f)
+            bhl_ids = df['page_id'].unique().tolist()
+            agg_task_target = yield BHLAggregateOCRTask(bhl_ids=bhl_ids, taxon=self.taxon)
             
-    def page_ids(self):
-        # with self.input().open('r') as f: 
-        #     df = pd.read_csv(f)
-        #     yield from df['page_id']
-        
-        return [27274329]
-                                    
+        with agg_task_target.open('r') as f:
+            bhl_pages =  yaml.safe_load(f)
+            for page in bhl_pages:
+                if not page.get('text'): continue                
+                if descriptions := list(self.postprocess(self.taxon, page['text'])):
+                    data.append({
+                        'bhl_id': page['bhl_id'],
+                        'source': f"bhl.{page['bhl_id']}",
+                        'taxon': self.taxon,
+                        'description': '\n\n'.join(descriptions) 
+                    })            
+                  
+        with self.output().open('w') as f:
+            f.write(yaml.dump(data, explicit_start=True, default_flow_style=False)) 
+                        
     def output(self):
-        # Not all pf them are descriptions!!!  But do we still want the blank file?? I think so
-        for page_id in self.page_ids():
-            print(page_id)
-            # yield luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'bhl' / 'description' / f'{self.taxon}.{page_id}.txt')              
+        return luigi.LocalTarget(self.output_dir / f'{self.taxon}.yaml')  
 
 
 
-   
-   
     
 if __name__ == "__main__":    
-    
-    # luigi.build([BHLDescriptionsTask(taxon='Metopium toxiferum')], local_scheduler=True) 
-    luigi.build([BHLDescriptionTask(bhl_id=27274329, force=True)], local_scheduler=True)
-    luigi.build([BHLDescriptionTask(bhl_id=37190518, force=True)], local_scheduler=True)
+       
+    # luigi.build([BHLAggregateOCRTask(bhl_ids=l, taxon='Metopium toxiferum')], local_scheduler=True) 
+    luigi.build([BHLDescriptionTask(taxon='Metopium toxiferum')], local_scheduler=True)
+    # luigi.build([BHLDescriptionTask(taxon='Ancistrocladus guineensis', force=True)], local_scheduler=True)
     # luigi.build([BHLDescriptionTask(bhl_id=27274329, force=True)], local_scheduler=True)      
     
     
