@@ -15,11 +15,11 @@ def load_tokeniser(checkpoint):
 class TextClassifier:  
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    
+    # FIXME: Is this nex once we have the model?
     if (MODEL_DIR / 'en_classifier-scibert.pt').exists():
         model = torch.load(MODEL_DIR / 'en_classifier-scibert.pt', map_location=torch.device(device))
     else:
-        logger.critical('Text classifier model not found %s' % MODEL_DIR / 'en_classifier-scibert.pt')
+        logger.critical('Text classifier model missing')
         
     tokenizer = load_tokeniser("allenai/scibert_scivocab_cased")
 
