@@ -11,7 +11,7 @@ vars:
   # gpu_id: 0
   gpu_id: 0
   vectors_model: "en_core_sci_md"
-  trf_model: "allenai/scibert_scivocab_cased"  
+  trf_checkpoint: "allenai/scibert_scivocab_cased"  
   dir:
     corpus: 'corpus'
     assets: 'assets'
@@ -24,6 +24,7 @@ vars:
     scripts: 'scripts'    
   file:
     train: '${vars.dir.assets}/train-classifier.csv'
+    model_path: '${vars.dir.models}/en_classifier-scibert.pt'
     spacy:
       train: '${vars.dir.corpus}/train.spacy'    
       test: '${vars.dir.corpus}/test.spacy' 
@@ -88,7 +89,7 @@ commands:
   - name: "convert-trf"
     help: "Convert the data to transformer database format"
     script:
-      - python ${vars.dir.scripts}/convert_trf.py ${vars.file.train} ${vars.dir.corpus} ${vars.trf_model}
+      - python ${vars.dir.scripts}/convert_trf.py ${vars.file.train} ${vars.dir.corpus} ${vars.trf_checkpoint}
     deps:
       - "${vars.file.train}"
     outputs:
@@ -97,16 +98,16 @@ commands:
   - name: "train-trf"
     help: "Train the transformer model"
     script:
-      - python scripts/train.py ${vars.dir.corpus} ${vars.dir.models} ${vars.trf_model}
+      - python scripts/train.py --dataset-dir ${vars.dir.corpus} --training-dir ${vars.dir.training_trf} --model-path ${vars.file.model_path} --checkpoint ${vars.trf_checkpoint}
     deps:
       - "${vars.file.train}"
 
   - name: "evaluate-trf"
     help: "Convert the data to transformer database format"
     script:
-      - python ${vars.dir.scripts}/evaluation.py ${vars.dir.corpus} ${vars.dir.training}
-    # deps:
-    #   - "${vars.file.train}"
+      - python ${vars.dir.scripts}/evaluation.py --dataset-dir ${vars.dir.corpus} --training-dir ${vars.dir.training_trf} --model-path ${vars.file.model_path} --checkpoint ${vars.trf_checkpoint}
+    deps:
+      - "${vars.file.model_path}"
     # outputs:
     #   - "${vars.dir.corpus}/dataset_dict.json"
 

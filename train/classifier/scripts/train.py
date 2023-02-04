@@ -13,14 +13,19 @@ import torch
 import evaluate
 
 
-from adept.bhl.model import load_tokeniser
+from adept.bhl.tokenizer import load_tokenizer
 
 
-def train(dataset_dir: Path, model_dir: Path, checkpoint: str):
-    
+def train(
+    dataset_dir: Path = typer.Option(None),
+    model_path: Path = typer.Option(None),
+    training_dir: Path = typer.Option(None),
+    checkpoint: str = typer.Option(None)
+    ):
+
     num_epochs = 3
     dataset = DatasetDict.load_from_disk(dataset_dir)
-    tokenizer = load_tokeniser(checkpoint)    
+    tokenizer = load_tokenizer(checkpoint)    
     
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)  
     
