@@ -28,8 +28,9 @@ class BHLPostprocess:
         if not self._re_names.get(taxon):
             names = set([taxon])
             if synonyms := self.wf.get_related_names(taxon):
-                names |= synonyms        
-            names |= {n[1] for name in names if (n := name.split())}
+                names |= synonyms
+            # Add pattern Genus species => G. species
+            names |= {r'{0}\.\s{1}'.format(n[0][0],n[1]) for name in names if (n := name.split())}
             names_pattern = '|'.join(names)
             self._re_names[taxon] = re.compile(fr'{names_pattern}', re.IGNORECASE)   
             

@@ -62,4 +62,4 @@ class PipelineTask(BaseTask):
         return luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'descriptions' / f'{file_name}.json')             
 
 if __name__ == "__main__":    
-    luigi.build([PipelineTask(taxon='Prunus cerasifera', force=True)], local_scheduler=True)  
+    luigi.build([PipelineTask(taxon='Prunus cerasifera')], local_scheduler=True)  

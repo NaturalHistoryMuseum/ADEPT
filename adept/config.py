@@ -7,11 +7,7 @@ from pint import UnitRegistry
 import http.client
 import enum
 
-load_dotenv()
-
-BHL_API_KEY = os.getenv('BHL_API_KEY')
-
-ROOT_DIR = Path(__file__).parent.parent.parent.resolve()
+ROOT_DIR = Path(__file__).parent.parent.resolve()
 
 DATA_DIR = Path(ROOT_DIR / 'data')
 RAW_DATA_DIR = Path(DATA_DIR / 'raw')
@@ -28,6 +24,9 @@ CACHE_DIR.mkdir(parents=True, exist_ok=True)
 LOG_DIR = Path(ROOT_DIR / '.log')
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
+
+load_dotenv(ROOT_DIR / '.env')
+BHL_API_KEY = os.getenv('BHL_API_KEY')
 
 taxonomic_groups = ['angiosperm', 'bryophyte', 'pteridophyte', 'gymnosperm']
 
