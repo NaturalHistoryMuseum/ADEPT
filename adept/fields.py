@@ -39,13 +39,16 @@ class NumericField(Field):
         self.value = self._get_ent_value(ent)
         
     def get_value(self):
-        return {k: str(v) for k, v in self.value.items()}
+        if self.value:
+            return {k: str(v) for k, v in self.value.items()}
     
-    def _get_ent_value(self, ent: Span):
+    def _get_ent_value(self, ent: Span) -> dict:
         if ent._.numeric_range:
             value = ent._.numeric_range
+        elif ent._.numeric_value:
+            value = {'from': ent._.numeric_value, 'to': ent._.numeric_value} 
         else:
-            value = {'from': ent._.numeric_value, 'to': ent._.numeric_value}                
+            return {}               
         return self._to_min_max(value)
 
 
@@ -67,8 +70,7 @@ class MeasurementField(NumericField):
     # Length/height measurements are provided first, followed by width. 
     dimension_axes = ['y', 'x']    
 
-    def set_value(self, ent, axis = None):   
-        
+    def set_value(self, ent, axis = None):           
         if len(self.value) == 2:
             logger.error(f'Field {self.name} already has a value')
             return
@@ -101,9 +103,9 @@ class MeasurementField(NumericField):
             logger.error(f'No unit detected for measurement field {self.name} {ent.text}')
             return
         
-        value_dict = self._get_ent_value(ent)
-        value_dict = {x: self._to_unit(y, unit) for x, y in value_dict.items() if y}
-        self.value[axis] = value_dict        
+        if value_dict := self._get_ent_value(ent):
+            value_dict = {x: self._to_unit(y, unit) for x, y in value_dict.items() if y}
+            self.value[axis] = value_dict        
         
     def _to_unit(self, value, unit):
         if value:
@@ -159,7 +161,7 @@ class Fields(object):
         data = OrderedDict()
         for field in self._fields.values():
             field_config = field_configs.get(field.name, {})
-            if value := field.get_value(**field_config):            
+            if value := field.get_value(**field_config): 
                 value_dict = {field.name: value}
                 if isinstance(value, dict):
                     # We want to turn measurement dicts etc into single dimension dicts e.g.

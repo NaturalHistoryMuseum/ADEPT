@@ -33,7 +33,7 @@ class Traits():
             ], ignore_index=True
         )
         df.drop_duplicates()
-        df = self._set_unique(df)
+        df = self._set_require_part(df)   
         return df
     
     def get_colour_traits(self, group=None):
@@ -58,10 +58,11 @@ class Traits():
             
     def _get_db_group_traits(self, group):
         df = getattr(self, f'_select_{group}_traits')()
+        df = self._set_is_multiple(df)
         df = self._stack_trait_columns(df)                
         df = self._normalise(df)        
         df = self._set_part(df)
-        df = self._set_type(df)
+        df = self._set_type(df)             
         df['group'] = group        
         return df
 
@@ -132,9 +133,12 @@ class Traits():
         return df
     
     def _set_unique(self, df):
+        # Along with the terms explicity marked in the DB, double check for any duplcated terms
+        # Where require part = True, an anatomical part will be required         
         duplicated = df[df.duplicated(subset=['term'], keep=False)].groupby('term').agg({'part':'nunique'})
         non_unique = duplicated[duplicated.part > 1].reset_index()
-        df['unique'] = np.where(~df.term.isin(non_unique.term), True, False)
+        # df['require_part'] = np.where((df.term.isin(non_unique.term)) | (df.is_multiple == True), True, False)     
+        df['is_unique'] = np.where((~df.term.isin(non_unique.term)), True, False)           
         return df
     
     def _set_type(self, df):    
@@ -144,6 +148,12 @@ class Traits():
     def _set_part(self, df):                    
         df['part'] = df['trait'].apply(self._parse_part)    
         return df
+    
+    def _set_is_multiple(self, df):     
+        # Has this term been set in the DB as belonging to multiple characters         
+        # df['is_multiple'] =  df.apply(lambda row: pd.notnull(row['Traits AND/OR Terms'] or (row['Comments'] and 'part' in row['Comments'])), axis=1)
+        df['is_multiple'] = False
+        return df     
     
     def _parse_part(self, trait):    
         for part in [trait, trait.split()[0]]:

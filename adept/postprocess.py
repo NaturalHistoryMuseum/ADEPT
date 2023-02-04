@@ -17,6 +17,7 @@ class Postproccess():
     traits = Traits()
     
     def __call__(self, doc, taxon_group):
+
         fields = Fields()
         for sent in doc.sents:
             part = self._sent_get_part(sent)            
@@ -42,19 +43,47 @@ class Postproccess():
         df = self.traits.get_discrete_traits(taxon_group)        
         trait_ents = self._filter_ents(sent, ['TRAIT'])
         # Process entities     
-        for ent in trait_ents:               
+        for ent in trait_ents:            
+      
             # Match on either term or character 
-            mask = (((df.term == ent.lemma_) | (df.term == ent.text)) | ((df.character == ent.lemma_) | (df.character == ent.text)))
+            mask = (((df.term == ent.lemma_) | (df.term == ent.text)))
+            
             # If the trait ent is a part, no need to filter on part         
             if part != ent.lemma_:
-                # Plant part is an artificial construct, so we treate it as sent having no part             
+
+                # If we have part, allow traits with matching part
                 if part and part != 'plant':
                     mask &= (df.part == part)
-                # If sent has no part, trait must have no part and must be unique             
-                else:
-                    mask &= ((df.part.isna()) & (df.unique == True))
                 
-            rows = df[mask]        
+                # For all, allow where no part and unique
+                mask |= ((df.part.isna()) & (df.is_unique == True))
+            
+            # if part and part != 'plant':
+            #     # If we have a part, filter on part or unique
+            #     # Plant part is an artificial construct, so we treate it as sent having no part
+            #     mask &= ((df.part == part) | (df.is_multiple == False))
+            # else:
+            #     # If sent has no part, trait must have no part and must not be multiple
+            #     mask &= ((df.part.isna()) & (df.is_multiple == False))
+            
+            #          
+            # if part != ent.lemma_:
+            #     print('NOPE')
+            #     print(part)
+            #     # Plant part is an artificial construct, so we treate it as sent having no part             
+            #     if part and part != 'plant':
+            #         mask &= (df.part == part)
+            #     # If sent has no part, trait must have no part and must be unique             
+            #     else:
+            #         mask &= ((df.part.isna()) & (df.unique == True))
+                
+                        
+                
+            rows = df[mask]     
+            
+            # print(ent)
+            # print(rows)
+     
             for row in rows.itertuples():   
                 fields.upsert(row.trait, 'discrete', row.character)   
                 

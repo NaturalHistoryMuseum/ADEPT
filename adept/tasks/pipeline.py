@@ -27,13 +27,14 @@ class PipelineTask(BaseTask):
     def requires(self):
         yield from [
             EcofloraDescriptionTask(taxon=self.taxon),
-            EflorasNorthAmericaDescriptionTask(taxon=self.taxon),
-            EflorasChinaDescriptionTask(taxon=self.taxon),
-            EflorasMossChinaDescriptionTask(taxon=self.taxon),
-            EflorasPakistanDescriptionTask(taxon=self.taxon),            
+            # EflorasNorthAmericaDescriptionTask(taxon=self.taxon),
+            # EflorasChinaDescriptionTask(taxon=self.taxon),
+            # EflorasMossChinaDescriptionTask(taxon=self.taxon),
+            # EflorasPakistanDescriptionTask(taxon=self.taxon),            
         ]
         if is_binomial(self.taxon):
-            yield BHLDescriptionTask(taxon=self.taxon)
+            pass
+            # yield BHLDescriptionTask(taxon=self.taxon)
         
     def run(self):
         data = []
@@ -62,4 +63,4 @@ class PipelineTask(BaseTask):
         return luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'descriptions' / f'{file_name}.json')             
 
 if __name__ == "__main__":    
-    luigi.build([PipelineTask(taxon='Prunus cerasifera')], local_scheduler=True)  
+    luigi.build([PipelineTask(taxon='Potamogeton perfoliatus', force=True)], local_scheduler=True)  
