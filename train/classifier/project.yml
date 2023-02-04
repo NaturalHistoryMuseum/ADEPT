@@ -10,19 +10,20 @@ vars:
   # Set your GPU ID, -1 is CPU
   # gpu_id: 0
   gpu_id: 0
-  vectors_model: "en_core_sci_sm"  
+  vectors_model: "en_core_sci_md"
+  trf_model: "allenai/scibert_scivocab_cased"  
   dir:
     corpus: 'corpus'
     assets: 'assets'
     training: 'training'
     packages: 'training/packages'
+    models: '../models'
     training_vector: '${vars.dir.training}/vector'
     training_trf: '${vars.dir.training}/trf'
     config: 'config'
     scripts: 'scripts'    
   file:
     train: '${vars.dir.assets}/train-classifier.csv'
-    code: '${vars.dir.scripts}/components.py'
     spacy:
       train: '${vars.dir.corpus}/train.spacy'    
       test: '${vars.dir.corpus}/test.spacy' 
@@ -34,23 +35,24 @@ assets:
   - dest: "${vars.dir.assets}"
   - dest: "${vars.dir.packages}"
 
-# workflows:
-#   all:
-#     - convert
-#     - fill-config
-#     - train
-#     - evaluate
+workflows:
+  vector:
+    - download
+    - convert-spacy
+    - fill-config
+    - train
+    # - evaluate
 
 commands:
   - name: "download"
     help: "Download a spaCy model with pretrained vectors"
     script:
-      - "python -m spacy download ${vars.vectors_model}"
+      - "pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.1/en_core_sci_md-0.5.1.tar.gz"
 
-  - name: "convert"
+  - name: "convert-spacy"
     help: "Convert the data to spaCy's binary format"
     script:
-      - python ${vars.dir.scripts}/convert.py ${vars.lang} ${vars.file.train} ${vars.dir.corpus}
+      - python ${vars.dir.scripts}/convert_spacy.py ${vars.lang} ${vars.file.train} ${vars.dir.corpus}
     deps:
       - "${vars.file.train}"
     outputs:
@@ -61,7 +63,6 @@ commands:
     help: "Fill config defaults"
     script:
       - "python -m spacy init fill-config ${vars.dir.config}/base_config.cfg ${vars.dir.config}/config.cfg"      
-      - "python -m spacy init fill-config ${vars.dir.config}/base_trf_config.cfg ${vars.dir.config}/trf_config.cfg"
 
   - name: "train"
     help: "Train the classifier"
@@ -74,17 +75,6 @@ commands:
     outputs:
       - "${vars.dir.training_vector}/model-best"
 
-  - name: "train-trf"
-    help: "Train the transformer model"
-    script:
-      - "python -m spacy train ${vars.dir.config}/trf_config.cfg --output ${vars.dir.training_trf} --paths.train ${vars.file.spacy.train} --paths.dev ${vars.file.spacy.test} --gpu-id ${vars.gpu_id}"
-    deps:
-      - "${vars.dir.config}/config.cfg"
-      - "${vars.file.spacy.train}"
-      - "${vars.file.spacy.test}"
-    outputs:
-      - "${vars.dir.training_trf}/model-best"
-
   - name: "evaluate"
     help: "Evaluate the model and export metrics"
     script:
@@ -93,17 +83,42 @@ commands:
       - "${vars.file.spacy.test}"
       - "${vars.dir.training_vector}/model-best"
     outputs:
-      - "${vars.dir.training_vector}/metrics.json"
+      - "${vars.dir.training_vector}/metrics.json"      
+
+  - name: "convert-trf"
+    help: "Convert the data to transformer database format"
+    script:
+      - python ${vars.dir.scripts}/convert_trf.py ${vars.file.train} ${vars.dir.corpus} ${vars.trf_model}
+    deps:
+      - "${vars.file.train}"
+    outputs:
+      - "${vars.dir.corpus}/dataset_dict.json"
+
+  - name: "train-trf"
+    help: "Train the transformer model"
+    script:
+      - python scripts/train.py ${vars.dir.corpus} ${vars.dir.models} ${vars.trf_model}
+    deps:
+      - "${vars.file.train}"
 
   - name: "evaluate-trf"
-    help: "Evaluate the model and export metrics"
+    help: "Convert the data to transformer database format"
     script:
-      - "python -m spacy evaluate ${vars.dir.training_trf}/model-best ${vars.file.spacy.test} --output ${vars.dir.training_trf}/metrics.json --gpu-id ${vars.gpu_id}"
-    deps:
-      - "${vars.file.spacy.test}"
-      - "${vars.dir.training_trf}/model-best"
-    outputs:
-      - "${vars.dir.training_trf}/metrics.json"      
+      - python ${vars.dir.scripts}/evaluate.py ${vars.dir.corpus} ${vars.dir.training}
+    # deps:
+    #   - "${vars.file.train}"
+    # outputs:
+    #   - "${vars.dir.corpus}/dataset_dict.json"
+
+  # - name: "evaluate-trf"
+  #   help: "Evaluate the model and export metrics"
+  #   script:
+  #     - "python -m spacy evaluate ${vars.dir.training_trf}/model-best ${vars.file.spacy.test} --output ${vars.dir.training_trf}/metrics.json --gpu-id ${vars.gpu_id}"
+  #   deps:
+  #     - "${vars.file.spacy.test}"
+  #     - "${vars.dir.training_trf}/model-best"
+  #   outputs:
+  #     - "${vars.dir.training_trf}/metrics.json"      
 
   # - name: package
   #   help: "Package the trained numeric model as a pip package"

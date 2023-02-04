@@ -10,10 +10,10 @@
   "license":"",
   "spacy_git_version":"77833bfef",
   "vectors":{
-    "width":0,
-    "vectors":0,
-    "keys":0,
-    "name":null,
+    "width":200,
+    "vectors":50000,
+    "keys":4087446,
+    "name":"en_core_sci_md.vectors",
     "mode":"default"
   },
   "labels":{
