@@ -16,14 +16,9 @@ import evaluate
 from adept.bhl.tokenizer import load_tokenizer
 
 
-def train(
-    dataset_dir: Path = typer.Option(None),
-    model_path: Path = typer.Option(None),
-    training_dir: Path = typer.Option(None),
-    checkpoint: str = typer.Option(None)
-    ):
-
-    num_epochs = 3
+def train(dataset_dir: Path, training_dir: Path, checkpoint: str):
+    
+    num_epochs = 1
     dataset = DatasetDict.load_from_disk(dataset_dir)
     tokenizer = load_tokenizer(checkpoint)    
     
@@ -79,7 +74,7 @@ def train(
     print(metric.compute()) 
     
     torch.save(model.state_dict(), training_dir / "state_dict_model.pt")   
-    torch.save(model, model_path)
+    torch.save(model, training_dir / 'model.pt')
   
 if __name__ == "__main__":    
     typer.run(train)

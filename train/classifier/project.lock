@@ -64,7 +64,8 @@ download:
 train-trf:
   cmd: python -m spacy run train-trf
   script:
-    - python scripts/train.py corpus ../models
+    - python scripts/train.py --dataset-dir corpus --training-dir training/trf --model-path
+      ../models/en_classifier-scibert.pt --checkpoint allenai/scibert_scivocab_cased
   deps:
     - path: assets/train-classifier.csv
       md5: 6069fce061504d67cf438b0e0231a9b8

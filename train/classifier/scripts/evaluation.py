@@ -15,13 +15,9 @@ import json
 from adept.bhl.tokenizer import load_tokenizer
 
 
-def evaluate(
-        dataset_dir: Path = typer.Option(None),
-        model_path: Path = typer.Option(None),
-        training_dir: Path = typer.Option(None),
-        checkpoint: str = typer.Option(None)
-    ):   
+def evaluate(dataset_dir: Path, training_dir: Path, checkpoint: str):  
     
+    model_path = training_dir / 'model.pt'
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     model = torch.load(model_path, map_location=torch.device(device))
     model.eval()        
