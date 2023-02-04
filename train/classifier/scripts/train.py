@@ -18,7 +18,7 @@ from adept.bhl.tokenizer import load_tokenizer
 
 def train(dataset_dir: Path, training_dir: Path, checkpoint: str):
     
-    num_epochs = 1
+    num_epochs = 30
     dataset = DatasetDict.load_from_disk(dataset_dir)
     tokenizer = load_tokenizer(checkpoint)    
     
