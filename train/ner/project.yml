@@ -10,7 +10,7 @@ vars:
   # Set your GPU ID, -1 is CPU
   # gpu_id: 0
   gpu_id: 0
-  vectors_model: "en_core_sci_md"  
+  vectors_model: "en_core_web_md"  
   dir: 
     corpus: 'corpus'
     assets: 'assets'
@@ -28,7 +28,7 @@ vars:
       test: '${vars.dir.corpus}/test_numeric.spacy' 
       val: '${vars.dir.corpus}/val_numeric.spacy' 
 
-directories: ['data/corpus', 'data/assets', 'data/packages', 'data/training', "configs", "scripts"]
+directories: ['corpus', 'assets', 'training', "config", "scripts"]
 
 assets:
   - dest: "${vars.file.train}"

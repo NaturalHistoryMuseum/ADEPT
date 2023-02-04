@@ -107,7 +107,7 @@ commands:
     script:
       - python ${vars.dir.scripts}/evaluation.py ${vars.dir.corpus} ${vars.dir.training_trf} --checkpoint ${vars.trf_checkpoint}
     deps:
-      - "${vars.file.model_path}"
+      - "${vars.dir.training_trf}/model.pt"
     # outputs:
     #   - "${vars.dir.corpus}/dataset_dict.json"
 
