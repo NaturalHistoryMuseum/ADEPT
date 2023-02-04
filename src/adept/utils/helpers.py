@@ -29,3 +29,7 @@ def flatten_dict(d: MutableMapping, sep: str= '.'):
 
 def list_uuid(items):
     return uuid.uuid5(uuid.NAMESPACE_URL, str(pickle.dumps(items))).hex 
+
+
+def is_binomial(taxon):
+    return len(taxon.split()) == 2

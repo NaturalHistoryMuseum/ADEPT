@@ -13,7 +13,7 @@ from adept.utils.helpers import list_uuid
 
 class AggregateDescriptionsTask(BaseTask):    
     """
-    Aggregate descriptions 
+    Aggregate descriptions. Used for generating descriptions for training data etc.,
 
     """
         
@@ -36,7 +36,6 @@ class AggregateDescriptionsTask(BaseTask):
         for task_input in self.input():
             with task_input.open('r') as f:
                 descriptions = yaml.full_load(f)             
-                print(descriptions)
                 data.extend([d for d in descriptions if d['description']])
         
         pd.DataFrame(data).to_csv(self.output().path, index=False)
@@ -56,7 +55,7 @@ if __name__ == "__main__":
     
     
     taxa = [        
-
+        # "Amelanchier arborea",
         "Metopium toxiferum",
         "Ancistrocladus guineensis"          
     ]

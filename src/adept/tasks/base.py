@@ -21,4 +21,4 @@ class BaseExternalTask(TaskMixin, luigi.ExternalTask):
     pass
 
 class BaseTask(TaskMixin, luigi.Task):
-    pass
+    pass    

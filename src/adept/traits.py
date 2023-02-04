@@ -156,18 +156,22 @@ class SimpleTraitTextClassifier:
     Quick method to classify text as a description
     """
     
-    def __init__(self):
-        traits = Traits()
-        self._trait_terms = self._to_lower_set(traits.get_unique_discrete_terms())
-    
+    traits = Traits()
+        
+    def __init__(self, min_terms=5, min_ratio=0.05):        
+        self.min_terms = min_terms
+        self.min_ratio = min_ratio
+        self._trait_terms = self._to_lower_set(self.traits.get_unique_discrete_terms())
+        
     def is_description(self, text):
         words = self._to_lower_set(get_words(text))
         matching_terms = words.intersection(self._trait_terms) if words else [] 
         if not (words or matching_terms):
             return False        
+        
         ratio = len(matching_terms) / len(words) 
         # If the percentage of parts is greater than 5% (for short descriptions)
-        if ratio >= 0.05 or len(matching_terms) >= 3:
+        if ratio >= self.min_ratio and len(matching_terms) >= self.min_terms:
             return True                
         
     @staticmethod

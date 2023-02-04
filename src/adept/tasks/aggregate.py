@@ -2,7 +2,6 @@ import luigi
 import pandas as pd
 import numpy as np
 import re
-from luigi import parameter
 from pandas.api.types import is_numeric_dtype
 from pathlib import Path
 import itertools
@@ -11,8 +10,6 @@ from abc import ABC, abstractmethod,ABCMeta
 from adept.config import taxonomic_groups, logger, PROCESSED_DATA_DIR, DATA_DIR, INTERMEDIATE_DATA_DIR
 from adept.tasks.pipeline import PipelineTask
 from adept.tasks.base import BaseTask
-from adept.tasks.descriptions.ecoflora import EcofloraDescriptionTask
-from adept.tasks.descriptions.efloras import EflorasChinaDescriptionTask, EflorasMossChinaDescriptionTask, EflorasNorthAmericaDescriptionTask, EflorasPakistanDescriptionTask
 from adept.utils.helpers import list_uuid
 
 class AggregateBaseTask(BaseTask, metaclass=ABCMeta):
@@ -33,10 +30,7 @@ class AggregateBaseTask(BaseTask, metaclass=ABCMeta):
         combined_dfs = []
 
         for input_json in self.input():
-            input_json_path = Path(input_json.path)
-            taxon = input_json_path.stem.replace('-', ' ').capitalize()
-            df = pd.read_json(input_json_path)
-            df.insert(0, 'taxon', taxon)
+            df = pd.read_json(input_json.path)
             combined = df.groupby('taxon').agg(self._series_merge).reset_index()
             dfs.append(df)
             combined_dfs.append(combined)            
@@ -50,10 +44,9 @@ class AggregateBaseTask(BaseTask, metaclass=ABCMeta):
         with pd.ExcelWriter(self.output().path) as writer:    
             combined_dfs.to_excel(writer, sheet_name="combined", index=False)
             for source, group in dfs.groupby('source'):
-                sheet_name = source.replace('/', '-')
                 # If we don't have any values in a row, drop it         
                 group = group.dropna(subset=cols, how="all")
-                group.to_excel(writer, sheet_name=sheet_name, index=False)  
+                group.to_excel(writer, sheet_name=source, index=False)  
                 
                 
     def _series_merge(self, rows):
@@ -83,15 +76,15 @@ class AggregateBaseTask(BaseTask, metaclass=ABCMeta):
               
 class AggregateTask(AggregateBaseTask):              
                      
-    taxon_names = luigi.ListParameter()
+    taxa = luigi.ListParameter()
     taxonomic_group = luigi.OptionalChoiceParameter(choices=taxonomic_groups, var_type=str) 
 
     def _get_taxa_and_group(self):
-        for taxon in self.taxon_names:
+        for taxon in self.taxa:
             yield taxon, self.taxonomic_group
         
     def output(self):
-        uuid = list_uuid(self.taxon_names)
+        uuid = list_uuid(self.taxa)
         return luigi.LocalTarget(PROCESSED_DATA_DIR / f'{uuid}.traits.xlsx')                  
                     
 class AggregateFileTask(AggregateBaseTask):
@@ -112,13 +105,13 @@ class AggregateFileTask(AggregateBaseTask):
         params = self.get_params()
         param_values = dict(self.get_param_values(params, args, kwargs))
         group_params = ['taxonomic_group', 'taxon_group_column']
-        group_param_values = [param_values.get(p) for p in group_params]
+        group_param_values = [param_values.get(p) for p in group_params]        
         task_family = self.get_task_family()
         exc_desc = '%s[args=%s, kwargs=%s]' % (task_family, args, kwargs)        
         if not any(group_param_values):
-            raise parameter.MissingParameterException("%s: requires one of '%s' to be set" % (exc_desc, ' '.join(group_params)))
+            raise luigi.parameter.MissingParameterException("%s: requires one of '%s' to be set" % (exc_desc, ' '.join(group_params)))
         elif all(group_param_values):
-            raise parameter.DuplicateParameterException("%s: requires only one of '%s' to be set" % (exc_desc, ' '.join(group_params)))    
+            raise luigi.parameter.DuplicateParameterException("%s: requires only one of '%s' to be set" % (exc_desc, ' '.join(group_params)))    
 
     
     def _get_taxa_and_group(self):
@@ -151,4 +144,6 @@ class AggregateFileTask(AggregateBaseTask):
         output_file_name = Path(self.file_path).stem
         return luigi.LocalTarget(PROCESSED_DATA_DIR / f'{output_file_name}.traits.xlsx')           
     
-    
+
+if __name__ == "__main__":    
+    luigi.build([AggregateTask(taxa=['Prunus cerasifera'], taxonomic_group='angiosperm', force=True)], local_scheduler=True)  

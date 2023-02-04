@@ -25,7 +25,7 @@ class BaseDescriptionTask(BaseTask, metaclass=ABCMeta):
     def run(self):                
         description = self.get_taxon_description()   
         data = [{
-            'description': description,
+            'text': description,
             'taxon': self.taxon,
             'source':self.source_name
         }]     

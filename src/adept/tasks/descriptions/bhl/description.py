@@ -29,7 +29,7 @@ from adept.bhl.postprocess import BHLPostprocess
 from adept.tasks.descriptions.bhl.search import BHLSearchTask
 from adept.tasks.descriptions.bhl.ocr import BHLAggregateOCRTask
 from adept.tasks.base import BaseTask
-   
+from adept.utils.helpers import is_binomial
 
 class BHLDescriptionTask(BaseTask):
     
@@ -40,6 +40,12 @@ class BHLDescriptionTask(BaseTask):
     taxon = luigi.Parameter()
     output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'description'
     postprocess = BHLPostprocess()
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)        
+        # Taxon for BHL must be a binomial
+        if not is_binomial(self.taxon):
+           raise luigi.parameter.ParameterException('Taxon for BHL must be a binomial - taxon parameter is {}'.format(self.taxon))
     
     def requires(self):        
        return BHLSearchTask(taxon=self.taxon)
@@ -62,7 +68,7 @@ class BHLDescriptionTask(BaseTask):
                         'bhl_id': page['bhl_id'],
                         'source': f"bhl.{page['bhl_id']}",
                         'taxon': self.taxon,
-                        'description': '\n\n'.join(descriptions) 
+                        'text': '\n\n'.join(descriptions) 
                     })            
                   
         with self.output().open('w') as f:
@@ -77,8 +83,8 @@ class BHLDescriptionTask(BaseTask):
 if __name__ == "__main__":    
        
     # luigi.build([BHLAggregateOCRTask(bhl_ids=l, taxon='Metopium toxiferum')], local_scheduler=True) 
-    luigi.build([BHLDescriptionTask(taxon='Metopium toxiferum')], local_scheduler=True)
-    # luigi.build([BHLDescriptionTask(taxon='Ancistrocladus guineensis', force=True)], local_scheduler=True)
+    # luigi.build([BHLDescriptionTask(taxon='Metopium toxiferum')], local_scheduler=True)
+    luigi.build([BHLDescriptionTask(taxon='Eleocharis', force=True)], local_scheduler=True)
     # luigi.build([BHLDescriptionTask(bhl_id=27274329, force=True)], local_scheduler=True)      
     
     
