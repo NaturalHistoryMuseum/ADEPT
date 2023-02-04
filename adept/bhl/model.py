@@ -1,4 +1,4 @@
-from adept.config import MODEL_DIR, CACHE_DIR
+from adept.config import MODEL_DIR, CACHE_DIR,logger
 from transformers import AutoTokenizer
 import torch
 
@@ -15,7 +15,12 @@ def load_tokeniser(checkpoint):
 class TextClassifier:  
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    model = torch.load(MODEL_DIR / 'en_classifier-scibert.pt', map_location=torch.device(device))
+    
+    if (MODEL_DIR / 'en_classifier-scibert.pt').exists():
+        model = torch.load(MODEL_DIR / 'en_classifier-scibert.pt', map_location=torch.device(device))
+    else:
+        logger.critical('Text classifier model not found %s' % MODEL_DIR / 'en_classifier-scibert.pt')
+        
     tokenizer = load_tokeniser("allenai/scibert_scivocab_cased")
 
     def tokenise(self, text):
