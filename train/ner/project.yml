@@ -1,20 +1,3 @@
-# https://spacy.io/usage/training
-# https://spacy.io/usage/training#config
-# https://explosion.ai/blog/spacy-v3-project-config-systems#spacy-config-system
-# https://stackoverflow.com/questions/72904855/no-pos-tags-in-newly-trained-spacy-ner-model-how-to-enable
-# https://github.com/explosion/spaCy/discussions/6777
-
-# Transformer example: https://github.com/explosion/projects/blob/1ba2ba72ca3a0edb2dee1b8b8f0f7b2bffe53c87/tutorials/ner_pytorch_medical/configs/spacy_config_trf.cfg
-# https://github.com/explosion/projects/blob/1ba2ba72ca3a0edb2dee1b8b8f0f7b2bffe53c87/tutorials/textcat_goemotions/configs/bert.cfg
-
-# It's using tok2vec spacy-transformers
-
-# https://github.com/explosion/spaCy/discussions/10330
-# https://github.com/explosion/projects/blob/15e180e28d834ee594ea4b8154c5132d7895bc23/experimental/coref/project.yml
-
-
-
-
 title: ""
 description: ""
 

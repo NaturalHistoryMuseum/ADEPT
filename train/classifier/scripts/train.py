@@ -78,8 +78,8 @@ def train(
 
     print(metric.compute()) 
     
-    torch.save(model.state_dict(), model_dir / "state_dict_en_classifier-scibert.pt")   
-    torch.save(model, model_dir / "en_classifier-scibert.pt")
+    torch.save(model.state_dict(), training_dir / "state_dict_model.pt")   
+    torch.save(model, model_path)
   
 if __name__ == "__main__":    
     typer.run(train)
