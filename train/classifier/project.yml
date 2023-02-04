@@ -106,8 +106,8 @@ commands:
     help: "Convert the data to transformer database format"
     script:
       - python ${vars.dir.scripts}/evaluation.py ${vars.dir.corpus} ${vars.dir.training_trf} ${vars.trf_checkpoint}
-    deps:
-      - "${vars.dir.training_trf}/model.pt"
+    # deps:
+    #   - "${vars.dir.training_trf}/model.pt"
     # outputs:
     #   - "${vars.dir.corpus}/dataset_dict.json"
 
