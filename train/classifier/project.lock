@@ -87,7 +87,7 @@ convert-trf:
 evaluate-trf:
   cmd: python -m spacy run evaluate-trf
   script:
-    - python scripts/evaluate.py corpus training
+    - python scripts/evaluation.py corpus training/trf allenai/scibert_scivocab_cased
   deps: []
   outs: []
   spacy_version: 3.4.4

@@ -6,6 +6,7 @@ from transformers import TrainingArguments, AutoModelForSequenceClassification
 from transformers import AdamW, get_scheduler
 from torch.utils.data import DataLoader
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
 import sklearn
 import typer
 import torch
@@ -28,7 +29,7 @@ def evaluate(dataset_dir: Path, training_dir: Path, checkpoint: str):
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)  
     
     test_dataloader = DataLoader(
-        test_dataset, shuffle=True, batch_size=8, collate_fn=data_collator
+        test_dataset, shuffle=True, batch_size=len(test_dataset), collate_fn=data_collator
     )    
     
     for batch in test_dataloader:
@@ -54,9 +55,8 @@ def evaluate(dataset_dir: Path, training_dir: Path, checkpoint: str):
     
     cm = sklearn.metrics.confusion_matrix(y_test, y_pred, labels=[0, 1])
     cm = ConfusionMatrixDisplay(cm, display_labels=[0, 1]).plot()
-    cm.figure_.savefig(training_dir / 'confusion_matrix.png')
-    
-    print(cm)
+    cm.figure_.savefig(training_dir / 'confusion_matrix.png')    
+    plt.show()
     
     
 if __name__ == "__main__":    
