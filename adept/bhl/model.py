@@ -1,27 +1,15 @@
-from adept.config import MODEL_DIR, CACHE_DIR,logger
-from transformers import AutoTokenizer
+
 import torch
 
-def load_tokeniser(checkpoint):
-    
-    tokeniser_path = CACHE_DIR / checkpoint.replace('/', '-')
-    if tokeniser_path.exists():
-        tokenizer = AutoTokenizer.from_pretrained(tokeniser_path)
-    else:
-        tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-        tokenizer.save_pretrained(tokeniser_path)              
-    return tokenizer
+from adept.config import MODEL_DIR
+from adept.bhl.tokenizer import load_tokenizer
+
 
 class TextClassifier:  
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # FIXME: Is this nex once we have the model?
-    if (MODEL_DIR / 'en_classifier-scibert.pt').exists():
-        model = torch.load(MODEL_DIR / 'en_classifier-scibert.pt', map_location=torch.device(device))
-    else:
-        logger.critical('Text classifier model missing')
-        
-    tokenizer = load_tokeniser("allenai/scibert_scivocab_cased")
+    model = torch.load(MODEL_DIR / 'en_classifier-scibert.pt', map_location=torch.device(device))       
+    tokenizer = load_tokenizer("allenai/scibert_scivocab_cased")
 
     def tokenise(self, text):
         return self.tokenizer(text, truncation=True, max_length=512, return_tensors='pt')
