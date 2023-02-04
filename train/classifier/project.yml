@@ -104,7 +104,7 @@ commands:
   - name: "evaluate-trf"
     help: "Convert the data to transformer database format"
     script:
-      - python ${vars.dir.scripts}/evaluate.py ${vars.dir.corpus} ${vars.dir.training}
+      - python ${vars.dir.scripts}/evaluation.py ${vars.dir.corpus} ${vars.dir.training}
     # deps:
     #   - "${vars.file.train}"
     # outputs:
