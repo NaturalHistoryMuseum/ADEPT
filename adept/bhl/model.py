@@ -1,4 +1,4 @@
-from adept.config import MODEL_DIR, CACHE_DIR, TORCH_DEVICE
+from adept.config import MODEL_DIR, CACHE_DIR
 from transformers import AutoTokenizer
 import torch
 
@@ -14,7 +14,8 @@ def load_tokeniser(checkpoint):
 
 class TextClassifier:  
 
-    model = torch.load(MODEL_DIR / 'en_classifier-scibert.pt', map_location=torch.device(TORCH_DEVICE))
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    model = torch.load(MODEL_DIR / 'en_classifier-scibert.pt', map_location=torch.device(device))
     tokenizer = load_tokeniser("allenai/scibert_scivocab_cased")
 
     def tokenise(self, text):
