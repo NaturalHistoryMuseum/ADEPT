@@ -33,7 +33,7 @@ class Traits():
             ], ignore_index=True
         )
         df.drop_duplicates()
-        df = self._set_require_part(df)   
+        df = self._set_unique(df)   
         return df
     
     def get_colour_traits(self, group=None):
@@ -48,8 +48,7 @@ class Traits():
         # Use both terms and character values - if a character exists in the text
         # we want tofind and use it
         return np.concatenate([df.term.unique(), df.character.unique()])
-    
-        
+            
     def _read_sql_query(self, sql):
         return pd.read_sql_query(sql, self._connection)
     
@@ -57,11 +56,11 @@ class Traits():
         return pd.concat([self._get_db_group_traits(group) for group in taxonomic_groups])
             
     def _get_db_group_traits(self, group):
-        df = getattr(self, f'_select_{group}_traits')()
-        df = self._set_is_multiple(df)
+        df = getattr(self, f'_select_{group}_traits')()        
         df = self._stack_trait_columns(df)                
         df = self._normalise(df)        
         df = self._set_part(df)
+        df = self._set_require_part(df)
         df = self._set_type(df)             
         df['group'] = group        
         return df
@@ -115,7 +114,7 @@ class Traits():
         # combined into character and trait column
         df = pd.wide_to_long(df, char_trait_cols, i='uuid', j="x")
 
-        df = df[['term', 'character', 'trait']]
+        df = df[['term', 'character', 'trait', 'required_parts']]
         df = df.reset_index(drop=True)
         df = df.drop_duplicates()
         # If char and trait are empty, the row didn't have trait2, trait3 etc.,
@@ -132,6 +131,19 @@ class Traits():
         df = df.replace('_','-', regex=True)            
         return df
     
+    def _set_require_part(self, df):         
+        # Set require part to True if the required parts is not set to * AND we have a part         
+        df['require_part'] = df.apply(lambda x: True if x['required_parts'] != '*' and pd.notnull(x['part']) else False, axis=1)
+        required_parts_df = df[~df.required_parts.isin([None, '*'])]        
+        # required_parts is a semicolon delimited string - so explode into mutiple rows, one each for the parts     
+        required_parts_df = required_parts_df.assign(part=required_parts_df['required_parts'].str.split(';')).explode('part')
+        df = pd.concat([
+            df, 
+            required_parts_df
+        ])  
+        df = df.drop('required_parts', axis=1)
+        return df    
+    
     def _set_unique(self, df):
         # Along with the terms explicity marked in the DB, double check for any duplcated terms
         # Where require part = True, an anatomical part will be required         
@@ -146,15 +158,11 @@ class Traits():
         return df
     
     def _set_part(self, df):                    
-        df['part'] = df['trait'].apply(self._parse_part)    
+        df['part'] = df['trait'].apply(self._parse_part)            
+        # Set some custom parts e.g. indumentum should only apply if found on leaves
+        df.loc[df['trait'] == 'indumentum', "part"] = 'leaf'        
         return df
-    
-    def _set_is_multiple(self, df):     
-        # Has this term been set in the DB as belonging to multiple characters         
-        # df['is_multiple'] =  df.apply(lambda row: pd.notnull(row['Traits AND/OR Terms'] or (row['Comments'] and 'part' in row['Comments'])), axis=1)
-        df['is_multiple'] = False
-        return df     
-    
+        
     def _parse_part(self, trait):    
         for part in [trait, trait.split()[0]]:
             if part in self.anatomical_parts.keys():

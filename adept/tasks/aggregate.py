@@ -146,4 +146,4 @@ class AggregateFileTask(AggregateBaseTask):
     
 
 if __name__ == "__main__":    
-    luigi.build([AggregateTask(taxa=['Potamogeton perfoliatus'], taxonomic_group='angiosperm', force=True)], local_scheduler=True)  
+    luigi.build([AggregateTask(taxa=['Isolepis cernua'], taxonomic_group='angiosperm', force=True)], local_scheduler=True)  

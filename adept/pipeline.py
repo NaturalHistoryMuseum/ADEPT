@@ -23,8 +23,7 @@ class Pipeline():
         self.postprocess = Postproccess()  
 
     
-    def __call__(self, text, taxon_group):  
-        
+    def __call__(self, text, taxon_group):                  
         text = self.preprocess(text)          
         doc = self.nlp(text)
         return self.postprocess(doc, taxon_group)

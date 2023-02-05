@@ -26,7 +26,7 @@ class Postproccess():
             if part:
                 self._process_measurement_fields(sent, fields, part)
                 self._process_colours_fields(sent, fields, part)
-            self._process_numeric_fields(sent, fields)
+            self._process_numeric_fields(doc, sent, fields)
                 
         return fields
           
@@ -43,48 +43,24 @@ class Postproccess():
         df = self.traits.get_discrete_traits(taxon_group)        
         trait_ents = self._filter_ents(sent, ['TRAIT'])
         # Process entities     
-        for ent in trait_ents:            
+        for ent in trait_ents:           
       
             # Match on either term or character 
-            mask = (((df.term == ent.lemma_) | (df.term == ent.text)))
+            mask = (((df.term == ent.lemma_) | (df.term == ent.text)) | ((df.character == ent.lemma_) | (df.character == ent.text)))
+            
+            no_part_submask = ((df.part.isna()) & (df.is_unique == True))
+            no_part_required_submask = ((df.require_part == False) & (df.is_unique == True))
             
             # If the trait ent is a part, no need to filter on part         
             if part != ent.lemma_:
-
-                # If we have part, allow traits with matching part
                 if part and part != 'plant':
-                    mask &= (df.part == part)
-                
-                # For all, allow where no part and unique
-                mask |= ((df.part.isna()) & (df.is_unique == True))
-            
-            # if part and part != 'plant':
-            #     # If we have a part, filter on part or unique
-            #     # Plant part is an artificial construct, so we treate it as sent having no part
-            #     mask &= ((df.part == part) | (df.is_multiple == False))
-            # else:
-            #     # If sent has no part, trait must have no part and must not be multiple
-            #     mask &= ((df.part.isna()) & (df.is_multiple == False))
-            
-            #          
-            # if part != ent.lemma_:
-            #     print('NOPE')
-            #     print(part)
-            #     # Plant part is an artificial construct, so we treate it as sent having no part             
-            #     if part and part != 'plant':
-            #         mask &= (df.part == part)
-            #     # If sent has no part, trait must have no part and must be unique             
-            #     else:
-            #         mask &= ((df.part.isna()) & (df.unique == True))
-                
-                        
-                
-            rows = df[mask]     
-            
-            # print(ent)
-            # print(rows)
-     
-            for row in rows.itertuples():   
+                    mask &= ((df.part == part) | no_part_submask | no_part_required_submask )
+                else:
+                    mask &= no_part_submask | no_part_required_submask
+                                     
+            rows = df[mask]    
+
+            for row in rows.itertuples():                   
                 fields.upsert(row.trait, 'discrete', row.character)   
                 
     def _process_custom_fields(self, sent: Doc, fields: Fields):         
@@ -103,19 +79,32 @@ class Postproccess():
                 field_name = f'{part} measurement'
 
             fields.upsert(field_name, field_type, ent)            
+    
+    @staticmethod
+    def _parse_cardinal_part_subject(doc: Doc, cardinal_ent: Span): 
+        """
+        Use the dependency parse to locate the part/trait subject of a cardinal
+        """         
+        ent_labels = ['PART', 'TRAIT']
+        # The root token of the cardinal ent - will contain the ancestral dependency
+        token = cardinal_ent.root
+        # If token is a numeric modifier, noun subject is the token head      
+        if token.dep_ == 'nummod':
+            return token_get_ent(token.head, ent_labels)
+
+        # Try and locate a part/trait in the cardinal subtree     
+        subtree = doc[token.left_edge.i: token.right_edge.i]
+        part_ents = [ent for ent in subtree.ents if ent.label_ in ent_labels]
+        if len(part_ents) == 1:
+            return part_ents[0]
             
-    def _process_numeric_fields(self, sent: Doc, fields: Fields):        
+    def _process_numeric_fields(self, doc: Doc, sent: Doc, fields: Fields):        
         # Process numeric values (those not measurements or dimensions)     
         cardinal_ents = self._filter_ents(sent, ['CARDINAL'])       
-        # We use the dependency parse. If cardinal is a numeric modifier of a noun
-        # If dep_nummod noun, if the noun is a part or trait, set the value     
         for cardinal_ent in cardinal_ents:
-            # The root token of the carinal ent - the one that will contain the ancestral dependency 
-            token = cardinal_ent.root
-            if token.dep_ == 'nummod':
-                if ent := token_get_ent(token.head, ['PART', 'TRAIT']):            
-                    field_name = ent._.get("anatomical_part") or ent.lemma_
-                    fields.upsert(f'{field_name} number', 'numeric', cardinal_ent)
+            if ent := self._parse_cardinal_part_subject(doc, cardinal_ent):       
+                field_name = ent._.get("anatomical_part") or ent.lemma_
+                fields.upsert(f'{field_name} number', 'numeric', cardinal_ent)
                 
     @staticmethod
     def _filter_ents(sent: Span, label: list):
