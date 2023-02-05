@@ -1,61 +1,44 @@
-import sqlite3
-
+import pandas as pd
 from adept.config import logger, RAW_DATA_DIR
 
 class WorldFlora():
     
-    database = RAW_DATA_DIR / "wfo.db"
-    
-    # FIXME: DB file is too large for Github, so lets download it
-    
     def __init__(self):
-        conn = sqlite3.connect(self.database)
-        conn.row_factory = sqlite3.Row
-        self.cursor = conn.cursor()
+        # Read parquent file - keeps file size small enough to go into github         
+        self._df = pd.read_parquet(RAW_DATA_DIR / 'worldflora.parquet') 
     
-    def get_taxa_by_name(self, name):                
-        sql = f"SELECT * FROM classification where scientificName=? and taxonRank IN ('SPECIES', 'VARIETY')"
-        res = self._execute(sql, name)        
-        return res.fetchall()         
+    def get_taxa_by_name(self, name):      
+        return self._df[self._df['scientificName'] == name]
     
-    def get_taxon(self, taxon_id):
-        sql = "SELECT * FROM classification where taxonID=?"
-        res = self._execute(sql, taxon_id)  
-        return res.fetchone()
-    
-    def get_synonyms(self, accepted_name_id):
-        sql = f"SELECT * FROM classification where acceptedNameUsageID=? and taxonRank IN ('SPECIES')"
-        res = self._execute(sql, accepted_name_id)
-        return res.fetchall()  
-    
-    def _execute(self, sql, *args):
-        return self.cursor.execute(sql, args)
+    def get_taxon_by_id(self, taxon_id):      
+        df = self._df[self._df['taxonID'] == taxon_id]    
+        return df.squeeze()
+        
+    def get_synonyms(self, accepted_name_id):      
+        return self._df[(self._df['acceptedNameUsageID'] == accepted_name_id) & (self._df['taxonRank'] == 'SPECIES')]
 
     def get_related_names(self, name):
-                
-        taxa = self.get_taxa_by_name(name)
-        
-        if not taxa:
-            logger.warning('Taxa %s not found in worldflora database', name)
+        df = self.get_taxa_by_name(name)
+        if df.empty:
+            logger.warning('Taxa %s not found in worldflora', name)
             return
-        elif len(taxa) > 1:
-            logger.warning('Multiple taxa found in worldflora database for %s', name)
-            return            
-            
-        taxon = dict(taxa[0])   
-
-        taxon_status = taxon.get('taxonomicStatus', None)
-        names = set()
+        elif len(df.index) > 1:
+            logger.warning('Multiple taxa found in worldflora for %s', name)
+            return   
         
+        taxon = df.squeeze()
+        taxon_status = taxon['taxonomicStatus']
+
+        names = set()
         if taxon_status == 'ACCEPTED':
             synonyms = self.get_synonyms(taxon['taxonID'])
         elif taxon_status in ['SYNONYM', 'HOMOTYPICSYNONYM', 'HETEROTYPICSYNONYM']:
-            accepted_name = self.get_taxon(taxon['acceptedNameUsageID'])
+            accepted_name = self.get_taxon_by_id(taxon['acceptedNameUsageID'])
             names.add(accepted_name['scientificName'])
             synonyms = self.get_synonyms(accepted_name['taxonID'])
         else:
-            return names
-
-        names.update([syn['scientificName'] for syn in synonyms])
+            return
+            
+        names |= set(synonyms['scientificName'].unique().tolist())
             
         return names
