@@ -44,23 +44,31 @@ class Postproccess():
         trait_ents = self._filter_ents(sent, ['TRAIT'])
         # Process entities     
         for ent in trait_ents:           
-      
+                  
             # Match on either term or character 
             mask = (((df.term == ent.lemma_) | (df.term == ent.text)) | ((df.character == ent.lemma_) | (df.character == ent.text)))
             
-            no_part_submask = ((df.part.isna()) & (df.is_unique == True))
-            no_part_required_submask = ((df.require_part == False) & (df.is_unique == True))
+            no_part_submask = ((df.part.isna()) | (df.part_required == False))
+            # no_part_required_submask = ((df.require_part == False) & (df.is_unique == True))
             
             # If the trait ent is a part, no need to filter on part         
             if part != ent.lemma_:
-                if part and part != 'plant':
-                    mask &= ((df.part == part) | no_part_submask | no_part_required_submask )
+                # If it's plant we allow anything unique
+                if part == 'plant':
+                    mask &= (no_part_submask | df.is_unique == True)
+                elif part:
+                    mask &= ((df.part == part) | no_part_submask)
                 else:
-                    mask &= no_part_submask | no_part_required_submask
+                    mask &= no_part_submask
                                      
             rows = df[mask]    
+            
+            # if ent.text == 'gynobasic':
+            #     print('---')
+            #     print(rows)
+            #     print(part)
 
-            for row in rows.itertuples():                   
+            for row in rows.itertuples():                     
                 fields.upsert(row.trait, 'discrete', row.character)   
                 
     def _process_custom_fields(self, sent: Doc, fields: Fields):         
@@ -102,7 +110,7 @@ class Postproccess():
         # Process numeric values (those not measurements or dimensions)     
         cardinal_ents = self._filter_ents(sent, ['CARDINAL'])       
         for cardinal_ent in cardinal_ents:
-            if ent := self._parse_cardinal_part_subject(doc, cardinal_ent):       
+            if ent := self._parse_cardinal_part_subject(doc, cardinal_ent):  
                 field_name = ent._.get("anatomical_part") or ent.lemma_
                 fields.upsert(f'{field_name} number', 'numeric', cardinal_ent)
                 

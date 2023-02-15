@@ -7,7 +7,7 @@ from pathlib import Path
 import itertools
 from abc import ABC, abstractmethod,ABCMeta
 
-from adept.config import taxonomic_groups, logger, PROCESSED_DATA_DIR, DATA_DIR, INTERMEDIATE_DATA_DIR
+from adept.config import taxonomic_groups, logger, PROCESSED_DATA_DIR, DATA_DIR, INTERMEDIATE_DATA_DIR, INPUT_DIR
 from adept.tasks.pipeline import PipelineTask
 from adept.tasks.base import BaseTask
 from adept.utils.helpers import list_uuid
@@ -31,9 +31,10 @@ class AggregateBaseTask(BaseTask, metaclass=ABCMeta):
 
         for input_json in self.input():
             df = pd.read_json(input_json.path)
-            combined = df.groupby('taxon').agg(self._series_merge).reset_index()
-            dfs.append(df)
-            combined_dfs.append(combined)            
+            if not df.empty:
+                combined = df.groupby('taxon').agg(self._series_merge).reset_index()
+                dfs.append(df)
+                combined_dfs.append(combined)            
             
         combined_dfs = pd.concat(combined_dfs)
         combined_dfs = combined_dfs.drop(columns='source')
@@ -146,4 +147,15 @@ class AggregateFileTask(AggregateBaseTask):
     
 
 if __name__ == "__main__":    
-    luigi.build([AggregateTask(taxa=['Isolepis cernua'], taxonomic_group='angiosperm', force=True)], local_scheduler=True)  
+    
+    input_file = INPUT_DIR / 'north-american-assessments-genus-family.csv'
+    df = pd.read_csv(input_file)
+    
+    # taxa = df['genus'].unique().tolist()   
+    
+    # print(len(taxa))
+    
+    taxa = ['Castanea']
+    
+    luigi.build([PipelineTask(taxon=taxon, force=True) for taxon in taxa], local_scheduler=True)  
+    luigi.build([AggregateTask(taxa=taxa, taxonomic_group='angiosperm', force=True)], local_scheduler=True)  

@@ -21,7 +21,8 @@ class PipelineTask(BaseTask):
         
     taxon = luigi.Parameter()  
     taxonomic_group = luigi.ChoiceParameter(choices=taxonomic_groups, var_type=str, default="angiosperm")  
-    template_path = luigi.PathParameter(default=RAW_DATA_DIR / 'fields.tpl.yml')       
+    template_path = luigi.PathParameter(default=RAW_DATA_DIR / 'fields.tpl.yml') 
+    # template_path = luigi.OptionalPathParameter(default=None)       
     pipeline = Pipeline()
 
     def requires(self):
@@ -32,20 +33,22 @@ class PipelineTask(BaseTask):
             EflorasMossChinaDescriptionTask(taxon=self.taxon),
             EflorasPakistanDescriptionTask(taxon=self.taxon),            
         ]
-        if is_binomial(self.taxon):
-            yield BHLDescriptionTask(taxon=self.taxon)
+        # if is_binomial(self.taxon):
+        #     yield BHLDescriptionTask(taxon=self.taxon)
         
     def run(self):
+                
         data = []
         for i in self.input():       
             logger.info('Parsing descriptions for %s', self.taxon)            
             with i.open('r') as f:
                 descriptions = yaml.full_load(f)
-                
-                
+
                 for description in descriptions:                                           
                     if text := description.get('text'):
-                        fields = self.pipeline(text, self.taxonomic_group)                    
+                        fields = self.pipeline(text, self.taxonomic_group)    
+                        
+                        print(fields.to_dict())                
                         if self.template_path:
                             record = fields.to_template(self.template_path)
                         else:
@@ -62,4 +65,4 @@ class PipelineTask(BaseTask):
         return luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'descriptions' / f'{file_name}.json')             
 
 if __name__ == "__main__":    
-    luigi.build([PipelineTask(taxon='Isolepis cernua', force=True)], local_scheduler=True)  
+    luigi.build([PipelineTask(taxon='Bidens cernua', force=True)], local_scheduler=True)  

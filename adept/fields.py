@@ -170,12 +170,28 @@ class Fields(object):
                 data.update(value_dict)                   
         return data   
     
+    def build_fields_config(self,field_mappings: dict):
+        """
+        Build field configs based on template name - pull out measurement unit
+        """
+        field_configs = {}
+        for template_name, field_name in field_mappings.items():
+            if unit := self.extract_unit(template_name):
+                # Some field names cna be a list, so ensure all are a list
+                field_name_list = field_name if isinstance(field_name, list) else [field_name]
+                for fn in field_name_list:
+                    # We just want the first part of the field name seed measurement.y.max => seed measurement
+                    fn_part = fn.split('.')[0]
+                    field_configs[fn_part] = {'target_unit': unit}
+                    
+        return field_configs
+    
     def to_template(self, template_path: Path):
 
         with template_path.open('r') as f:
-            field_mappings = yaml.full_load(f)         
+            field_mappings = yaml.full_load(f)        
         
-        field_configs = {field_name.split('.')[0]: {'target_unit': unit} for template_name, field_name in field_mappings.items() if (unit := self.extract_unit(template_name))}
+        field_configs = self.build_fields_config(field_mappings)
         data_dict = self.to_dict(field_configs)
         
         def _get_value(field_name):
