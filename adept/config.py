@@ -14,11 +14,11 @@ RAW_DATA_DIR = Path(DATA_DIR / 'raw')
 INTERMEDIATE_DATA_DIR = Path(DATA_DIR / 'intermediate')
 PROCESSED_DATA_DIR = Path(DATA_DIR / 'processed')
 
-# FIXME: Should these be combined?
+# FIXME: Should these be combined? Processing DIR?
 TRAINING_DIR = Path(DATA_DIR / 'training')
 PACKAGES_DIR = Path(DATA_DIR / 'packages')
 MODEL_DIR = Path(DATA_DIR / 'models')
-
+CORPUS_DIR = Path(DATA_DIR / 'corpus')
 INPUT_DIR = Path(DATA_DIR / 'input')
 
 CACHE_DIR = Path(ROOT_DIR / '.cache')
@@ -36,7 +36,7 @@ taxonomic_groups = ['angiosperm', 'bryophyte', 'pteridophyte', 'gymnosperm']
 unit_registry = UnitRegistry()
 unit_registry.default_format = '~P'
 
-measurement_units = ['cm', 'ft', 'm', 'meter', 'metre', 'km', 'kilometer', 'kilometre', 'centimeter', 'centimetre', 'mm', 'millimeter', 'millimetre', 'um', 'micrometer', 'micrometre', 'micron', 'nm', 'nanometer', 'nanometre', 'pm', 'inch']
+measurement_units = ['cm', 'ft', 'm', 'meter', 'metre', 'km', 'kilometer', 'kilometre', 'centimeter', 'centimetre', 'mm', 'millimeter', 'millimetre', 'um', 'µm', 'micrometer', 'micrometre', 'micron', 'nm', 'nanometer', 'nanometre', 'pm', 'inch']
 volume_units = ['mm³', 'mm3', 'cm³', 'cm3', 'm³', 'm3']
 
 DEBUG = os.getenv('DEBUG') or 0

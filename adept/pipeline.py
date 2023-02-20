@@ -18,6 +18,8 @@ class Pipeline():
         registry.add_component('anatomical_ner')
         registry.add_component('traits_ner')
         registry.add_component('traits_custom_ner')
+        registry.add_component('dimension_ner')
+        registry.add_component('measurement_rel', after="dimension_ner")
                 
         self.preprocess = Preprocess()        
         self.postprocess = Postproccess()  
@@ -25,7 +27,7 @@ class Pipeline():
     
     def __call__(self, text, taxon_group):                  
         text = self.preprocess(text)          
-        doc = self.nlp(text)
-        return self.postprocess(doc, taxon_group)
+        self.doc = self.nlp(text)
+        return self.postprocess(self.doc, taxon_group)
     
 

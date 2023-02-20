@@ -14,15 +14,14 @@ from adept.utils.expand import ExpandSpan
 from adept.utils.helpers import token_get_ent
 from adept.tasks.patterns.trait import TraitPatternsTask
 
-class DiscreteTraitsComponent(EntityRuler):
-    
-    pipeline_config = {'after': 'anatomical_entity'}        
-    patterns_file_path =  TraitPatternsTask().output().path
+# class DiscreteTraitsComponent(EntityRuler):
+          
+#     patterns_file_path =  TraitPatternsTask().output().path
 
-    def __init__(self, nlp, *args, **cfg):
-        super().__init__(nlp, overwrite_ents=True, *args, **cfg)
+#     def __init__(self, nlp, *args, **cfg):
+#         super().__init__(nlp, overwrite_ents=True, *args, **cfg)
         
-        self.from_disk(self.patterns_file_path)
+#         self.from_disk(self.patterns_file_path)
         
         
 class CustomTraitsComponent:  
