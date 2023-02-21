@@ -3,8 +3,12 @@ habitat:
 habit:
 clonality:
 perennial organ:
-plant min. height [m]: 'plant measurement.y.min'
-plant max. height [m]: 'plant measurement.y.max'
+plant min. height [m]: 
+  - 'plant measurement.height.min'
+  - 'plant measurement.length.min'
+plant max. height [m]: 
+  - 'plant measurement.height.max'
+  - 'plant measurement.length.max'
 indumentum:
 spinescence:
 succulence:
@@ -15,10 +19,10 @@ leaf shape:
 leaf apex:
 leaf base:
 leaf margin:
-leaf min. width [cm]: 'leaf measurement.x.min'
-leaf max. width [cm]: 'leaf measurement.x.max'
-leaf min. length [cm]: 'leaf measurement.y.min'
-leaf max. length [cm]: 'leaf measurement.y.max'
+leaf min. width [cm]: 'leaf measurement.width.min'
+leaf max. width [cm]: 'leaf measurement.width.max'
+leaf min. length [cm]: 'leaf measurement.length.min'
+leaf max. length [cm]: 'leaf measurement.length.max'
 bract colour:
 bracteole colour:
 inflorescence arrangement:
@@ -37,17 +41,17 @@ flower colour:
   - inflorescence colour
 petal fusion:
 petal colour:
-petal min. width [cm]: 'petal measurement.x.min'
-petal max. width [cm]: 'petal measurement.x.max'
+petal min. width [cm]: 'petal measurement.width.min'
+petal max. width [cm]: 'petal measurement.width.max'
 calyx colour:
-calyx min. length [cm]: 'calyx measurement.y.min'
-calyx max. length [cm]: 'calyx measurement.y.max'
+calyx min. length [cm]: 'calyx measurement.length.min'
+calyx max. length [cm]: 'calyx measurement.length.max'
 corolla colour:
-corolla tube min. length [cm]: 'corolla measurement.y.min'
-corolla tube max. length [cm]: 'corolla measurement.y.max'
+corolla tube min. length [cm]: 'corolla measurement.length.min'
+corolla tube max. length [cm]: 'corolla measurement.length.max'
 labellum colour:
-labellum min. width [cm]: 'labellum measurement.y.min'
-labellum max. width [cm]: 'labellum measurement.y.min'
+labellum min. width [cm]: 'labellum measurement.width.min'
+labellum max. width [cm]: 'labellum measurement.width.min'
 reproduction architecture:
 reproduction system:
 stamen number: 
@@ -69,10 +73,6 @@ fruit structure:
 fruit dehiscence:
 fruit shape:
 fruit colour:
-dispersule min. width [cm]: 'dispersule measurement.x.min'
-dispersule max. width [cm]: 'dispersule measurement.x.max'
-dispersule min. length [cm]: 'dispersule measurement.y.min'
-dispersule max. length [cm]: 'dispersule measurement.y.max'
 seed colour:
 seeds per fruit min: 
   - 'seed number.min'
@@ -82,20 +82,24 @@ seeds per fruit max:
   - 'nut number.max'
 seeds per fruit min.: 'seed number.max'
 seed min. width [mm]: 
-  - 'seed measurement.x.min'
-  - 'nut measurement.x.min'
+  - 'seed measurement.width.min'
+  - 'nut measurement.width.min'
 seed max. width [mm]: 
-  - 'seed measurement.x.max'
-  - 'nut measurement.x.max'
+  - 'seed measurement.width.max'
+  - 'nut measurement.width.max'
 seed min. length [mm]: 
-  - 'seed measurement.y.min'
-  - 'nut measurement.y.min'
+  - 'seed measurement.length.min'
+  - 'nut measurement.length.min'
 seed max. length [mm]:
-  - 'seed measurement.y.max'
-  - 'nut measurement.y.max'
+  - 'seed measurement.length.max'
+  - 'nut measurement.length.max'
 dispersal mode:
 ploidy level (2n):
 seed min. volume [mm³]: 'seed volume.min'
 seed max. volume [mm³]: 'seed volume.max'
-root min. depth [cm]: 'root measurement.y.min'
-root max. depth [cm]: 'root measurement.y.max'
+root min. depth [cm]: 
+  - 'root measurement.length.min'
+  - 'root measurement.depth.min'
+root max. depth [cm]: 
+  - 'root measurement.length.max'
+  - 'root measurement.depth.max'
