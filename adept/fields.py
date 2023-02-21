@@ -5,7 +5,7 @@ from spacy.tokens import Span, Doc
 import re
 import yaml
 
-from adept.config import unit_registry, logger
+from adept.config import unit_registry, logger, DimensionType
 from adept.utils.helpers import flatten_dict
 
 class Field(ABC):
@@ -66,25 +66,45 @@ class MeasurementField(NumericField):
     def __init__(self, name):
         self.name = name
         self.value = {}
+ 
+    # In botanical descriptions length measurements are provided first, then width.  
+    # These can be set without specifying a dimension_type
+    implicit_dimension_types = [DimensionType.LENGTH, DimensionType.WIDTH]
     
-    # Length/height measurements are provided first, followed by width. 
-    dimension_axes = ['y', 'x']    
-
-    def set_value(self, ent, axis = None):           
-        if len(self.value) == 2:
-            logger.error(f'Field {self.name} already has a value')
+    def set_value(self, ent):
+        dimension_type = DimensionType[ent._.measurement_dimension.label_] if ent._.measurement_dimension else None
+        try:
+            dimension_type = self.validate_dimension_type(dimension_type)
+        except Exception as e:
+            logger.error(e)
             return
+            
+        self._set_value(ent, dimension_type)
         
-        if not axis:    
-            axis = self.dimension_axes[len(self.value)]
-
-        self._set_value(ent, axis)
+    def validate_dimension_type(self, dimension_type : DimensionType = None):
+        existing_dimension_types = list(self.value.keys())
+        if dimension_type: 
+            
+            if dimension_type in existing_dimension_types:
+                raise Exception(f'Field {self.name} already has a value for {dimension_type}')
+            
+            return dimension_type
+        
+        if self.value:  # No dimension type specfied, and we already have a value
+            # if the existing existing_dimension_type is first entry in list ([DimensionType.LENGTH]),
+            # dimension type will be second implicit value - DimensionType.WIDTH
+            if existing_dimension_types != self.implicit_dimension_types[:1]:
+                raise Exception(f'Field {self.name} already has values for {[t.name for t in existing_dimension_types]} and no dimension type specified')
+            
+            return self.implicit_dimension_types[1]
+                                  
+        # No dimension type specified, and no existing value
+        return self.implicit_dimension_types[0]        
         
     def get_value(self, target_unit=None):
-        data = {}        
-        for axis in self.dimension_axes:
-            if axis in self.value: 
-                data[axis] = {k: self._format_output(v, target_unit) for k, v in self.value.get(axis).items() if v}
+        data = {}   
+        for dimension_type, value_dict in self.value.items():
+            data[dimension_type.name.lower()] = {k: self._format_output(v, target_unit) for k, v in value_dict.items() if v}
         return data
     
     def _format_output(self, value, target_unit=None):
@@ -94,7 +114,7 @@ class MeasurementField(NumericField):
         # Convert value to string - uses the default formatting set in adept.config unit_registry.default_format  
         return f'{value}'
 
-    def _set_value(self, ent, axis):                  
+    def _set_value(self, ent, dimension_type):                  
         unit = ent._.unit        
         # Some measurements are detected, but have no unit. 
         # E.g. Petals white, suborbicular, 6-7 x 5-6.
@@ -105,7 +125,7 @@ class MeasurementField(NumericField):
         
         if value_dict := self._get_ent_value(ent):
             value_dict = {x: self._to_unit(y, unit) for x, y in value_dict.items() if y}
-            self.value[axis] = value_dict        
+            self.value[dimension_type] = value_dict        
         
     def _to_unit(self, value, unit):
         if value:
@@ -116,16 +136,8 @@ class DimensionField(MeasurementField):
     
     def set_value(self, ent: Span):   
         ents = ent._.get("dimension_parts")        
-        for axis, dim_ent in zip(self.dimension_axes, ents):        
-            self._set_value(dim_ent, axis)
-
-
-class VolumeField(MeasurementField):   
-    def _set_value(self, ent: Span):          
-        self.value = self._get_minmax_value(ent, ent._.measurement_unit)
-
-    def get_value(self, target_unit=None):           
-        return {k: self._format_output(v, target_unit) for k, v in self.value.items()}
+        for dimension_type, ent in zip(self.implicit_dimension_types, ents):        
+            self._set_value(ent, dimension_type)
 
             
 class DiscreteField(Field):
@@ -139,7 +151,6 @@ class Fields(object):
         'measurement': MeasurementField,
         'dimension': DimensionField,
         'numeric': NumericField,
-        'volume': VolumeField,
     }    
     
     re_unit = re.compile('\[([a-z³]+)\]')
@@ -151,7 +162,6 @@ class Fields(object):
         # If we do not already have the field defined create it         
         if not field_name in self._fields: 
             self._fields[field_name] = self._factory(field_type, field_name)
-
         self._fields[field_name].set_value(value)
             
     def _factory(self, field_type, field_name):

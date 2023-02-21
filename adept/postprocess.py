@@ -78,14 +78,10 @@ class Postproccess():
         
 
     def _process_measurement_fields(self, sent: Doc, fields: Fields, part: str):
-        ents = self._filter_ents(sent, ['MEASUREMENT', 'DIMENSION', 'VOLUME'])
+        ents = self._filter_ents(sent, ['MEASUREMENT', 'DIMENSION'])
         for ent in ents:
             field_type = ent.label_.lower()
-            if ent.label_ == 'VOLUME':
-                field_name = f'{part} volume'
-            else:
-                field_name = f'{part} measurement'
-
+            field_name = f'{part} measurement'
             fields.upsert(field_name, field_type, ent)            
     
     @staticmethod

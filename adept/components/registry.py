@@ -6,7 +6,7 @@ from adept.components.sentencizer import SentencizerComponent
 from adept.components.numeric import NumericComponent
 from adept.components.anatomical import AnatomicalComponent
 from adept.components.traits import CustomTraitsComponent
-from adept.components.measurement import MeasurementDimensiontRelationComponen
+from adept.components.measurement import MeasurementDimensionRelationComponent
 from adept.config import CORPUS_DIR
 from adept.tasks.patterns.trait import TraitPatternsTask
 
@@ -38,7 +38,7 @@ def create_dimension_component(nlp: Language, name: str):
 
 @Language.factory("measurement_rel")
 def create_measurement_rel_component(nlp: Language, name: str):
-    return MeasurementDimensiontRelationComponen(nlp)
+    return MeasurementDimensionRelationComponent(nlp)
 
 class ComponentsRegistry(object):
     def __init__(self, nlp):

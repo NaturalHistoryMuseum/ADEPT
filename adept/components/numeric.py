@@ -4,7 +4,7 @@ from spacy.matcher import Matcher
 from spacy.tokens import Span, Doc
 from decimal import Decimal, InvalidOperation
 
-from adept.config import logger, measurement_units, volume_units, unit_registry
+from adept.config import logger, measurement_units, unit_registry
 
 
 class NumericComponent: 
@@ -28,9 +28,8 @@ class NumericComponent:
     re_outer = re.compile(r'((?P<lower>[\d.\/\s]+)\-?\))?\s?(?P<inner>[\d\-]+[\s\d\-\.]*)\s?(\(\-?(?P<upper>[\d.\/\s]+))?')    
     # re_outer = re.compile(r'((?P<lower>[\d.\/\s]+)\-?\))?(?P<inner>[\s\-]?[\d][\d\-\s\.]+)\((?P<upper>.+)')
     re_inner = re.compile(r'(?P<from>([\d][\d\.]{0,}))?\s?\-?\s?(?P<to>([\d][\d\.]{0,}))?')
-
-    units = measurement_units + volume_units    
-    units_pattern = '|'.join([unit for unit in units])       
+  
+    units_pattern = '|'.join([unit for unit in measurement_units])       
     re_units = re.compile(f'({units_pattern})+') # Include + so mm is preferred to m    
     
     def __init__(self, nlp):   

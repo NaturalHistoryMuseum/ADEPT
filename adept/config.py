@@ -36,8 +36,10 @@ taxonomic_groups = ['angiosperm', 'bryophyte', 'pteridophyte', 'gymnosperm']
 unit_registry = UnitRegistry()
 unit_registry.default_format = '~P'
 
+DimensionType = enum.Enum('DimensionType', ['LENGTH', 'WIDTH', 'HEIGHT', 'DEPTH', 'DIAMETER', 'RADIUS'])
+
 measurement_units = ['cm', 'ft', 'm', 'meter', 'metre', 'km', 'kilometer', 'kilometre', 'centimeter', 'centimetre', 'mm', 'millimeter', 'millimetre', 'um', 'µm', 'micrometer', 'micrometre', 'micron', 'nm', 'nanometer', 'nanometre', 'pm', 'inch']
-volume_units = ['mm³', 'mm3', 'cm³', 'cm3', 'm³', 'm3']
+
 
 DEBUG = os.getenv('DEBUG') or 0
 
