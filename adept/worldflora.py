@@ -1,11 +1,11 @@
 import pandas as pd
-from adept.config import logger, RAW_DATA_DIR
+from adept.config import logger, ASSETS_DIR
 
 class WorldFlora():
     
     def __init__(self):
         # Read parquent file - keeps file size small enough to go into github         
-        self._df = pd.read_parquet(RAW_DATA_DIR / 'worldflora.parquet') 
+        self._df = pd.read_parquet(ASSETS_DIR / 'worldflora.parquet') 
     
     def get_taxa_by_name(self, name):      
         return self._df[self._df['scientificName'] == name]

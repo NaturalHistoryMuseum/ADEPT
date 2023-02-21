@@ -10,16 +10,24 @@ import enum
 ROOT_DIR = Path(__file__).parent.parent.resolve()
 
 DATA_DIR = Path(ROOT_DIR / 'data')
-RAW_DATA_DIR = Path(DATA_DIR / 'raw')
-INTERMEDIATE_DATA_DIR = Path(DATA_DIR / 'intermediate')
-PROCESSED_DATA_DIR = Path(DATA_DIR / 'processed')
 
-# FIXME: Should these be combined? Processing DIR?
+ASSETS_DIR = Path(DATA_DIR / 'assets')
 TRAINING_DIR = Path(DATA_DIR / 'training')
 PACKAGES_DIR = Path(DATA_DIR / 'packages')
 MODEL_DIR = Path(DATA_DIR / 'models')
-CORPUS_DIR = Path(DATA_DIR / 'corpus')
-INPUT_DIR = Path(DATA_DIR / 'input')
+
+PROCESSING_DATA_DIR = Path(ROOT_DIR / 'processing')
+INPUT_DATA_DIR = Path(PROCESSING_DATA_DIR / 'input')
+INTERMEDIATE_DATA_DIR = Path(PROCESSING_DATA_DIR / 'intermediate')
+OUTPUT_DATA_DIR = Path(PROCESSING_DATA_DIR / 'output')
+
+
+
+
+
+
+
+
 
 CACHE_DIR = Path(ROOT_DIR / '.cache')
 CACHE_DIR.mkdir(parents=True, exist_ok=True)

@@ -1,7 +1,7 @@
 import luigi
 import yaml
 
-from adept.config import RAW_DATA_DIR, PROCESSED_DATA_DIR
+from adept.config import ASSETS_DIR, OUTPUT_DATA_DIR
 from adept.traits import Traits
 from adept.utils.patterns import Patterns
 from adept.tasks.base import BaseTask
@@ -16,7 +16,7 @@ class AnatomicalPartsTask(luigi.ExternalTask):
         :return: the target output for this task.
         :rtype: object (:py:class:`luigi.target.Target`)
         """
-        return luigi.LocalTarget(RAW_DATA_DIR / 'anatomical-parts.yml')
+        return luigi.LocalTarget(ASSETS_DIR / 'anatomical-parts.yml')
 
 
 class AnatomyPatternsTask(BaseTask):
@@ -46,7 +46,7 @@ class AnatomyPatternsTask(BaseTask):
         patterns.to_jsonl(self.output().path)
          
     def output(self):
-        return luigi.LocalTarget(PROCESSED_DATA_DIR / 'anatomy.jsonl')
+        return luigi.LocalTarget(OUTPUT_DATA_DIR / 'anatomy.jsonl')
 
 
 if __name__ == "__main__":    

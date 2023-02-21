@@ -7,7 +7,7 @@ from pathlib import Path
 import itertools
 from abc import ABC, abstractmethod,ABCMeta
 
-from adept.config import taxonomic_groups, logger, PROCESSED_DATA_DIR, DATA_DIR, INTERMEDIATE_DATA_DIR, INPUT_DIR
+from adept.config import taxonomic_groups, logger, OUTPUT_DATA_DIR, DATA_DIR, INTERMEDIATE_DATA_DIR, INPUT_DATA_DIR
 from adept.tasks.pipeline import PipelineTask
 from adept.tasks.base import BaseTask
 from adept.utils.helpers import list_uuid
@@ -86,7 +86,7 @@ class AggregateTask(AggregateBaseTask):
         
     def output(self):
         uuid = list_uuid(self.taxa)
-        return luigi.LocalTarget(PROCESSED_DATA_DIR / f'{uuid}.traits.xlsx')                  
+        return luigi.LocalTarget(OUTPUT_DATA_DIR / f'{uuid}.traits.xlsx')                  
                     
 class AggregateFileTask(AggregateBaseTask):
     
@@ -143,12 +143,12 @@ class AggregateFileTask(AggregateBaseTask):
             
     def output(self):
         output_file_name = Path(self.file_path).stem
-        return luigi.LocalTarget(PROCESSED_DATA_DIR / f'{output_file_name}.traits.xlsx')           
+        return luigi.LocalTarget(OUTPUT_DATA_DIR / f'{output_file_name}.traits.xlsx')           
     
 
 if __name__ == "__main__":    
     
-    input_file = INPUT_DIR / 'north-american-assessments-genus-family.csv'
+    input_file = INPUT_DATA_DIR / 'north-american-assessments-genus-family.csv'
     df = pd.read_csv(input_file)
     
     # taxa = df['genus'].unique().tolist()   

@@ -3,7 +3,7 @@ import pandas as pd
 from pathlib import Path
 import yaml
 
-from adept.config import taxonomic_groups, logger, PROCESSED_DATA_DIR, DATA_DIR, INTERMEDIATE_DATA_DIR
+from adept.config import taxonomic_groups, logger, OUTPUT_DATA_DIR, DATA_DIR, INTERMEDIATE_DATA_DIR
 from adept.tasks.base import BaseTask
 from adept.tasks.descriptions.ecoflora.description import EcofloraDescriptionTask
 from adept.tasks.descriptions.bhl.description import BHLDescriptionTask
@@ -42,7 +42,7 @@ class AggregateDescriptionsTask(BaseTask):
     
     def output(self):
         uuid = list_uuid(self.taxon_names)
-        return luigi.LocalTarget(PROCESSED_DATA_DIR / f'{uuid}.descriptions.csv') 
+        return luigi.LocalTarget(OUTPUT_DATA_DIR / f'{uuid}.descriptions.csv') 
     
 if __name__ == "__main__":    
     

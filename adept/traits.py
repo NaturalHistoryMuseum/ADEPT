@@ -7,7 +7,7 @@ import numpy as np
 
 
 
-from adept.config import RAW_DATA_DIR
+from adept.config import ASSETS_DIR
 from adept.utils.helpers import get_words
 
 class Traits():
@@ -15,7 +15,7 @@ class Traits():
     Read the traits from functional traits database
     """
     
-    _df = pd.read_parquet(RAW_DATA_DIR / 'traits.parquet') 
+    _df = pd.read_parquet(ASSETS_DIR / 'traits.parquet') 
             
     def get_discrete_traits(self, group=None):     
         return self._get_traits_by_type('discrete', group) 

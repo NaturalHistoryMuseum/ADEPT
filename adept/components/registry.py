@@ -7,7 +7,7 @@ from adept.components.numeric import NumericComponent
 from adept.components.anatomical import AnatomicalComponent
 from adept.components.traits import CustomTraitsComponent
 from adept.components.measurement import MeasurementDimensionRelationComponent
-from adept.config import CORPUS_DIR
+from adept.config import ASSETS_DIR
 from adept.tasks.patterns.trait import TraitPatternsTask
 
 
@@ -34,7 +34,7 @@ def create_numeric_traits_component(nlp: Language, name: str):
 
 @Language.factory("dimension_ner")
 def create_dimension_component(nlp: Language, name: str):
-    return EntityRuler(nlp).from_disk(CORPUS_DIR / 'dimension_patterns.jsonl')
+    return EntityRuler(nlp).from_disk(ASSETS_DIR / 'dimension_patterns.jsonl')
 
 @Language.factory("measurement_rel")
 def create_measurement_rel_component(nlp: Language, name: str):

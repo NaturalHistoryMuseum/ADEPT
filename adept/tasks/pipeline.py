@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import yaml
 
-from adept.config import RAW_DATA_DIR, PROCESSED_DATA_DIR, INTERMEDIATE_DATA_DIR
+from adept.config import ASSETS_DIR, OUTPUT_DATA_DIR, INTERMEDIATE_DATA_DIR
 from adept.traits import Traits
 from adept.utils.patterns import Patterns
 
@@ -21,7 +21,7 @@ class PipelineTask(BaseTask):
         
     taxon = luigi.Parameter()  
     taxonomic_group = luigi.ChoiceParameter(choices=taxonomic_groups, var_type=str, default="angiosperm")  
-    template_path = luigi.PathParameter(default=RAW_DATA_DIR / 'fields.tpl.yml') 
+    template_path = luigi.PathParameter(default=ASSETS_DIR / 'fields.tpl.yml') 
     # template_path = luigi.OptionalPathParameter(default=None)       
     pipeline = Pipeline()
 
