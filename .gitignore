@@ -6,8 +6,9 @@ __pycache__/
 *.code-workspace
 .tool-versions
 data/training
-data/intermediate
+data/processing
 data/packages
+data/models/
 train/classifier/training/vector/
 project.lock
 
