@@ -23,7 +23,7 @@ vars:
   version: "0.0.1"
   # Set your GPU ID, -1 is CPU
   # gpu_id: 0
-  gpu_id: 0
+  gpu_id: -1
   vectors_model: "en_core_web_md"  
   trf_model: "TODO"
   dir: 
@@ -98,7 +98,7 @@ commands:
     script:
       - "python -m spacy train ${vars.dir.config}/trf_config.cfg --output ${vars.dir.training_trf} --paths.train ${vars.file.spacy.train} --paths.dev ${vars.file.spacy.val} --gpu-id ${vars.gpu_id} --code ${vars.file.code}"
     deps:
-      - "${vars.dir.config}/config.cfg"
+      - "${vars.dir.config}/trf_config.cfg"
       - "${vars.file.spacy.train}"
       - "${vars.file.spacy.val}"
     outputs:
