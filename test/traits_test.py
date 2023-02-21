@@ -2,7 +2,7 @@ import unittest
 
 
 from adept.pipeline import Pipeline
-from adept.config import RAW_DATA_DIR
+from adept.config import ASSETS_DIR
 
 
 class TraitsTest(unittest.TestCase):
@@ -13,7 +13,7 @@ class TraitsTest(unittest.TestCase):
     def test_ploidy(self):  
         text = "Herbs to 40-100 cm tall, annual, much branched. 2 ovaries. 56 stamenoids. Seed volume is about 2 cm³. 2n=23,34"    
         fields = self.pipeline(text, 'angiosperm')
-        print(fields.to_template(RAW_DATA_DIR / 'fields.tpl.yml'))
+        print(fields.to_template(ASSETS_DIR / 'fields.tpl.yml'))
         
         # print(fields.to_dict())
         

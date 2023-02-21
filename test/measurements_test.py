@@ -2,7 +2,6 @@ import unittest
 from spacy.tokens import Doc, Span
 
 from adept.pipeline import Pipeline
-from adept.config import RAW_DATA_DIR
 
 
 class MeasurementsTest(unittest.TestCase):

@@ -14,7 +14,7 @@ class PipelineTest(unittest.TestCase):
         fields = self.pipeline(text, 'angiosperm')
         print(fields.to_template())
         
-        RAW_DATA_DIR / 'fields.tpl.yml'
+        ASSETS_DATA_DIR / 'fields.tpl.yml'
 
 
 
