@@ -25,7 +25,7 @@ vars:
   # gpu_id: 0
   gpu_id: 0
   vectors_model: "en_core_web_md"  
-  trf_model: "roberta-base"
+  trf_model: "en_core_web_trf"
   dir: 
     corpus: 'corpus'
     training: 'training'
@@ -96,7 +96,7 @@ commands:
   - name: "train-trf"
     help: "Train the transformer model"
     script:
-      - "python -m spacy train ${vars.dir.config}/trf_config.cfg --output ${vars.dir.training_trf} --paths.train ${vars.file.spacy.train} --paths.dev ${vars.file.spacy.val} --gpu-id ${vars.gpu_id} --paths.trf_model ${vars.trf_model} --code ${vars.file.code}" 
+      - "python -m spacy train ${vars.dir.config}/trf_config.cfg --output ${vars.dir.training_trf} --paths.train ${vars.file.spacy.train} --paths.dev ${vars.file.spacy.val} --gpu-id ${vars.gpu_id} --code ${vars.file.code}" 
     deps:
       - "${vars.dir.config}/trf_config.cfg"
       - "${vars.file.spacy.train}"
@@ -144,7 +144,9 @@ commands:
   - name: "assemble"
     help: "Assemble all parts into the complete ADEPT pipeline."
     script:
-      - spacy assemble ${vars.dir.config}/adept.cfg ${vars.dir.training}/adept --code ${vars.file.code} --paths.trf_model ${vars.trf_model} --paths.trained_model ${vars.dir.training_vector}/model-best
+      - spacy assemble ${vars.dir.config}/assemble.cfg ${vars.dir.models}/adept --code ${vars.file.code} --paths.trf_model ${vars.trf_model} --paths.trained_model ${vars.dir.training_trf}/model-best
     deps:
       - ${vars.dir.training_vector}/model-best
-      - ${vars.dir.config}/adept.cfg      
+      - ${vars.dir.config}/assemble.cfg    
+    outputs:
+      - "${vars.dir.models}/adept"        
