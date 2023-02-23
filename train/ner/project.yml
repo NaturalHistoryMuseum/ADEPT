@@ -23,7 +23,7 @@ vars:
   version: "0.0.1"
   # Set your GPU ID, -1 is CPU
   # gpu_id: 0
-  gpu_id: 0
+  gpu_id: -1
   vectors_model: "en_core_web_md"  
   trf_model: "en_core_web_trf"
   dir: 
