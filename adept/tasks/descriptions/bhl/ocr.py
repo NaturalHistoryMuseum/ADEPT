@@ -23,6 +23,9 @@ class BHLOCRTask(BaseTask):
         return BHLImageTask(bhl_id=self.bhl_id)     
     
     def run(self):
+        
+        logger.info('Running BHL OCR Task for %s', self.bhl_id)
+        
         with self.output().open('w') as f:
             try:
                 text = pytesseract.image_to_string(self.input().path)
