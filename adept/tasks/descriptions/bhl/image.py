@@ -16,7 +16,7 @@ class BHLImageTask(BaseExternalTask):
     
     def run(self):
         image_url = f'{BHL_BASE_URL}/pageimage/{self.bhl_id}'
-        logger.debug('Retrieving image: ', image_url)
+        logger.debug('Retrieving image: %s', image_url)
         try:
             urlretrieve(image_url, self.output().path)
         except urllib.error.HTTPError as e:
