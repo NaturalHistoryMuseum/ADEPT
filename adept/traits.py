@@ -4,9 +4,6 @@ import uuid
 import yaml
 import numpy as np
 
-
-
-
 from adept.config import ASSETS_DIR
 from adept.utils.helpers import get_words
 
@@ -52,25 +49,18 @@ class SimpleTraitTextClassifier:
     def __init__(self, min_terms=5, min_ratio=0.05):        
         self.min_terms = min_terms
         self.min_ratio = min_ratio
-        self._trait_terms = self._to_lower_set(self.traits.get_unique_discrete_terms())
+        self._trait_terms = set([term.lower() for term in self.traits.get_unique_discrete_terms()])
         
     def is_description(self, text):
-        words = self._to_lower_set(get_words(text))
-        matching_terms = words.intersection(self._trait_terms) if words else [] 
-        if not (words or matching_terms):
-            return False        
-        
-        ratio = len(matching_terms) / len(words) 
-        # If the percentage of parts is greater than 5% (for short descriptions)
-        if ratio >= self.min_ratio and len(matching_terms) >= self.min_terms:
-            return True                
-        
-    @staticmethod
-    def _to_lower_set(terms):
-        return set([t.lower() for t in terms])
-    
-
-    
+        if words := get_words(text.lower()):
+            matching_terms = set(words).intersection(self._trait_terms)           
+            matching_terms = self._trait_terms.intersection(words)
+            if not matching_terms or len(matching_terms) < self.min_terms:
+                return False                
+            ratio = len(matching_terms) / len(words) 
+            # If the percentage of parts is greater than 5% (for short descriptions)
+            if ratio >= self.min_ratio:
+                return True                    
    
 if __name__ == '__main__':
     traits = SimpleTraitTextClassifier()
