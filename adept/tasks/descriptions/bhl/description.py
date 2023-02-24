@@ -11,6 +11,7 @@ import pandas as pd
 import luigi
 import logging
 import pandas as pd
+import time
 from langdetect import detect 
 import numpy as np
 from urllib.request import urlretrieve
@@ -52,25 +53,31 @@ class BHLDescriptionTask(BaseTask):
             
     def run(self):
         
-        data = []
-        
+        data = []       
         with self.input().open('r') as f: 
             df = pd.read_csv(f)
-            bhl_ids = df['page_id'].unique().tolist()
+            bhl_ids = df['page_id'].unique().tolist()            
+            logger.debug('BHLAggregateOCRTask: %s BHL pages located for %s', len(bhl_ids), self.taxon)                        
             agg_task_target = yield BHLAggregateOCRTask(bhl_ids=bhl_ids, taxon=self.taxon)
             
         with agg_task_target.open('r') as f:
             bhl_pages =  yaml.safe_load(f)
-            for page in bhl_pages:
-                if not page.get('text'): continue                
+            logger.debug('BHLAggregateOCRTask: processing %s BHL pages for %s', len(bhl_pages), self.taxon)                      
+            for i, page in enumerate(bhl_pages):
+                
+                if i % 10 == 0:
+                    logger.debug('BHLAggregateOCRTask: processing %s/%s BHL pages for %s', i, len(bhl_pages), self.taxon)
+                                    
+                if not page.get('text'): continue        
+                
                 if descriptions := list(self.postprocess(self.taxon, page['text'])):
-                    data.append({
-                        'bhl_id': page['bhl_id'],
-                        'source': f"bhl.{page['bhl_id']}",
+                    data.append({                        
+                        'source': f"bhl",
+                        'source_id': page['bhl_id'],
                         'taxon': self.taxon,
                         'text': '\n\n'.join(descriptions) 
                     })            
-                  
+
         with self.output().open('w') as f:
             f.write(yaml.dump(data, explicit_start=True, default_flow_style=False)) 
                         
@@ -84,7 +91,7 @@ if __name__ == "__main__":
        
     # luigi.build([BHLAggregateOCRTask(bhl_ids=l, taxon='Metopium toxiferum')], local_scheduler=True) 
     # luigi.build([BHLDescriptionTask(taxon='Metopium toxiferum')], local_scheduler=True)
-    luigi.build([BHLDescriptionTask(taxon='Eleocharis', force=True)], local_scheduler=True)
+    luigi.build([BHLDescriptionTask(taxon='Eleocharis palustris', force=True)], local_scheduler=True)
     # luigi.build([BHLDescriptionTask(bhl_id=27274329, force=True)], local_scheduler=True)      
     
     
