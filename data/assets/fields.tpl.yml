@@ -39,6 +39,7 @@ flower shape:
 flower colour: 
   - flower colour
   - inflorescence colour
+flower orientation:
 petal fusion:
 petal colour:
 petal min. width [cm]: 'petal measurement.width.min'
@@ -49,9 +50,12 @@ calyx max. length [cm]: 'calyx measurement.length.max'
 corolla colour:
 corolla tube min. length [cm]: 'corolla measurement.length.min'
 corolla tube max. length [cm]: 'corolla measurement.length.max'
+corolla tube lipped:
 labellum colour:
 labellum min. width [cm]: 'labellum measurement.width.min'
 labellum max. width [cm]: 'labellum measurement.width.min'
+spur min. length [cm]: 'spur measurement.length.min'
+spur max. length [cm]: 'spur measurement.length.max'
 reproduction architecture:
 reproduction system:
 stamen number: 
@@ -61,13 +65,19 @@ stamen arrangement:
 stamenoid number: 
   - stamenoid number.min
   - stamenoid number.max
+stamen min. length [cm]: 'stamen measurement.length.min'
+stamen max. length [cm]: 'stamen measurement.length.max'  
+staminodium:
+pollen colour:
 carpel/ovary number:
   - carpel number.min
   - carpel number.max
   - ovary number.min
   - ovary number.max
 gynoecium arrangement:
+heterostyly:
 pollination:
+reward:
 fruit type:
 fruit structure:
 fruit dehiscence:
@@ -93,10 +103,14 @@ seed min. length [mm]:
 seed max. length [mm]:
   - 'seed measurement.length.max'
   - 'nut measurement.length.max'
+seed min. diameter [mm]: 
+  - 'seed measurement.diameter.min'
+  - 'nut measurement.diameter.min'
+seed max. diameter [mm]:
+  - 'seed measurement.diameter.max'
+  - 'nut measurement.diameter.max'  
 dispersal mode:
 ploidy level (2n):
-seed min. volume [mm³]: 'seed volume.min'
-seed max. volume [mm³]: 'seed volume.max'
 root min. depth [cm]: 
   - 'root measurement.length.min'
   - 'root measurement.depth.min'
