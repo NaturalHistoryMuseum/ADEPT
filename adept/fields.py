@@ -72,14 +72,17 @@ class MeasurementField(NumericField):
     implicit_dimension_types = [DimensionType.LENGTH, DimensionType.WIDTH]
     
     def set_value(self, ent):
-        dimension_type = DimensionType[ent._.measurement_dimension.label_] if ent._.measurement_dimension else None
-        try:
-            dimension_type = self.validate_dimension_type(dimension_type)
-        except Exception as e:
-            logger.error(e)
-            return
-            
-        self._set_value(ent, dimension_type)
+        if dimension_ents := ent._.get("dimension_parts"):      
+            for dimension_type, ent in zip(self.implicit_dimension_types, dimension_ents):        
+                self._set_value(ent, dimension_type)
+        else:
+            dimension_type = DimensionType[ent._.measurement_dimension.label_] if ent._.measurement_dimension else None
+            try:
+                dimension_type = self.validate_dimension_type(dimension_type)
+            except Exception as e:
+                logger.error(e)
+                return            
+            self._set_value(ent, dimension_type)
         
     def validate_dimension_type(self, dimension_type : DimensionType = None):
         existing_dimension_types = list(self.value.keys())
@@ -131,14 +134,6 @@ class MeasurementField(NumericField):
         if value:
             return value * unit
          
-
-class DimensionField(MeasurementField):
-    
-    def set_value(self, ent: Span):   
-        ents = ent._.get("dimension_parts")        
-        for dimension_type, ent in zip(self.implicit_dimension_types, ents):        
-            self._set_value(ent, dimension_type)
-
             
 class DiscreteField(Field):
     
@@ -147,21 +142,18 @@ class DiscreteField(Field):
 class Fields(object):
     
     _classes = {
-        'discrete': DiscreteField,
-        'measurement': MeasurementField,
-        'dimension': DimensionField,
-        'numeric': NumericField,
-    }    
-    
+        fld_cls.field_type: fld_cls for fld_cls in [DiscreteField, MeasurementField, NumericField]
+    }
     re_unit = re.compile('\[([a-z³]+)\]')
     
     def __init__(self):
         self._fields = OrderedDict()
         
     def upsert(self, field_name, field_type, value):
-        # If we do not already have the field defined create it         
+        # If we do not already have the field defined create it       
         if not field_name in self._fields: 
             self._fields[field_name] = self._factory(field_type, field_name)
+            
         self._fields[field_name].set_value(value)
             
     def _factory(self, field_type, field_name):
