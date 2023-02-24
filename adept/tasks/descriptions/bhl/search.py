@@ -35,6 +35,11 @@ class BHLNameListTask(BaseExternalTask):
         }
         req = PreparedRequest()
         req.prepare_url(self.base_url, params)        
+        
+        print('URRRRRRL:')
+        print(req.url)
+        print(params)
+        
         urlretrieve(req.url, self.output().path)
 
     def output(self):
@@ -59,39 +64,31 @@ class BHLSearchTask(BaseTask):
     endpoint = f'{BHL_BASE_URL}/api3'
     output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'search'
     # Can change min_terms - lower = slower; higher = less images download but might miss
-    trait_classifier = SimpleTraitTextClassifier(min_ratio=0.08, min_terms=20)
+    trait_classifier = SimpleTraitTextClassifier(min_ratio=0.08, min_terms=25)
     
     def requires(self):        
         if taxon_name := self._search():
             return BHLNameListTask(taxon=taxon_name) 
         else: 
-            logger.warning('No results for %s in efloras', self.taxon)
+            logger.error('No search results for %s in efloras', self.taxon)
             
-    def run(self):
+    def run(self):        
         with self.input().open('r') as f: 
             df = pd.read_csv(f)
-            logger.error('%s BHL pages located...filtering by language and traits', len(df.index)) 
+            logger.info('%s BHL pages located...filtering by language and trait term count', len(df.index)) 
             
             df['page_id'] = df['Url'].apply(lambda url: url.split('/')[-1])
-            # Detect english language title - BHL Language isn't always set correctly
-            df['detected_lang'] = df.Title.apply(self._detect_language)
-            # Filter out not english languages
-            df = df[(df['detected_lang'] == 'en') | (df.Language == 'English')]   
-            # Filter out pages without any botanical descriptions text            
+            # # Filter out not english languages
+            df = df[df.Language == 'English']   
+            # Filter out pages without any botanical trait terms in text                                   
             df['is_desc'] = df['page_id'].apply(self._is_description)
             df = df[df.is_desc == True]            
-            logger.error('Writing %s search results to file', len(df.index))                       
+            logger.info('Writing %s search results (filtered by english and basic description classification) to file', len(df.index))                       
             df.to_csv(self.output().path)
                            
     def output(self):
         return luigi.LocalTarget(self.output_dir / f'{self.taxon}.en.csv')              
             
-    @staticmethod 
-    def _detect_language(title):
-        try:
-            return detect(title)
-        except:
-            return np.nan   
         
     def _is_description(self, bhl_id):
         """
@@ -103,7 +100,7 @@ class BHLSearchTask(BaseTask):
         to determine if the page is worth including in the search results        
         """
 
-        r = CachedRequest(f'https://www.biodiversitylibrary.org/pagetext/{bhl_id}')
+        r = CachedRequest(f'https://www.biodiversitylibrary.org/pagetext/{bhl_id}')   
         return self.trait_classifier.is_description(r.text)             
             
     def _search(self):
@@ -117,11 +114,12 @@ class BHLSearchTask(BaseTask):
         
         r = CachedRequest(self.endpoint, params)
         result = r.json()
+        # Check we have a result - but then use the taxon name as it's best match for CSV name list file
         if result['Result']:
-            return result['Result'][0]['NameConfirmed']
+            return self.taxon
 
     
 
     
 if __name__ == "__main__":    
-    luigi.build([BHLSearchTask(taxon='Eleocharis palustris', force=True)], local_scheduler=True)      
+    luigi.build([BHLSearchTask(taxon='Persicaria lapathifolia', force=True)], local_scheduler=True)      
