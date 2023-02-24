@@ -33,8 +33,8 @@ class PipelineTask(BaseTask):
             EflorasMossChinaDescriptionTask(taxon=self.taxon),
             EflorasPakistanDescriptionTask(taxon=self.taxon),            
         ]
-        # if is_binomial(self.taxon):
-        #     yield BHLDescriptionTask(taxon=self.taxon)
+        if is_binomial(self.taxon):
+            yield BHLDescriptionTask(taxon=self.taxon)
         
     def run(self):
                 
@@ -46,14 +46,14 @@ class PipelineTask(BaseTask):
 
                 for description in descriptions:                                           
                     if text := description.get('text'):
-                        fields = self.pipeline(text, self.taxonomic_group)    
-                        
-                        print(fields.to_dict())                
+                        fields = self.pipeline(text, self.taxonomic_group)                                       
                         if self.template_path:
                             record = fields.to_template(self.template_path)
                         else:
                             record = fields.to_dict()
                         record['source'] = description['source']
+                        # Additional source ID - e.g. BHL
+                        record['source_id'] = description.get('source_id', None)
                         record['taxon'] = description['taxon']
                         data.append(record)
 
@@ -65,4 +65,4 @@ class PipelineTask(BaseTask):
         return luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'descriptions' / f'{file_name}.json')             
 
 if __name__ == "__main__":    
-    luigi.build([PipelineTask(taxon='Bidens cernua', force=True)], local_scheduler=True)  
+    luigi.build([PipelineTask(taxon='Leersia hexandra', force=True)], local_scheduler=True)  
