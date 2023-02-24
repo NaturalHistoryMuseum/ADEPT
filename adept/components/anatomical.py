@@ -5,13 +5,13 @@ from pathlib import Path
 from itertools import chain
 import yaml
 
-from adept.tasks.patterns.anatomy import AnatomyPatternsTask, AnatomicalPartsTask
+from adept.config import ASSETS_DIR
 
 
 class AnatomicalComponent(EntityRuler):
           
-    patterns_file_path = AnatomyPatternsTask().output().path
-    anatomical_parts_file_path = Path(AnatomicalPartsTask().output().path)
+    patterns_file_path = ASSETS_DIR / 'anatomy-pattterns.jsonl'
+    anatomical_parts_file_path = ASSETS_DIR / 'anatomical-parts.yml'
     
     def __init__(self, nlp, *args, **cfg):
         super().__init__(nlp, overwrite_ents=True, *args, **cfg)
