@@ -15,7 +15,7 @@ class BHLPostprocess:
     re_figure=re.compile('^[0-9]+[a-zA-Z][.|\s]')       
     wf = WorldFlora()
     taxonerd = TaxoNERD(prefer_gpu=False)
-    nlp = taxonerd.load(model="en_core_eco_biobert")
+    nlp = taxonerd.load(model="en_core_eco_biobert", exclude=["pysbd_sentencizer"])
     text_classifier = TextClassifier()
     
     MINIMUM_WORD_COUNT = 50
@@ -43,7 +43,6 @@ class BHLPostprocess:
         is_name_match = False
         
         for paragraph in paragraphs:
-            
             if self._is_figure(paragraph):
                 logging.debug(f"IS FIGURE: {paragraph}")
                 continue
