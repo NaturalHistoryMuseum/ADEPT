@@ -29,27 +29,29 @@ class AggregateBaseTask(BaseTask, metaclass=ABCMeta):
         dfs = []    
         combined_dfs = []
 
-        for input_json in self.input():
+        for input_json in self.input():        
             df = pd.read_json(input_json.path)
             if not df.empty:
                 combined = df.groupby('taxon').agg(self._series_merge).reset_index()
                 dfs.append(df)
                 combined_dfs.append(combined)            
-            
+                
         combined_dfs = pd.concat(combined_dfs)
-        combined_dfs = combined_dfs.drop(columns='source')
+        combined_dfs = combined_dfs.drop(columns=['source', 'source_id'])
         dfs = pd.concat(dfs)
-        cols = set(dfs.columns).difference(set(['taxon', 'source']))
+        cols = set(dfs.columns).difference(set(['taxon', 'source', 'source_id']))
         combined_dfs = combined_dfs.dropna(subset=cols, how="all")   
         
         with pd.ExcelWriter(self.output().path) as writer:    
             combined_dfs.to_excel(writer, sheet_name="combined", index=False)
             for source, group in dfs.groupby('source'):
                 # If we don't have any values in a row, drop it         
-                group = group.dropna(subset=cols, how="all")
-                group.to_excel(writer, sheet_name=source, index=False)  
-                
-                
+                group = group.dropna(subset=cols, how="all")               
+                if not group['source_id'].any(): group.drop('source_id', axis=1, inplace=True)
+                # Ensure taxon is first column 
+                ordered_cols = list(dict.fromkeys(['taxon'] + group.columns.tolist()))               
+                group.to_excel(writer, sheet_name=source, index=False, columns=ordered_cols)  
+                                
     def _series_merge(self, rows):
         # Remove any empty rows     
         rows = rows[rows.notnull()]
@@ -148,14 +150,18 @@ class AggregateFileTask(AggregateBaseTask):
 
 if __name__ == "__main__":    
     
-    input_file = INPUT_DATA_DIR / 'north-american-assessments-genus-family.csv'
+    input_file = INPUT_DATA_DIR / 'north-american-assessments.csv'
     df = pd.read_csv(input_file)
     
-    # taxa = df['genus'].unique().tolist()   
+    taxa = df['scientificName'].unique().tolist()   
+    taxa = taxa[:20]
+    
+    # print(taxa)
     
     # print(len(taxa))
     
-    taxa = ['Castanea']
+    taxon = 'Persicaria lapathifolia'
+    taxa = [taxon]
     
     luigi.build([PipelineTask(taxon=taxon, force=True) for taxon in taxa], local_scheduler=True)  
     luigi.build([AggregateTask(taxa=taxa, taxonomic_group='angiosperm', force=True)], local_scheduler=True)  
