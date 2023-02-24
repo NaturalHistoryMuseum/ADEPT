@@ -12,22 +12,21 @@ ROOT_DIR = Path(__file__).parent.parent.resolve()
 DATA_DIR = Path(ROOT_DIR / 'data')
 
 ASSETS_DIR = Path(DATA_DIR / 'assets')
-TRAINING_DIR = Path(DATA_DIR / 'training')
-PACKAGES_DIR = Path(DATA_DIR / 'packages')
+# TRAINING_DIR = Path(DATA_DIR / 'training')
+# PACKAGES_DIR = Path(DATA_DIR / 'packages')
 MODEL_DIR = Path(DATA_DIR / 'models')
+MODEL_DIR.mkdir(parents=True, exist_ok=True)
 
-PROCESSING_DATA_DIR = Path(ROOT_DIR / 'processing')
+PROCESSING_DATA_DIR = Path(DATA_DIR / 'processing')
+
 INPUT_DATA_DIR = Path(PROCESSING_DATA_DIR / 'input')
+INPUT_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
 INTERMEDIATE_DATA_DIR = Path(PROCESSING_DATA_DIR / 'intermediate')
+INTERMEDIATE_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
 OUTPUT_DATA_DIR = Path(PROCESSING_DATA_DIR / 'output')
-
-
-
-
-
-
-
-
+OUTPUT_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 CACHE_DIR = Path(ROOT_DIR / '.cache')
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
@@ -54,32 +53,20 @@ DEBUG = os.getenv('DEBUG') or 0
 
 http.client.HTTPConnection.debuglevel = DEBUG
 
-# Set up logging
-logging.root.handlers = []
+# Set up logging - inherit from luigi so we use the same interface
+logger = logging.getLogger('luigi-interface')
 
-logger = logging.getLogger()
+# Capture all log levels, but handlers below set their own levels
+# logger.setLevel(logging.ERROR)
 
-# # Capture all log levels, but handler below set their own levels
-# logger.setLevel(logging.INFO)
-
-# # Set up file logging for errors and warnings
-# file_handler = logging.FileHandler(LOG_DIR / 'error.log')
-# file_handler.setFormatter(
-#     logging.Formatter("[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s")
-# )
-# # Log errors to files
-# file_handler.setLevel(logging.WARNING)
-# logger.addHandler(file_handler)
-
-# set up logging to console
-console_handler = logging.StreamHandler()
-# Simpler console utput
-# console_handler.setFormatter(
-#     logging.Formatter('%(levelname)-8s:\t%(message)s')
-# )
-# # Log debug+ to console
-# console_handler.setLevel(logging.DEBUG if DEBUG else logging.INFO)
-logger.addHandler(console_handler)
+# Set up file logging for errors and warnings
+file_handler = logging.FileHandler(LOG_DIR / 'error.log')
+file_handler.setFormatter(
+    logging.Formatter("[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s")
+)
+# Log errors to files
+file_handler.setLevel(logging.WARNING)
+logger.addHandler(file_handler)
 
 
 # requests_log = logging.getLogger("requests.packages.urllib3")
