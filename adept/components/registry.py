@@ -24,9 +24,8 @@ def create_anatomical_component(nlp: Language, name: str):
     return AnatomicalComponent(nlp)
 
 @Language.factory("traits_ner")
-def create_discrete_traits_component(nlp: Language, name: str):
-    patterns_file_path =  TraitPatternsTask().output().path    
-    return EntityRuler(nlp).from_disk(patterns_file_path)
+def create_discrete_traits_component(nlp: Language, name: str): 
+    return EntityRuler(nlp, overwrite_ents=True).from_disk(ASSETS_DIR / 'trait-patterns.jsonl')
 
 @Language.factory("traits_custom_ner")
 def create_numeric_traits_component(nlp: Language, name: str):
@@ -34,7 +33,7 @@ def create_numeric_traits_component(nlp: Language, name: str):
 
 @Language.factory("dimension_ner")
 def create_dimension_component(nlp: Language, name: str):
-    return EntityRuler(nlp).from_disk(ASSETS_DIR / 'dimension_patterns.jsonl')
+    return EntityRuler(nlp, overwrite_ents=True).from_disk(ASSETS_DIR / 'dimension-patterns.jsonl')
 
 @Language.factory("measurement_rel")
 def create_measurement_rel_component(nlp: Language, name: str):
