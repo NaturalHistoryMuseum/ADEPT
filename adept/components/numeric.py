@@ -30,7 +30,8 @@ class NumericComponent:
     re_inner = re.compile(r'(?P<from>([\d][\d\.]{0,}))?\s?\-?\s?(?P<to>([\d][\d\.]{0,}))?')
   
     units_pattern = '|'.join([unit for unit in measurement_units])       
-    re_units = re.compile(f'({units_pattern})+') # Include + so mm is preferred to m    
+    re_units = re.compile(f'([\s0-9])(?P<unit>({units_pattern})+)') # Include + so mm is preferred to m
+    # BS Bug fix: add [\s0-9] so the unit is preceeded by digit or space - prevent matching 20 em
     
     def __init__(self, nlp):   
         Span.set_extension("numeric_range", default=[], force=True)
@@ -68,8 +69,7 @@ class NumericComponent:
     def _parse_unit(self, ent: Span):
         unit_match = self.re_units.search(ent.text)
         if unit_match: 
-            ent._.unit = getattr(unit_registry, unit_match.group())            
-            text = self.re_units.sub('', ent.text)        
+            ent._.unit = getattr(unit_registry, unit_match.group('unit'))          
             
     def _parse_numeric(self, ent: Span):
         # Extract the numeric parts of the ent text
