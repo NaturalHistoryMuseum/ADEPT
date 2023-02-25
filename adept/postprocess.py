@@ -3,6 +3,7 @@ from spacy.tokens import Span, Doc
 from adept.traits import Traits
 from adept.fields import Fields
 from adept.utils.helpers import token_get_ent
+from adept.config import logger
 
 class Postproccess():
     
@@ -27,7 +28,8 @@ class Postproccess():
                 self._process_measurement_fields(sent, fields, part)
                 self._process_colours_fields(sent, fields, part)
             self._process_numeric_fields(doc, sent, fields)
-                
+             
+        logger.debug(fields.to_dict())   
         return fields
           
     @staticmethod
@@ -44,26 +46,39 @@ class Postproccess():
         trait_ents = self._filter_ents(sent, ['TRAIT'])
         # Process entities     
         for ent in trait_ents:           
-                  
             # Match on either term or character 
-            mask = (((df.term == ent.lemma_) | (df.term == ent.text)) | ((df.character == ent.lemma_) | (df.character == ent.text)))
+            mask = (((df.term == ent.lemma_) | (df.term == ent.text.lower()) | (df.character == ent.lemma_) | (df.character == ent.text.lower())))
             
             no_part_submask = ((df.part.isna()) | (df.part_required == False))
             # no_part_required_submask = ((df.require_part == False) & (df.is_unique == True))
             
             # If the trait ent is a part, no need to filter on part         
-            if part != ent.lemma_:
-                # If it's plant we allow anything unique
-                if part == 'plant':
-                    mask &= (no_part_submask | df.is_unique == True)
-                elif part:
-                    mask &= ((df.part == part) | no_part_submask)
-                else:
-                    mask &= no_part_submask
+            # if part == ent.lemma_:
+                
+            # If it's plant we allow anything unique
+            if part == 'plant':
+                mask &= (no_part_submask | df.is_unique == True)
+            elif part:
+                mask &= ((df.part == part) | no_part_submask)
+            else:
+                mask &= no_part_submask
                                      
             rows = df[mask]    
             
-            # if ent.text == 'gynobasic':
+            # for row in rows.itertuples():  
+            #     if row.character == 'rise':
+            
+            #         print('---')
+            #         print(ent)
+            #         print(part)
+            #         print(rows)
+            #         print('---')
+            
+            # if part == 'inflorescence':
+            #     print(ent)
+            #     print(rows)
+            
+            # if ent.text == 'Deciduous':
             #     print('---')
             #     print(rows)
             #     print(part)
@@ -75,15 +90,35 @@ class Postproccess():
         for ent in sent.ents:
             if trait_value := ent._.get("trait_value"):
                 fields.upsert(ent.label_.lower(), 'discrete', trait_value)        
-        
-
-    def _process_measurement_fields(self, sent: Doc, fields: Fields, part: str):
-        ents = self._filter_ents(sent, ['MEASUREMENT', 'DIMENSION'])
-        for ent in ents:
-            field_type = ent.label_.lower()
-            field_name = f'{part} measurement'
-            fields.upsert(field_name, field_type, ent)            
     
+    @staticmethod    
+    def _get_sentence_measurements_filtered_by_part(sent, part: str):
+        """
+        Get sentence measurements, filtering for multiple parts in the sentence
+        """
+        measurements = [ent for ent in sent.ents if ent.label_ in ['DIMENSION', 'MEASUREMENT']]
+        extra_sent_parts = [ent for ent in sent.ents if ent._.anatomical_part and ent._.anatomical_part != part]
+        
+        # If we have multiple parts and measurements in a sentence, filter the 
+        # measurements to only those that proceed the first non-sentence part
+        # e.g. Petals 2-3 cm. long and 1-2 mm wide with lamina 2 cm. => Petals 2-3 cm. long and 1-2 mm wide   
+        if len(measurements) > 1 and extra_sent_parts:
+            # Measurements whose ancestor includes extra sent parts
+            # Petals 2-3 cm. long and 1-2 mm wide with 2 cm long lamina => 2cm
+            measurements_with_ancestor_parts = [ent for ent in measurements if any(
+                [token_get_ent(tok, 'PART') in extra_sent_parts for tok in ent.root.ancestors]
+            )]                
+            # We only want to use measurements which start before         
+            max_start = min([p.start for p in extra_sent_parts + measurements_with_ancestor_parts])
+            measurements = [ent for ent in measurements if ent.start < max_start]
+            
+        return measurements
+        
+    def _process_measurement_fields(self, sent: Doc, fields: Fields, part: str):
+        for ent in self._get_sentence_measurements_filtered_by_part(sent, part):
+            field_name = f'{part} measurement'         
+            fields.upsert(field_name, 'measurement', ent)               
+
     @staticmethod
     def _parse_cardinal_part_subject(doc: Doc, cardinal_ent: Span): 
         """
@@ -93,8 +128,9 @@ class Postproccess():
         # The root token of the cardinal ent - will contain the ancestral dependency
         token = cardinal_ent.root
         # If token is a numeric modifier, noun subject is the token head      
-        if token.dep_ == 'nummod':
-            return token_get_ent(token.head, ent_labels)
+        if token.dep_ in 'nummod':
+            if subject := token_get_ent(token.head, ent_labels):
+                return subject
 
         # Try and locate a part/trait in the cardinal subtree     
         subtree = doc[token.left_edge.i: token.right_edge.i]
