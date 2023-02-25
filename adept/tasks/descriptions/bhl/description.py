@@ -55,8 +55,8 @@ class BHLDescriptionTask(BaseTask):
         
         data = []       
         with self.input().open('r') as f: 
-            df = pd.read_csv(f)
-            bhl_ids = df['page_id'].unique().tolist()            
+
+            bhl_ids = yaml.full_load(f)               
             logger.debug('BHLAggregateOCRTask: %s BHL pages located for %s', len(bhl_ids), self.taxon)                        
             agg_task_target = yield BHLAggregateOCRTask(bhl_ids=bhl_ids, taxon=self.taxon)
             
@@ -71,6 +71,7 @@ class BHLDescriptionTask(BaseTask):
                 if not page.get('text'): continue        
                 
                 if descriptions := list(self.postprocess(self.taxon, page['text'])):
+                    logger.debug('Descriptions detected in BHL page %s', page['bhl_id'])
                     data.append({                        
                         'source': f"bhl",
                         'source_id': page['bhl_id'],
@@ -91,7 +92,7 @@ if __name__ == "__main__":
        
     # luigi.build([BHLAggregateOCRTask(bhl_ids=l, taxon='Metopium toxiferum')], local_scheduler=True) 
     # luigi.build([BHLDescriptionTask(taxon='Metopium toxiferum')], local_scheduler=True)
-    luigi.build([BHLDescriptionTask(taxon='Eleocharis palustris', force=True)], local_scheduler=True)
+    luigi.build([BHLDescriptionTask(taxon='Leersia hexandra', force=True)], local_scheduler=True)
     # luigi.build([BHLDescriptionTask(bhl_id=27274329, force=True)], local_scheduler=True)      
     
     
