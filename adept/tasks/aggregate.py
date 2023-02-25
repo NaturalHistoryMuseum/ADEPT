@@ -35,8 +35,14 @@ class AggregateBaseTask(BaseTask, metaclass=ABCMeta):
                 combined = df.groupby('taxon').agg(self._series_merge).reset_index()
                 dfs.append(df)
                 combined_dfs.append(combined)            
-                
+        
+        if not combined_dfs:        
+            # If we have no descriptions at all - if searching for single taxa 
+            logger.critical('No descriptions located')
+            return
+            
         combined_dfs = pd.concat(combined_dfs)
+        
         combined_dfs = combined_dfs.drop(columns=['source', 'source_id'])
         dfs = pd.concat(dfs)
         cols = set(dfs.columns).difference(set(['taxon', 'source', 'source_id']))
@@ -154,14 +160,15 @@ if __name__ == "__main__":
     df = pd.read_csv(input_file)
     
     taxa = df['scientificName'].unique().tolist()   
-    taxa = taxa[:20]
+    # taxa = taxa[:100]
     
     # print(taxa)
     
     # print(len(taxa))
     
-    taxon = 'Persicaria lapathifolia'
+    taxon = 'Leersia hexandra'
     taxa = [taxon]
     
-    luigi.build([PipelineTask(taxon=taxon, force=True) for taxon in taxa], local_scheduler=True)  
+    luigi.build([PipelineTask(taxon=taxon, taxonomic_group='angiosperm', force=True)], local_scheduler=True)  
+    
     luigi.build([AggregateTask(taxa=taxa, taxonomic_group='angiosperm', force=True)], local_scheduler=True)  
