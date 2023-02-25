@@ -54,7 +54,7 @@ class BHLAggregateOCRTask(BaseTask):
     
     def requires(self):        
         for bhl_id in self.bhl_ids:
-            yield BHLOCRTask(bhl_id=bhl_id)
+            yield BHLOCRTask(bhl_id=int(bhl_id))
                         
     def run(self):
         data = [] 
