@@ -25,7 +25,7 @@ class MeasurementDimensionRelationComponent:
         MAX_TOKEN_DISTANCE = 1
         
         for dimension in DimensionType:        
-            self.matcher.add(dimension.name, [[{"ENT_TYPE": "MEASUREMENT", "OP": "+"}, {"IS_ALPHA": True, "OP": f"{{,{MAX_TOKEN_DISTANCE}}}"}, {"ENT_TYPE": dimension.name}]]) 
+            self.matcher.add(dimension.name, [[{"ENT_TYPE": "MEASUREMENT", "OP": "+"}, {"IS_STOP": False, "OP": f"{{,{MAX_TOKEN_DISTANCE}}}"}, {"ENT_TYPE": dimension.name}]]) 
             
         Span.set_extension("measurement_dimension", default=None, force=True) 
 
