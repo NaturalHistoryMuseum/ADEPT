@@ -5,7 +5,7 @@ from spacy.tokens import Span, Doc
 import re
 import yaml
 
-from adept.config import unit_registry, logger, DimensionType
+from adept.config import unit_registry, logger, DimensionType, measurement_units
 from adept.utils.helpers import flatten_dict
 
 class Field(ABC):
@@ -123,9 +123,9 @@ class MeasurementField(NumericField):
         # E.g. Petals white, suborbicular, 6-7 x 5-6.
         # No unit = do not use the measurement                
         if not unit:
-            logger.error(f'No unit detected for measurement field {self.name} {ent.text}')
+            logger.error('Measurement field %s: No unit detected - %s', self.name, ent.text)
             return
-        
+                  
         if value_dict := self._get_ent_value(ent):
             value_dict = {x: self._to_unit(y, unit) for x, y in value_dict.items() if y}
             self.value[dimension_type] = value_dict        
