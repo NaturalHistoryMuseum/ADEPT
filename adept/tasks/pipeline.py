@@ -40,7 +40,7 @@ class PipelineTask(BaseTask):
                 
         data = []
         for i in self.input():       
-            logger.info('Parsing descriptions for %s', self.taxon)            
+            logger.info('Collecting descriptions for %s', self.taxon)            
             with i.open('r') as f:
                 descriptions = yaml.full_load(f)
 
