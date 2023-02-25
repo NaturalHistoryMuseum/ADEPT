@@ -14,6 +14,7 @@ from langdetect import detect
 import numpy as np
 from urllib.request import urlretrieve
 from requests.models import PreparedRequest
+from pathlib import Path
 
 from adept.config import INTERMEDIATE_DATA_DIR, logger, BHL_API_KEY
 from adept.tasks.base import BaseTask, BaseExternalTask
@@ -25,31 +26,47 @@ class BHLNameListTask(BaseExternalTask):
     
     taxon = luigi.Parameter()
     # https://www.biodiversitylibrary.org/namelistdownload/?type=c&name=Ancistrocladus_guineensis
-    base_url = f'{BHL_BASE_URL}/namelistdownload'
+    namelist_url = f'{BHL_BASE_URL}/namelistdownload'
     output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'name-list'
+    api_endpoint = f'{BHL_BASE_URL}/api3'
     
     def run(self):
-        params = {
-            'type': 'c',
-            'name': self.encoded_taxon
-        }
-        req = PreparedRequest()
-        req.prepare_url(self.base_url, params)        
-        
-        print('URRRRRRL:')
-        print(req.url)
-        print(params)
-        
-        urlretrieve(req.url, self.output().path)
+        if taxon_name := self.search():            
+            params = {
+                'type': 'c',
+                'name': self.encode_taxon(taxon_name)
+            }
+            req = PreparedRequest()
+            req.prepare_url(self.namelist_url, params)               
+            urlretrieve(req.url, self.output().path)
+        else:
+            # No results
+            Path(self.output().path).touch()
+            logger.error('No BHL search results for %s', self.taxon)
 
     def output(self):
-        return luigi.LocalTarget(self.output_dir / f'{self.encoded_taxon}.csv')   
+        return luigi.LocalTarget(self.output_dir / f'{self.taxon}.csv')   
 
-    @property
-    def encoded_taxon(self):
+    def search(self):
+    
+        params = {
+            'op': 'NameSearch',
+            'format': 'json',
+            'apikey': BHL_API_KEY,
+            'name': self.taxon
+        } 
+        
+        r = CachedRequest(self.api_endpoint, params)
+        result = r.json()
+        # Check we have a result - but then use the taxon name as it's best match for CSV name list file
+        if result['Result']:
+            return self.taxon
+
+    @staticmethod
+    def encode_taxon(taxon):
         # BHL URL for CSV has underscores for spaces and $ for special chars
         # Artabotrys stenopetalus var. parviflorus => artabotrys_stenopetalus_var$_parviflorus     
-        taxon = self.taxon.replace(' ', '_')
+        taxon = taxon.replace(' ', '_')
         taxon = re.sub(r'\W+', '$', taxon)
         return taxon
 
@@ -60,34 +77,37 @@ class BHLSearchTask(BaseTask):
     Search BHL for a taxon            
     """
     
-    taxon = luigi.Parameter()
-    endpoint = f'{BHL_BASE_URL}/api3'
+    taxon = luigi.Parameter()    
     output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'search'
     # Can change min_terms - lower = slower; higher = less images download but might miss
-    trait_classifier = SimpleTraitTextClassifier(min_ratio=0.08, min_terms=25)
+    trait_classifier = SimpleTraitTextClassifier(min_ratio=0.1, min_terms=25)
     
     def requires(self):        
-        if taxon_name := self._search():
-            return BHLNameListTask(taxon=taxon_name) 
-        else: 
-            logger.error('No search results for %s in efloras', self.taxon)
+        return BHLNameListTask(taxon=self.taxon) 
             
     def run(self):        
         with self.input().open('r') as f: 
-            df = pd.read_csv(f)
-            logger.info('%s BHL pages located...filtering by language and trait term count', len(df.index)) 
-            
-            df['page_id'] = df['Url'].apply(lambda url: url.split('/')[-1])
-            # # Filter out not english languages
-            df = df[df.Language == 'English']   
-            # Filter out pages without any botanical trait terms in text                                   
-            df['is_desc'] = df['page_id'].apply(self._is_description)
-            df = df[df.is_desc == True]            
-            logger.info('Writing %s search results (filtered by english and basic description classification) to file', len(df.index))                       
-            df.to_csv(self.output().path)
+            try:
+                df = pd.read_csv(f)
+            except pd.errors.EmptyDataError:
+                logger.error('Empty BHL name list for %s', self.taxon)
+                bhl_ids = []
+            else:                
+                logger.info('%s BHL pages located...filtering by language and trait term count', len(df.index))                 
+                df['page_id'] = df['Url'].apply(lambda url: url.split('/')[-1])                
+                # Filter out non-english pages
+                df = df[df.Language == 'English']    
+                # Filter out pages without any botanical trait terms in text                                   
+                df['is_desc'] = df['page_id'].apply(self._is_description)
+                df = df[df.is_desc == True]          
+                logger.info('Writing %s search results (filtered by english and basic description classification) to file', len(df.index))                                   
+                bhl_ids = df['page_id'].unique().tolist()    
+
+        with self.output().open('w') as f:
+            f.write(yaml.dump(bhl_ids, explicit_start=True, default_flow_style=False))             
                            
     def output(self):
-        return luigi.LocalTarget(self.output_dir / f'{self.taxon}.en.csv')              
+        return luigi.LocalTarget(self.output_dir / f'{self.taxon}.en.yaml')              
             
         
     def _is_description(self, bhl_id):
@@ -102,24 +122,6 @@ class BHLSearchTask(BaseTask):
 
         r = CachedRequest(f'https://www.biodiversitylibrary.org/pagetext/{bhl_id}')   
         return self.trait_classifier.is_description(r.text)             
-            
-    def _search(self):
-    
-        params = {
-            'op': 'NameSearch',
-            'format': 'json',
-            'apikey': BHL_API_KEY,
-            'name': self.taxon
-        } 
-        
-        r = CachedRequest(self.endpoint, params)
-        result = r.json()
-        # Check we have a result - but then use the taxon name as it's best match for CSV name list file
-        if result['Result']:
-            return self.taxon
-
-    
-
     
 if __name__ == "__main__":    
-    luigi.build([BHLSearchTask(taxon='Persicaria lapathifolia', force=True)], local_scheduler=True)      
+    luigi.build([BHLSearchTask(taxon='Leersia hexandra', force=True)], local_scheduler=True)      
