@@ -3,7 +3,7 @@ from taxonerd import TaxoNERD
 import logging
 from spacy.tokens import Span
 
-from adept.config import LOG_DIR
+from adept.config import LOG_DIR, logger
 from adept.worldflora import WorldFlora
 from adept.bhl.model import TextClassifier
 
@@ -29,6 +29,8 @@ class BHLPostprocess:
             names = set([taxon])
             if synonyms := self.wf.get_related_names(taxon):
                 names |= synonyms
+                
+            logger.debug('Using name and synonyms %s for taxon %s', names, taxon)
             # Add pattern Genus species => G. species
             names |= {r'{0}\.\s{1}'.format(n[0][0],n[1]) for name in names if (n := name.split())}
             names_pattern = '|'.join(names)
@@ -44,7 +46,7 @@ class BHLPostprocess:
         
         for paragraph in paragraphs:
             if self._is_figure(paragraph):
-                logging.debug(f"IS FIGURE: {paragraph}")
+                # logging.debug(f"IS FIGURE: {paragraph}")
                 continue
                 
             if taxon_names := self._detect_taxon_names(paragraph):
@@ -56,17 +58,18 @@ class BHLPostprocess:
                 
             # This needs to come after taxon detection, in case we have a taxon name in a title / short sentence
             if self._is_below_minimum_word_count(paragraph):
-                logging.debug(f"MIN WORD COUNT: {paragraph}")
+                # logger.debug(f"MIN WORD COUNT: {paragraph}")
                 continue  
                         
             if not is_name_match:
-                logging.debug(f"NO NAME MATCH: {paragraph}")
+                # logger.debug(f"NO NAME MATCH: {paragraph}")
                 continue
                 
             if not self._paragraph_is_description(paragraph):
-                logging.debug(f"NOT DESCRIPTION: {paragraph}")
+                # logger.debug(f"NOT DESCRIPTION: {paragraph}")
                 continue
-                
+            
+            logger.debug(f"Name match %s", matching_taxon_names)           
             yield paragraph
             
                               
