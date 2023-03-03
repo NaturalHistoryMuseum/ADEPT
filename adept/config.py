@@ -22,7 +22,7 @@ PROCESSING_DATA_DIR = Path(DATA_DIR / 'processing')
 INPUT_DATA_DIR = Path(PROCESSING_DATA_DIR / 'input')
 INPUT_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-INTERMEDIATE_DATA_DIR = Path(PROCESSING_DATA_DIR / 'intermediate')
+INTERMEDIATE_DATA_DIR = Path(PROCESSING_DATA_DIR / 'intermediate-debug')
 INTERMEDIATE_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 OUTPUT_DATA_DIR = Path(PROCESSING_DATA_DIR / 'output')
@@ -55,6 +55,8 @@ http.client.HTTPConnection.debuglevel = DEBUG
 # Set up logging - inherit from luigi so we use the same interface
 logger = logging.getLogger('luigi-interface')
 
+# logger = logging.getLogger('adept')
+
 # Capture all log levels, but handlers below set their own levels
 # logger.setLevel(logging.ERROR)
 
@@ -66,6 +68,11 @@ file_handler.setFormatter(
 # Log errors to files
 file_handler.setLevel(logging.WARNING)
 logger.addHandler(file_handler)
+
+# Set up file logging for errors and warnings
+debug_file_handler = logging.FileHandler(LOG_DIR / 'debug.log')
+debug_file_handler.setLevel(logging.DEBUG)
+logger.addHandler(debug_file_handler)
 
 
 # requests_log = logging.getLogger("requests.packages.urllib3")

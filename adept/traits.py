@@ -46,21 +46,30 @@ class SimpleTraitTextClassifier:
     
     traits = Traits()
         
-    def __init__(self, min_terms=5, min_ratio=0.05):        
+    def __init__(self, min_terms=5, min_chars=100, min_ratio=None):        
         self.min_terms = min_terms
         self.min_ratio = min_ratio
-        self._trait_terms = [term.lower() for term in self.traits.get_unique_discrete_terms()]
+        self.min_chars = min_chars
+        self._trait_terms = set([term.lower() for term in self.traits.get_unique_discrete_terms()])
         
     def is_description(self, text):
-        if words := get_words(text.lower()):
-            matching_terms = [word for word in words if word in self._trait_terms]
-            if not matching_terms or len(matching_terms) < self.min_terms:
-                return False                
-            ratio = len(matching_terms) / len(words) 
-            
-            # If the percentage of parts is greater than 5% (for short descriptions)
-            if ratio >= self.min_ratio:
-                return True                    
+        if len(text) < self.min_chars:
+            return False
+        
+        words = text.lower().split()
+        
+        matching_terms = self._trait_terms.intersection(words)
+        
+        ratio = len(matching_terms) / len(words) 
+        
+        if len(matching_terms) < self.min_terms:
+            return False     
+        
+        if self.min_ratio and len(matching_terms) / len(words)  < self.min_ratio:
+            return False
+        
+        return True   
+                 
    
 if __name__ == '__main__':
     traits = SimpleTraitTextClassifier()

@@ -160,15 +160,15 @@ if __name__ == "__main__":
     df = pd.read_csv(input_file)
     
     taxa = df['scientificName'].unique().tolist()   
-    # taxa = taxa[:100]
+    # taxa = taxa[:14]
     
     # print(taxa)
     
     # print(len(taxa))
     
-    taxon = 'Leersia hexandra'
-    taxa = [taxon]
+    # taxon = 'Leersia hexandra'
+    # taxa = [taxon]
     
-    luigi.build([PipelineTask(taxon=taxon, taxonomic_group='angiosperm', force=True)], local_scheduler=True)  
+    # luigi.build([PipelineTask(taxon=taxon, taxonomic_group='angiosperm', force=True)], local_scheduler=True)  
     
     luigi.build([AggregateTask(taxa=taxa, taxonomic_group='angiosperm', force=True)], local_scheduler=True)  
