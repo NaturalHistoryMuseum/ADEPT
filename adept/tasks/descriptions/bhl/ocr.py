@@ -1,4 +1,3 @@
-from asyncio.log import logger
 import luigi
 import logging
 import pandas as pd
@@ -6,75 +5,49 @@ import pytesseract
 import yaml
 import re
 from pathlib import Path
+import concurrent
 
-from adept.config import INTERMEDIATE_DATA_DIR
+from adept.config import INTERMEDIATE_DATA_DIR, logger
 from adept.tasks.base import BaseTask
-from adept.tasks.descriptions.bhl.image import BHLImageTask
-from adept.bhl.preprocess import BHLPreprocess, BHLParagraphizer
+from adept.tasks.descriptions.bhl.images import BHLImagesTask
 
 class BHLOCRTask(BaseTask):
     
-    bhl_id = luigi.IntParameter()
-    
-    preprocess= BHLPreprocess()
-    output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'ocr-text'
+    taxon = luigi.Parameter()
+    output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'ocr'
     
     def requires(self):
-        return BHLImageTask(bhl_id=self.bhl_id)     
+        return BHLImagesTask(taxon=self.taxon)     
     
     def run(self):
-        
-        logger.info('Running BHL OCR Task for %s', self.bhl_id)
-        
-        with self.output().open('w') as f:
-            try:
-                text = pytesseract.image_to_string(self.input().path)
-            except pytesseract.pytesseract.TesseractError as e:
-                # Some files from BHL and empty - ignore
-                logger.error('Error reading test from image %s: %s', self.input().path, e)
-            else:
-                paragraphs = [self.preprocess(para) for para in BHLParagraphizer(text)]
-                f.write(yaml.dump(paragraphs, explicit_start=True, default_flow_style=False)) 
+        logger.info('Running BHL OCR Task for %s', self.taxon)        
+        data = {}                     
+        image_dir = Path(self.input().path).parent                           
+        with self.input().open('r') as f:
+            images = yaml.full_load(f)                  
+            # images = images[:5]        
+        logger.info('OCRing %s images for %s', len(images), self.taxon)   
             
-    def output(self):
-        return luigi.LocalTarget(self.output_dir / f'{self.bhl_id}.yaml')       
-    
-    
-class BHLAggregateOCRTask(BaseTask):
-    
-    """
-    
-    Aggrgates multiple OCR outputs into one single file
-
-    """
-    
-    bhl_ids = luigi.ListParameter()
-    taxon = luigi.Parameter()
-    output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'aggregated-ocr-text'
-    
-    def requires(self):        
-        for bhl_id in self.bhl_ids:
-            yield BHLOCRTask(bhl_id=int(bhl_id))
-                        
-    def run(self):
-        data = [] 
-
-        for ocr_input in self.input():
-            bhl_id = Path(ocr_input.path).stem
-            with ocr_input.open('r') as f:
-                ocr_text =  yaml.safe_load(f)
-                data.append({
-                    'bhl_id': bhl_id,
-                    'text': ocr_text
-                })
+        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+            tasks = {executor.submit(self.image_to_string, p): p.stem for image in images if (p := image_dir / image) and p.is_file()}
+            for future in concurrent.futures.as_completed(tasks):                
+                page_id = tasks[future]
+                data[page_id] = future.result()
                 
+        logger.info('Outputting %s OCR text for %s', len(data), self.taxon) 
         with self.output().open('w') as f:
-            f.write(yaml.dump(data, explicit_start=True))                    
+            f.write(yaml.dump(data, explicit_start=True))   
+    
+    @staticmethod            
+    def image_to_string(image_path: Path):
+        try:
+            return pytesseract.image_to_string(str(image_path))
+        except pytesseract.pytesseract.TesseractError as e:
+            # Some files from BHL and empty - ignore
+            logger.error('Error reading test from image %s: %s', image_path, e)
 
     def output(self):
-        return luigi.LocalTarget(self.output_dir / f'{self.taxon}.yaml')          
-            
-            
-if __name__ == "__main__":
+        return luigi.LocalTarget(self.output_dir / f'{self.taxon}.yaml')       
     
-    luigi.build([BHLOCRTask(bhl_id=8436104)], local_scheduler=True)
+if __name__ == "__main__":    
+    luigi.build([BHLOCRTask(taxon='Leersia hexandra', force=True)], local_scheduler=True)

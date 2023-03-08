@@ -18,19 +18,15 @@ from urllib.request import urlretrieve
 from requests.models import PreparedRequest
 from taxonerd import TaxoNERD
 from pathlib import Path
+import concurrent
 
 from adept.config import INTERMEDIATE_DATA_DIR, logger, BHL_API_KEY
-from adept.utils.soup import RequestSoup
-from adept.utils.enum import Enum
-from adept.traits import SimpleTraitTextClassifier
-
-
-from adept.bhl.postprocess import BHLPostprocess
-
-from adept.tasks.descriptions.bhl.search import BHLSearchTask
-from adept.tasks.descriptions.bhl.ocr import BHLAggregateOCRTask
+from adept.bhl.descriptions import BHLDetectDescriptions
+from adept.tasks.descriptions.bhl.ocr import BHLOCRTask
 from adept.tasks.base import BaseTask
 from adept.utils.helpers import is_binomial
+from adept.bhl.preprocess import BHLPreprocess
+
 
 class BHLDescriptionTask(BaseTask):
     
@@ -40,7 +36,7 @@ class BHLDescriptionTask(BaseTask):
 
     taxon = luigi.Parameter()
     output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'description'
-    postprocess = BHLPostprocess()
+    preprocess = BHLPreprocess() 
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)        
@@ -49,38 +45,30 @@ class BHLDescriptionTask(BaseTask):
            raise luigi.parameter.ParameterException('Taxon for BHL must be a binomial - taxon parameter is {}'.format(self.taxon))
     
     def requires(self):        
-       return BHLSearchTask(taxon=self.taxon)
+       return BHLOCRTask(taxon=self.taxon)
             
     def run(self):
+        data = []
+        detect_descriptions = BHLDetectDescriptions(self.taxon)
         
-        data = []       
-        with self.input().open('r') as f: 
-
-            bhl_ids = yaml.full_load(f)               
-            logger.debug('BHLAggregateOCRTask: %s BHL pages located for %s', len(bhl_ids), self.taxon)                        
-            agg_task_target = yield BHLAggregateOCRTask(bhl_ids=bhl_ids, taxon=self.taxon)
+        with self.input().open('r') as f:             
+            ocr_text = yaml.full_load(f)
+            logger.debug('BHLDescriptionTask: searching %s BHL pages for descriptions of %s', len(ocr_text), self.taxon)
             
-        with agg_task_target.open('r') as f:
-            bhl_pages =  yaml.safe_load(f)
-            logger.debug('BHLAggregateOCRTask: processing %s BHL pages for %s', len(bhl_pages), self.taxon)                      
-            for i, page in enumerate(bhl_pages):
-                
-                if i % 10 == 0:
-                    logger.debug('BHLAggregateOCRTask: processing %s/%s BHL pages for %s', i, len(bhl_pages), self.taxon)
-                                    
-                if not page.get('text'): continue        
-                
-                if descriptions := list(self.postprocess(self.taxon, page['text'])):
-                    logger.debug('Descriptions detected in BHL page %s', page['bhl_id'])
+            # Note: this is faster without using concurrent futures 
+            for bhl_id, text in ocr_text.items():   
+                # if not text: continue         
+                if descriptions := detect_descriptions(text):
+                    logger.debug('BHLDescriptionTask: %s descriptions detected in BHL page %s', len(descriptions), bhl_id)
                     data.append({                        
                         'source': f"bhl",
-                        'source_id': page['bhl_id'],
+                        'source_id': bhl_id,
                         'taxon': self.taxon,
                         'text': '\n\n'.join(descriptions) 
-                    })            
-
+                    })                   
+        logger.debug('BHLDescriptionTask: %s descriptions detected for taxon %s', len(data), self.taxon)
         with self.output().open('w') as f:
-            f.write(yaml.dump(data, explicit_start=True, default_flow_style=False)) 
+            f.write(yaml.dump(data, explicit_start=True, default_flow_style=False))                 
                         
     def output(self):
         return luigi.LocalTarget(self.output_dir / f'{self.taxon}.yaml')  
@@ -89,13 +77,12 @@ class BHLDescriptionTask(BaseTask):
 
     
 if __name__ == "__main__":    
-       
+    import time
+    start = time.time()       
     # luigi.build([BHLAggregateOCRTask(bhl_ids=l, taxon='Metopium toxiferum')], local_scheduler=True) 
     # luigi.build([BHLDescriptionTask(taxon='Metopium toxiferum')], local_scheduler=True)
     luigi.build([BHLDescriptionTask(taxon='Leersia hexandra', force=True)], local_scheduler=True)
-    # luigi.build([BHLDescriptionTask(bhl_id=27274329, force=True)], local_scheduler=True)      
+    # luigi.build([BHLDescriptionTask(bhl_id=27274329, force=True)], local_scheduler=True) 
+    stop = time.time()
+    print(stop-start)             
     
-    
-#     uineensis,['A. guineensis'],18704181
-# "Smooth climbing shrubs with short supra-axillary, often arrested and circinately-hooked, branches. Jieaves usually in terminal tufts, coriaceous, entire, reticulately feather-veined; exstipulate. Flowers usually small, very caducous, in terminal or lateral panicles. Calyxtube at first short, adnate to the base of the ovary, its lobes imbricate, finally turbinate and adnate to the fruit, with the lobes unequally enlarged, spreading and membranous. Stamens 5 or 10, subperigynous. Ovary 1-celled, inferior; style sub-globose, persistent; Stigmas 3, erect, compressed, truncate, deciduous. Ovule solitary, erect or laterally affixed. Seed sub-globose, testa prolonged into the ruminations of the copious fleshy albumen; embryo short, straight; cotyledons short, divergent.—Disrris. Except A. guineensis in W. Tropical Africa, confined to Tropical Asia and the Indian Archipelago, Species about 10.",Ancistrocladus guineensis,['A. guineensis'],37190518
-# "Smooth climbing shrubs with short supra-axillary, often arrested and circinately-hooked, branches. Leaves usually in terminal tufts, coriaceous, entire, reticulately feather-veined; exstipulate. Flowers usually small, very caducous, in terminal or lateral panicles. Calyetube at first short, adnate to the base of the ovary, its lobes imbricate, finally turbinate and adnate to the fruit, with the lobes unequally enlarged, spreading and membranous. Stamens 5 or 10, subperigynous. Ovary 1-celled, inferior; style sub-globose, persistent; Stigmas 3, erect, compressed, truncate, deciduous. Ovule solitary, erect or laterally affixed. Seed sub-globose, testa prolonged into the ruminations of the copious fleshy albumen; embryo short, straight; cotyledons short, divergent.—Disrriz. Except A. guineensis in W. Tropical Africa, confined to Tropical Asia and the Indian Archipelago, Species about 10.",Ancistrocladus guineensis,['A. guineensis'],47292874

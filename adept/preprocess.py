@@ -120,7 +120,6 @@ class PreprocessConjoined(object):
  
 
 class PreprocessFractions(object):
-    
 
     re_fraction = re.compile(r'[0-9]+\/[0-9]+')         
         
@@ -130,6 +129,13 @@ class PreprocessFractions(object):
             text = text[:m.start()] + str(round(float(fraction), 1)) + text[m.end():]
         return text
     
+class PreproccessCommonErrors():
+    """
+    CM is often OCR as em
+    """
+    def __call__(self, text):
+        return re.sub(r'\bem\b', 'cm', text)
+    
 
 class Preprocess(object):  
     
@@ -137,7 +143,8 @@ class Preprocess(object):
         PreprocessFractions(),
         PreprocessAbbreviations(),
         PreproccessUnicode(),
-        PreprocessConjoined(),        
+        PreprocessConjoined(), 
+        PreproccessCommonErrors()       
     ]
 
     def __call__(self, text):
