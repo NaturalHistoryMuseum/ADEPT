@@ -22,7 +22,7 @@ PROCESSING_DATA_DIR = Path(DATA_DIR / 'processing')
 INPUT_DATA_DIR = Path(PROCESSING_DATA_DIR / 'input')
 INPUT_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-INTERMEDIATE_DATA_DIR = Path(PROCESSING_DATA_DIR / 'intermediate-debug')
+INTERMEDIATE_DATA_DIR = Path(PROCESSING_DATA_DIR / 'intermediate')
 INTERMEDIATE_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 OUTPUT_DATA_DIR = Path(PROCESSING_DATA_DIR / 'output')
@@ -46,6 +46,8 @@ unit_registry.default_format = '~P'
 DimensionType = enum.Enum('DimensionType', ['LENGTH', 'WIDTH', 'HEIGHT', 'DEPTH', 'DIAMETER', 'RADIUS'])
 
 measurement_units = ['cm', 'ft', 'm', 'meter', 'metre', 'km', 'kilometer', 'kilometre', 'centimeter', 'centimetre', 'mm', 'millimeter', 'millimetre', 'um', 'µm', 'micrometer', 'micrometre', 'micron', 'nm', 'nanometer', 'nanometre', 'pm', 'inch', 'feet', 'foot']
+
+fields_template = ASSETS_DIR / 'fields.tpl.yml'
 
 DEBUG = os.getenv('DEBUG') or 0
 

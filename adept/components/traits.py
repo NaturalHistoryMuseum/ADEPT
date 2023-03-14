@@ -31,6 +31,7 @@ class CustomTraitsComponent:
         self.matcher = Matcher(nlp.vocab)   
         self.matcher.add('PLOIDY LEVEL (2n)', [[{"LOWER": "2n"}, {"LOWER": "="}]], on_match=self.on_ploidy_match)
         self.matcher.add('PLOIDY LEVEL (2n)', [[{"TEXT": {"REGEX": "2n="}}]], on_match=self.on_ploidy_match)
+        # FIXME: Is merosity still used? It should be covered by the new measurements. 
         self.matcher.add('MEROSITY', [[{"POS": "NUM"}, {"LOWER": "-"}, {"LOWER": "merous"}]], on_match=self.on_merosity_match)
         
         self.expand_ploidy = ExpandSpan(

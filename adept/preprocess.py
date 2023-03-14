@@ -46,16 +46,11 @@ class PreprocessAbbreviations(object):
     def __init__(self):
         self._re_abbreviations = re.compile(r'(?=\-|\b)(%s)(?:\.|\b)' % '|'.join(
             [f'{k}' for k in self.abbrv.keys()]
-        ), re.IGNORECASE)
-        self._sentence_end_commas = re.compile(r',(\s+[A-Z])')        
+        ), re.IGNORECASE)   
 
     def __call__(self, text):
         text = self._replace_abbreviations(text)
         text = self._replace_ca(text)
-        text = self._remove_double_spaces(text)
-        text = self._remove_double_dashes(text)
-        text = self._replace_long_dashes(text)
-        text = self._replace_sentence_end_commas(text)
         return text
 
     def _replace_abbreviations(self, text):
@@ -69,27 +64,13 @@ class PreprocessAbbreviations(object):
         # Pattern: \b(fl\.?|lvs\.?)(?=\s|$)
         # Remove the dot afterwards '{k}\.?' Might need to check for following uppercase char??
         return self._re_abbreviations.sub(_get_sub_text, text)
-  
-    def _remove_double_spaces(self, text):
-        # Quicker than regex - https://stackoverflow.com/questions/1546226/is-there-a-simple-way-to-remove-multiple-spaces-in-a-string
-        return " ".join(text.split())
-
-    def _remove_double_dashes(self, text):
-        return text.replace('--', '-')
-    
+      
     def _replace_ca(self, text):
         # ca 123 => ca. 1234 (otherwise it screws up parsing)
         text = re.sub('\sca\s', ' ca. ', text)
         text = re.sub('\sc\s', ' ca. ', text)
         return text
-    
-    def _replace_long_dashes(self, text):
-        return text.replace('–', '-')  
-       
-    def _replace_sentence_end_commas(self, text):
-        # Replace sentences ending in a comma xxx, Y => xxx. Y
-        # E.g. An erect, glabrous, stoloniferous or rhizomatous perennial, 30-60 cm, Stems ... 
-        return self._sentence_end_commas.sub(r'.\1', text)   
+      
 
 
 class PreprocessConjoined(object):
@@ -133,18 +114,44 @@ class PreproccessCommonErrors():
     """
     CM is often OCR as em
     """
-    def __call__(self, text):
-        return re.sub(r'\bem\b', 'cm', text)
     
+    re_sentence_end_commas = re.compile(r',(\s+[A-Z])')    
+    re_em = re.compile(r'\bem\b') 
+    
+    def __call__(self, text):
+        text = self._remove_double_spaces(text)
+        text = self._remove_double_dashes(text)
+        text = self._replace_long_dashes(text)
+        text = self._replace_sentence_end_commas(text)
+        text = self._replace_em(text)
+        return text
+    
+    def _remove_double_spaces(self, text):
+        # Quicker than regex - https://stackoverflow.com/questions/1546226/is-there-a-simple-way-to-remove-multiple-spaces-in-a-string
+        return " ".join(text.split())
 
+    def _remove_double_dashes(self, text):
+        return text.replace('--', '-')    
+    
+    def _replace_long_dashes(self, text):
+        return text.replace('–', '-')  
+    
+    def _replace_em(self, text):
+        return self.re_em.sub('cm', text) 
+       
+    def _replace_sentence_end_commas(self, text):
+        # Replace sentences ending in a comma xxx, Y => xxx. Y
+        # E.g. An erect, glabrous, stoloniferous or rhizomatous perennial, 30-60 cm, Stems ... 
+        return self.re_sentence_end_commas.sub(r'.\1', text)    
+    
 class Preprocess(object):  
     
     preprocessors = [
         PreprocessFractions(),
         PreprocessAbbreviations(),
+        PreproccessCommonErrors(), 
         PreproccessUnicode(),
-        PreprocessConjoined(), 
-        PreproccessCommonErrors()       
+        PreprocessConjoined(),               
     ]
 
     def __call__(self, text):
@@ -155,7 +162,7 @@ class Preprocess(object):
 
 if __name__ == '__main__':
     
-    d = '2-5(-15) x0.9-2.6 mm'    
+    d = '2-5(-15) x0.9-2.6 mm em'    
 
 
     preproccessor = Preprocess()

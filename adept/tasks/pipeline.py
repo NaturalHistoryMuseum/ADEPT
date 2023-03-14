@@ -12,7 +12,7 @@ from adept.tasks.descriptions.ecoflora.description import EcofloraDescriptionTas
 from adept.tasks.descriptions.bhl.description import BHLDescriptionTask
 from adept.tasks.descriptions.efloras.description import EflorasChinaDescriptionTask, EflorasMossChinaDescriptionTask, EflorasNorthAmericaDescriptionTask, EflorasPakistanDescriptionTask
 from adept.pipeline import Pipeline
-from adept.config import taxonomic_groups, logger
+from adept.config import taxonomic_groups, logger, fields_template
 from adept.tasks.base import BaseTask
 from adept.utils.helpers import is_binomial
 
@@ -20,9 +20,8 @@ from adept.utils.helpers import is_binomial
 class PipelineTask(BaseTask):
         
     taxon = luigi.Parameter()  
-    taxonomic_group = luigi.ChoiceParameter(choices=taxonomic_groups, var_type=str, default="angiosperm")  
-    template_path = luigi.PathParameter(default=ASSETS_DIR / 'fields.tpl.yml') 
-    # template_path = luigi.OptionalPathParameter(default=None)       
+    taxonomic_group = luigi.ChoiceParameter(choices=taxonomic_groups, var_type=str)  
+    template_path = luigi.OptionalPathParameter(default=fields_template)       
     pipeline = Pipeline()
 
     def requires(self):
@@ -37,6 +36,10 @@ class PipelineTask(BaseTask):
             yield BHLDescriptionTask(taxon=self.taxon)
         
     def run(self):
+
+        field_mappings = self._get_tpl_field_mappings() if self.template_path else None
+        if field_mappings:
+            logger.info('Using %s field mappings from %s for %s', self.taxonomic_group, self.template_path, self.taxon)
                 
         data = []
         for i in self.input():       
@@ -47,8 +50,8 @@ class PipelineTask(BaseTask):
                 for description in descriptions:                                           
                     if text := description.get('text'):
                         fields = self.pipeline(text, self.taxonomic_group)                                       
-                        if self.template_path:
-                            record = fields.to_template(self.template_path)
+                        if field_mappings:
+                            record = fields.to_mapped_dict(field_mappings)
                         else:
                             record = fields.to_dict()
                         record['source'] = description['source']
@@ -61,8 +64,17 @@ class PipelineTask(BaseTask):
             f.write(json.dumps(data, indent=4))
 
     def output(self):
-        file_name = self.taxon.replace(' ', '-').lower()    
-        return luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'descriptions' / f'{file_name}.json')             
+        file_name = self.taxon.replace(' ', '-').lower()  
+        # If a different template file is specified, the output is different  
+        if self.template_path: file_name += f'-{self.template_path.stem}'
+            
+        return luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'descriptions' / f'{file_name}.json')      
+    
+    def _get_tpl_field_mappings(self):
+        with self.template_path.open('r') as f:
+            tpl = yaml.full_load(f)                 
+            return tpl.get(self.taxonomic_group, None)
+                
 
-if __name__ == "__main__":    
-    luigi.build([PipelineTask(taxon='Leersia hexandra', force=True)], local_scheduler=True)  
+if __name__ == "__main__":        
+    luigi.build([PipelineTask(taxon='Blechnum spicant', taxonomic_group='angiosperm', force=True)], local_scheduler=True)  

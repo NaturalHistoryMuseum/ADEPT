@@ -4,6 +4,7 @@ import pandas as pd
 import pytesseract
 import yaml
 import re
+import numpy as np
 from pathlib import Path
 from io import BytesIO
 from requests_futures.sessions import FuturesSession
@@ -26,7 +27,7 @@ class BHLImagesTask(BaseTask):
     
     taxon = luigi.Parameter()
     output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'images'   
-    image_width = 1800
+    max_image_dimension = 2000
     
     def requires(self):        
        return BHLSearchTask(taxon=self.taxon)   
@@ -70,11 +71,23 @@ class BHLImagesTask(BaseTask):
                     continue
                     
                 img = Image.open(BytesIO(r.content))
-                r = self.image_width / img.width
-                image_height = round(img.height * r)
-                # img = img.resize((self.image_width, image_height))
+                
+                # print(f'W: {img.width} H: {img.height}')
+                
+                img = self.resize_image(img)
                 img.save(self._image_path(image_dir, future.page_id),  "TIFF", quality=100, subsampling=0)
             
+    def resize_image(self, img):
+        """
+        If image has a dimension longer than max_image_dimension, resize the image
+        """
+        xy = np.array([img.width, img.height])            
+        if xy.max() > self.max_image_dimension:
+            r = self.max_image_dimension / xy.max()
+            resized_xy = r * xy
+            img = img.resize(resized_xy.astype(int))
+        return img
+                
             
 if __name__ == "__main__":    
     import time

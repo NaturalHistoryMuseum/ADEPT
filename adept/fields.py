@@ -188,10 +188,7 @@ class Fields(object):
                     
         return field_configs
     
-    def to_template(self, template_path: Path):
-
-        with template_path.open('r') as f:
-            field_mappings = yaml.full_load(f)        
+    def to_mapped_dict(self, field_mappings):   
         
         field_configs = self.build_fields_config(field_mappings)
         data_dict = self.to_dict(field_configs)

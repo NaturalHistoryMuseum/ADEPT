@@ -10,7 +10,7 @@ from adept.config import logger, measurement_units, unit_registry
 class NumericComponent: 
     
     """
-    Loop through MEASUREMENT', 'DIMENSION', 'CARDINAL', 'VOLUME' ents, parsing the value & extracting the unit
+    Loop through MEASUREMENT', 'DIMENSION', 'CARDINAL' ents, parsing the value & extracting the unit
     
     If numeric range: sets extension numeric_range with keys: lower, from, to, upper
     If not range, sets float numeric_value
@@ -21,7 +21,7 @@ class NumericComponent:
         doc: doc object with extensions: numeric_range, numeric_value, dimension_parts, unit
     """
     
-    ent_types = ['MEASUREMENT', 'VOLUME', 'CARDINAL', 'DIMENSION']
+    ent_types = ['MEASUREMENT', 'CARDINAL', 'DIMENSION']
     
     # Match digit, and allow a dot, if it's part of at least one digit   
     re_num = re.compile(r'([\d]+[\.]{,1}[\d]*)')
@@ -29,9 +29,9 @@ class NumericComponent:
     # re_outer = re.compile(r'((?P<lower>[\d.\/\s]+)\-?\))?(?P<inner>[\s\-]?[\d][\d\-\s\.]+)\((?P<upper>.+)')
     re_inner = re.compile(r'(?P<from>([\d][\d\.]{0,}))?\s?\-?\s?(?P<to>([\d][\d\.]{0,}))?')
   
-    units_pattern = '|'.join([unit for unit in measurement_units])       
-    re_units = re.compile(f'([\s0-9])(?P<unit>({units_pattern})+)') # Include + so mm is preferred to m
-    # BS Bug fix: add [\s0-9] so the unit is preceeded by digit or space - prevent matching 20 em
+    # units_pattern = '|'.join([unit for unit in measurement_units])       
+    # re_units = re.compile(f'([\s0-9])(?P<unit>({units_pattern})+)') # Include + so mm is preferred to m
+    # # BS Bug fix: add [\s0-9] so the unit is preceeded by digit or space - prevent matching 20 em
     
     def __init__(self, nlp):   
         Span.set_extension("numeric_range", default=[], force=True)
@@ -65,12 +65,14 @@ class NumericComponent:
     def _parse_value(self, ent: Span):
         self._parse_unit(ent)
         self._parse_numeric(ent)   
-        
-    def _parse_unit(self, ent: Span):
-        unit_match = self.re_units.search(ent.text)
-        if unit_match: 
-            ent._.unit = getattr(unit_registry, unit_match.group('unit'))          
             
+    def _parse_unit(self, ent: Span):
+        # unit most likely to last element, so loop backwards
+        for token in reversed(ent):
+            if token.lower_ in measurement_units:
+                ent._.unit = getattr(unit_registry, token.text)  
+                break
+                            
     def _parse_numeric(self, ent: Span):
         # Extract the numeric parts of the ent text
         # 10 - 20 => [10, 20]
