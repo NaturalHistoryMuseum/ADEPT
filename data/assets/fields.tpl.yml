@@ -1,119 +1,121 @@
-life form: 'life cycle'
-habitat:
-habit:
-clonality:
-perennial organ:
-plant min. height [m]: 
-  - 'plant measurement.height.min'
-  - 'plant measurement.length.min'
-plant max. height [m]: 
-  - 'plant measurement.height.max'
-  - 'plant measurement.length.max'
-indumentum:
-spinescence:
-succulence:
-leaf arrangement:
-leaf architecture:
-leaf position:
-leaf shape:
-leaf apex:
-leaf base:
-leaf margin:
-leaf min. width [cm]: 'leaf measurement.width.min'
-leaf max. width [cm]: 'leaf measurement.width.max'
-leaf min. length [cm]: 'leaf measurement.length.min'
-leaf max. length [cm]: 'leaf measurement.length.max'
-bract colour:
-bracteole colour:
-inflorescence arrangement:
-inflorescence orientation:
-flower sex:
-flower architecture:
-  - flower architecture
-  - inflorescence architecture
-flower merosity:
-flower symmetry:
-flower shape:
-  - flower shape
-  - inflorescence shape
-flower colour: 
-  - flower colour
-  - inflorescence colour
-flower orientation:
-petal fusion:
-petal colour:
-petal min. width [cm]: 'petal measurement.width.min'
-petal max. width [cm]: 'petal measurement.width.max'
-calyx colour:
-calyx min. length [cm]: 'calyx measurement.length.min'
-calyx max. length [cm]: 'calyx measurement.length.max'
-corolla colour:
-corolla tube min. length [cm]: 'corolla measurement.length.min'
-corolla tube max. length [cm]: 'corolla measurement.length.max'
-corolla tube lipped:
-labellum colour:
-labellum min. width [cm]: 'labellum measurement.width.min'
-labellum max. width [cm]: 'labellum measurement.width.min'
-spur min. length [cm]: 'spur measurement.length.min'
-spur max. length [cm]: 'spur measurement.length.max'
-reproduction architecture:
-reproduction system:
-stamen number: 
-  - stamen number.min
-  - stamen number.max
-stamen arrangement:
-stamenoid number: 
-  - stamenoid number.min
-  - stamenoid number.max
-stamen min. length [cm]: 'stamen measurement.length.min'
-stamen max. length [cm]: 'stamen measurement.length.max'  
-staminodium:
-pollen colour:
-carpel/ovary number:
-  - carpel number.min
-  - carpel number.max
-  - ovary number.min
-  - ovary number.max
-gynoecium arrangement:
-heterostyly:
-pollination:
-reward:
-fruit type:
-fruit structure:
-fruit dehiscence:
-fruit shape:
-fruit colour:
-seed colour:
-seeds per fruit min: 
-  - 'seed number.min'
-  - 'nut number.min'
-seeds per fruit max: 
-  - 'seed number.max'
-  - 'nut number.max'
-seeds per fruit min.: 'seed number.max'
-seed min. width [mm]: 
-  - 'seed measurement.width.min'
-  - 'nut measurement.width.min'
-seed max. width [mm]: 
-  - 'seed measurement.width.max'
-  - 'nut measurement.width.max'
-seed min. length [mm]: 
-  - 'seed measurement.length.min'
-  - 'nut measurement.length.min'
-seed max. length [mm]:
-  - 'seed measurement.length.max'
-  - 'nut measurement.length.max'
-seed min. diameter [mm]: 
-  - 'seed measurement.diameter.min'
-  - 'nut measurement.diameter.min'
-seed max. diameter [mm]:
-  - 'seed measurement.diameter.max'
-  - 'nut measurement.diameter.max'  
-dispersal mode:
-ploidy level (2n):
-root min. depth [cm]: 
-  - 'root measurement.length.min'
-  - 'root measurement.depth.min'
-root max. depth [cm]: 
-  - 'root measurement.length.max'
-  - 'root measurement.depth.max'
+
+angiosperm:
+  life form: 'life cycle'
+  habitat:
+  habit:
+  clonality:
+  perennial organ:
+  plant min. height [m]: 
+    - 'plant measurement.height.min'
+    - 'plant measurement.length.min'
+  plant max. height [m]: 
+    - 'plant measurement.height.max'
+    - 'plant measurement.length.max'
+  indumentum:
+  spinescence:
+  succulence:
+  leaf arrangement:
+  leaf architecture:
+  leaf position:
+  leaf shape:
+  leaf apex:
+  leaf base:
+  leaf margin:
+  leaf min. width [cm]: 'leaf measurement.width.min'
+  leaf max. width [cm]: 'leaf measurement.width.max'
+  leaf min. length [cm]: 'leaf measurement.length.min'
+  leaf max. length [cm]: 'leaf measurement.length.max'
+  bract colour:
+  bracteole colour:
+  inflorescence arrangement:
+  inflorescence orientation:
+  flower sex:
+  flower architecture:
+    - flower architecture
+    - inflorescence architecture
+  flower merosity:
+  flower symmetry:
+  flower shape:
+    - flower shape
+    - inflorescence shape
+  flower colour: 
+    - flower colour
+    - inflorescence colour
+  flower orientation:
+  petal fusion:
+  petal colour:
+  petal min. width [cm]: 'petal measurement.width.min'
+  petal max. width [cm]: 'petal measurement.width.max'
+  calyx colour:
+  calyx min. length [cm]: 'calyx measurement.length.min'
+  calyx max. length [cm]: 'calyx measurement.length.max'
+  corolla colour:
+  corolla tube min. length [cm]: 'corolla measurement.length.min'
+  corolla tube max. length [cm]: 'corolla measurement.length.max'
+  corolla tube lipped:
+  labellum colour:
+  labellum min. width [cm]: 'labellum measurement.width.min'
+  labellum max. width [cm]: 'labellum measurement.width.min'
+  spur min. length [cm]: 'spur measurement.length.min'
+  spur max. length [cm]: 'spur measurement.length.max'
+  reproduction architecture:
+  reproduction system:
+  stamen number: 
+    - stamen number.min
+    - stamen number.max
+  stamen arrangement:
+  stamenoid number: 
+    - stamenoid number.min
+    - stamenoid number.max
+  stamen min. length [cm]: 'stamen measurement.length.min'
+  stamen max. length [cm]: 'stamen measurement.length.max'  
+  staminodium:
+  pollen colour:
+  carpel/ovary number:
+    - carpel number.min
+    - carpel number.max
+    - ovary number.min
+    - ovary number.max
+  gynoecium arrangement:
+  heterostyly:
+  pollination:
+  reward:
+  fruit type:
+  fruit structure:
+  fruit dehiscence:
+  fruit shape:
+  fruit colour:
+  seed colour:
+  seeds per fruit min: 
+    - 'seed number.min'
+    - 'nut number.min'
+  seeds per fruit max: 
+    - 'seed number.max'
+    - 'nut number.max'
+  seeds per fruit min.: 'seed number.max'
+  seed min. width [mm]: 
+    - 'seed measurement.width.min'
+    - 'nut measurement.width.min'
+  seed max. width [mm]: 
+    - 'seed measurement.width.max'
+    - 'nut measurement.width.max'
+  seed min. length [mm]: 
+    - 'seed measurement.length.min'
+    - 'nut measurement.length.min'
+  seed max. length [mm]:
+    - 'seed measurement.length.max'
+    - 'nut measurement.length.max'
+  seed min. diameter [mm]: 
+    - 'seed measurement.diameter.min'
+    - 'nut measurement.diameter.min'
+  seed max. diameter [mm]:
+    - 'seed measurement.diameter.max'
+    - 'nut measurement.diameter.max'  
+  dispersal mode:
+  ploidy level (2n):
+  root min. depth [cm]: 
+    - 'root measurement.length.min'
+    - 'root measurement.depth.min'
+  root max. depth [cm]: 
+    - 'root measurement.length.max'
+    - 'root measurement.depth.max'
