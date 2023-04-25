@@ -9,5 +9,11 @@ setup(
     author='Ben Scott',
     author_email='ben@benscott.co.uk',    
     packages=["adept"],
-    # package_dir=["adept"],
+    entry_points={
+        'console_scripts': [
+            'adept = adept.cli:cli',
+        ],
+    },
+
+
 )
