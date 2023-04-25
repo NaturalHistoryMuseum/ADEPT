@@ -1,8 +1,7 @@
 import luigi
 import yaml
 
-from adept.config import ASSETS_DIR, OUTPUT_DATA_DIR
-from adept.traits import Traits
+from adept.config import ASSETS_DIR
 from adept.utils.patterns import Patterns
 from adept.tasks.base import BaseTask
 
@@ -46,8 +45,8 @@ class AnatomyPatternsTask(BaseTask):
         patterns.to_jsonl(self.output().path)
          
     def output(self):
-        return luigi.LocalTarget(OUTPUT_DATA_DIR / 'anatomy.jsonl')
+        return luigi.LocalTarget(ASSETS_DIR / 'anatomy-pattterns.jsonl')
 
 
 if __name__ == "__main__":    
-    luigi.build([AnatomyPatternsTask()], local_scheduler=True)   
+    luigi.build([AnatomyPatternsTask(force=True)], local_scheduler=True)   

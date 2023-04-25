@@ -1,7 +1,7 @@
 import luigi
 
 
-from adept.config import OUTPUT_DATA_DIR
+from adept.config import ASSETS_DIR
 from adept.traits import Traits
 from adept.utils.patterns import Patterns
 from adept.tasks.base import BaseTask
@@ -22,7 +22,7 @@ class TraitPatternsTask(BaseTask):
         patterns.to_jsonl(self.output().path)
          
     def output(self):
-        return luigi.LocalTarget(OUTPUT_DATA_DIR / 'traits.jsonl')
+        return luigi.LocalTarget(ASSETS_DIR / 'trait-patterns.jsonl')
 
 
 if __name__ == "__main__":    
