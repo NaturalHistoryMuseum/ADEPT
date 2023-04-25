@@ -1,7 +1,6 @@
 import re
 from taxonerd import TaxoNERD
 import re
-from taxonerd import TaxoNERD
 from spacy.tokens import Doc
 from spacy.tokens import Span
 
@@ -14,6 +13,7 @@ class BHLDetectDescriptions():
     
     # Match 15a. etc., at start of string
     re_figure=re.compile('^[0-9]+[a-zA-Z][.|\s]') 
+    re_lower_chars = re.compile('[a-z]+')
      
     wf = WorldFlora()
     taxonerd = TaxoNERD(prefer_gpu=False)
@@ -40,7 +40,7 @@ class BHLDetectDescriptions():
     def __call__(self, text: str):
         text = self.preprocess(text)
         doc = self.nlp(text)  
-        doc.ents = self._segment_ents(doc)
+        doc.ents = self._segment_ents(doc)        
         return list(self._get_descriptions(doc))
         
     def _get_descriptions(self, doc):
@@ -57,7 +57,13 @@ class BHLDetectDescriptions():
             
             if self._is_figure(para.text):
                 # logging.debug(f"IS FIGURE: {paragraph}")
-                continue            
+                continue     
+            
+            # If this is a title .e.g. FAMILY~73.. CAPRIFOLIACEAE. BHL 28698273
+            # Set name match to none so paras in a new sections aren't included
+            if self._is_title(para.text):
+                is_name_match = False
+                continue                    
             
             if para.ents:
                 para_matching_ents = [e for e in para.ents if e.label_ == 'MATCHING_LIVB']
@@ -93,11 +99,17 @@ class BHLDetectDescriptions():
 
     @staticmethod
     def _is_well_formed_name(taxon_name) -> bool:
+        # BUGFIX: remove is acronym check - otherwise not picking up
         # If a taxa is all upper case (model has misidentified an acronym) or doesn't start with a capital
-        return taxon_name[0].isupper() and not taxon_name.isupper()
+        return taxon_name[0].isupper()
     
     def _is_figure(self, paragraph: str) -> bool:
-        return bool(self.re_figure.match(paragraph))     
+        return bool(self.re_figure.match(paragraph))  
+    
+    def _is_title(self, paragraph: str) -> bool:
+        if len(paragraph) > 1:
+            lower_chars = self.re_lower_chars.findall(paragraph)
+            return len(lower_chars) <= 1
     
     def _segment_ents(self, doc: Doc):
         def _get_labelled_ent(ent):
