@@ -4,16 +4,16 @@ import logging
 import os
 from dotenv import load_dotenv
 from pint import UnitRegistry
+from enum import Enum
 import http.client
-import enum
+
 
 ROOT_DIR = Path(__file__).parent.parent.resolve()
 
 DATA_DIR = Path(ROOT_DIR / 'data')
 
 ASSETS_DIR = Path(DATA_DIR / 'assets')
-# TRAINING_DIR = Path(DATA_DIR / 'training')
-# PACKAGES_DIR = Path(DATA_DIR / 'packages')
+
 MODEL_DIR = Path(DATA_DIR / 'models')
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -38,12 +38,25 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 load_dotenv(ROOT_DIR / '.env')
 BHL_API_KEY = os.getenv('BHL_API_KEY')
 
-taxonomic_groups = ['angiosperm', 'bryophyte', 'pteridophyte', 'gymnosperm']
+class OCR(Enum):
+    TESSERACT = 1
+    BHL = 2
+    
+OCR_MODEL = OCR.TESSERACT
+
+class TaxonomicGroup(str, Enum):
+    angiosperm = "angiosperm"
+    bryophyte = "bryophyte"
+    pteridophyte = "pteridophyte"
+    gymnosperm = "gymnosperm"
 
 unit_registry = UnitRegistry()
 unit_registry.default_format = '~P'
 
-DimensionType = enum.Enum('DimensionType', ['LENGTH', 'WIDTH', 'HEIGHT', 'DEPTH', 'DIAMETER', 'RADIUS'])
+# Convert all measurement values to CM (if not specified in a fields tpl file)
+DEFAULT_MEASUREMENT_UNIT = 'cm'
+
+DimensionType = Enum('DimensionType', ['LENGTH', 'WIDTH', 'HEIGHT', 'DEPTH', 'DIAMETER', 'RADIUS'])
 
 measurement_units = ['cm', 'ft', 'm', 'meter', 'metre', 'km', 'kilometer', 'kilometre', 'centimeter', 'centimetre', 'mm', 'millimeter', 'millimetre', 'um', 'µm', 'micrometer', 'micrometre', 'micron', 'nm', 'nanometer', 'nanometre', 'pm', 'inch', 'feet', 'foot']
 

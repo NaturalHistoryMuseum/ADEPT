@@ -1,1 +1,0 @@
-EFLORAS_BASE_URL = 'http://efloras.org'

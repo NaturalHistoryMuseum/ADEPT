@@ -6,8 +6,9 @@ import re
 import typer
 import luigi
 
-from adept.config import taxonomic_groups
-from adept.tasks.run import RunTask
+from adept.config import TaxonomicGroup, OCR_MODEL
+from adept.tasks.aggregate import AggregateDescriptionsTask, AggregateTraitsTask
+from adept.tasks.descriptions import DescriptionsTask
 
 class Interface():
         
@@ -16,15 +17,22 @@ class Interface():
             df = self._read_file(file_path)             
             taxon_column = self._get_file_column(df, taxon_column, 'taxon')
             group_column = self._get_file_column(df, group_column, 'group')                  
-            df[taxon_column] = df[taxon_column].str.strip().str.lower()
+            df[taxon_column] = df[taxon_column].str.strip()
             df[group_column] = df[group_column].str.strip().str.lower() 
+            if taxon_group:
+                df = df[df[group_column] == taxon_group.name]
+            else:
+                groups = [g.name for g in TaxonomicGroup]
+                df = df[df[group_column].isin(groups)]            
             self._taxa = df.groupby(group_column)[taxon_column].agg(list)
         elif taxa and taxon_group:       
             self._taxa = {
-                'taxon_group': taxa
+                taxon_group.name: taxa
             }
         else:
             self.error(f'Please specify either an input file, or taxa and taxon group') 
+            
+        self.total = len(df. index)
               
     def _get_file_column(self, df, col_name, col_type):
         
@@ -50,7 +58,7 @@ class Interface():
 
         if file_path.suffix == '.csv':
             return pd.read_csv(file_path)
-        elif file_path.suffix  in ['.xlsx']:
+        elif file_path.suffix in ['.xlsx', '.xls']:
             return pd.read_excel(file_path)
         
         self.error('Only .csv and .xslx files are supported')            
@@ -63,36 +71,63 @@ class Interface():
         yield from self._taxa.items()            
 
 
-def main(
+cli = typer.Typer()
+count = 0
+
+@cli.command("descriptions")
+def descriptions(
+    taxa: Optional[List[str]] = typer.Option(None), 
+    force: bool = typer.Option(False, "--force"),
+    local_scheduler: bool = typer.Option(True)):
+    
+    luigi.build([AggregateDescriptionsTask(taxon_names=taxa, force=force)], local_scheduler=local_scheduler)
+
+@cli.command("traits")
+def traits(
     file_path: Optional[Path] = typer.Option(None,"--file"), 
     taxon_column: Optional[str] = None, 
     group_column: Optional[str] = None, 
     taxa: Optional[List[str]] = typer.Option(None),
-    taxon_group: Optional[str] = None, 
+    taxon_group: Optional[TaxonomicGroup] = typer.Option(None,"--group"), 
     force: bool = typer.Option(False, "--force"),
-    local_scheduler: bool = typer.Option(True)
+    rebuild_descriptions: bool = typer.Option(False, "--rebuild"),
+    local_scheduler: bool = typer.Option(True),
+    limit: Optional[int] = None
     ):
+
+    interface = Interface(file_path, taxon_column, group_column, taxa, taxon_group)    
+    typer.secho(f'Total of {interface.total} taxonomic names to process', fg=typer.colors.MAGENTA)  
+    typer.secho(f'OCR Model {OCR_MODEL.name}', fg=typer.colors.YELLOW) 
     
-    interface = Interface(file_path, taxon_column, group_column, taxa, taxon_group)
+    def status_update(task):
+        global count
+        count += 1
+        typer.secho(f'{count}/{interface.total}: {task.taxon} ({task.taxonomic_group}) complete', fg=typer.colors.GREEN)    
     
+    @DescriptionsTask.event_handler(luigi.Event.SUCCESS)
+    def on_success(task):
+        status_update(task)
+            
+    @DescriptionsTask.event_handler(luigi.Event.DEPENDENCY_PRESENT)
+    def on_dependency_present(task):
+        status_update(task)       
+
     for group, taxa in interface:
-        if group not in taxonomic_groups:
-            typer.secho(f'Taxonomic group {group} is not supported - ignoring', fg=typer.colors.MAGENTA)
-            continue
         
-        try:
-            taxa = taxa[:10]
-        except:
-            pass
-        
+        # Per group limit, not total limit - but then can be combined with taxon_group
+        if limit: taxa = taxa[:limit]
+
         typer.secho(f'Queuing run task for {group} with {len(taxa)} taxa', fg=typer.colors.GREEN)
-        luigi.build([RunTask(taxa=taxa, taxonomic_group=group, force=force)], local_scheduler=local_scheduler) 
+        task = AggregateTraitsTask(taxa=taxa, taxonomic_group=TaxonomicGroup[group], force=force)
+        if rebuild_descriptions: task.reset_requirements()      
+        
+        luigi.build([task], local_scheduler=local_scheduler) 
         
     typer.secho(f'Processing complete', fg=typer.colors.GREEN)
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    cli()
 
 
 

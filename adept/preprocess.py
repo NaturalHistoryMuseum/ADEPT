@@ -40,7 +40,7 @@ class PreprocessAbbreviations(object):
         'lflet': 'leaflet',
         'lfy': 'leafy',
         'lngth': 'length',
-        'diam': 'diameter',
+        'diam': 'diameter',      
     }
 
     def __init__(self):

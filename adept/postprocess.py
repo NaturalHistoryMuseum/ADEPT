@@ -42,48 +42,28 @@ class Postproccess():
             fields.upsert(f'{part} colour', 'discrete', ent.lemma_)
             
     def _process_discrete_fields(self, sent: Doc, fields: Fields, part: str, taxon_group: str):        
-        df = self.traits.get_discrete_traits(taxon_group)        
+        df = self.traits.get_discrete_traits(taxon_group)                
         trait_ents = self._filter_ents(sent, ['TRAIT'])
         # Process entities     
         for ent in trait_ents:           
             # Match on either term or character 
             mask = (((df.term == ent.lemma_) | (df.term == ent.text.lower()) | (df.character == ent.lemma_) | (df.character == ent.text.lower())))
-            
-            no_part_submask = ((df.part.isna()) | (df.part_required == False))
-            # no_part_required_submask = ((df.require_part == False) & (df.is_unique == True))
-            
-            # If the trait ent is a part, no need to filter on part         
-            # if part == ent.lemma_:
-                
-            # If it's plant we allow anything unique
-            if part == 'plant':
-                mask &= (no_part_submask | df.is_unique == True)
-            elif part:
-                mask &= ((df.part == part) | no_part_submask)
-            else:
-                mask &= no_part_submask
-                                     
+            # If the trait ent is a part, no need to filter on part        
+            if not ent._.anatomical_part:
+                if part:
+                    mask &= ((df.part == part) | (df.part.isna()))
+                else:
+                    mask &= (df.part.isna())
+      
             rows = df[mask]    
-            
-            # for row in rows.itertuples():  
-            #     if row.character == 'rise':
-            
-            #         print('---')
-            #         print(ent)
-            #         print(part)
-            #         print(rows)
-            #         print('---')
-            
-            # if part == 'inflorescence':
-            #     print(ent)
-            #     print(rows)
-            
-            # if ent.text == 'Deciduous':
-            #     print('---')
-            #     print(rows)
-            #     print(part)
 
-            for row in rows.itertuples():                     
+            for row in rows.itertuples():   
+                
+                # if row.character == 'syconium':
+                #     print('---')
+                #     print(row.trait)
+                #     print(ent)
+                                  
                 fields.upsert(row.trait, 'discrete', row.character)   
                 
     def _process_custom_fields(self, sent: Doc, fields: Fields):         

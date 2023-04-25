@@ -59,9 +59,9 @@ class AnatomicalComponent(EntityRuler):
             # Is the first part the first sentence, then use it as a subject        
             if first_part.start == sent.start:
                 subject_part = parts[0]
-            # Or if the first part is the second word, preceeded by a modifier         
+            # Or if the first part is the second word, preceeded by a adverb or adjective modifier         
             # For example: lower bract         
-            elif first_part.start == sent.start + 1 and sent[0].dep_ == 'amod':
+            elif first_part.start == sent.start + 1 and sent[0].dep_ in ['amod', 'advmod', 'advcl']:
                 subject_part = parts[0]        
                 
         return subject_part       

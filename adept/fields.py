@@ -5,7 +5,7 @@ from spacy.tokens import Span, Doc
 import re
 import yaml
 
-from adept.config import unit_registry, logger, DimensionType, measurement_units
+from adept.config import unit_registry, logger, DimensionType, DEFAULT_MEASUREMENT_UNIT
 from adept.utils.helpers import flatten_dict
 
 class Field(ABC):
@@ -163,6 +163,8 @@ class Fields(object):
         data = OrderedDict()
         for field in self._fields.values():
             field_config = field_configs.get(field.name, {})
+            if field.field_type == MeasurementField.field_type and not field_config.get('target_unit'):
+                field_config['target_unit'] = DEFAULT_MEASUREMENT_UNIT                
             if value := field.get_value(**field_config): 
                 value_dict = {field.name: value}
                 if isinstance(value, dict):
