@@ -11,10 +11,13 @@ class BHLPreprocess:
     _paragraph_hypenation_regex = re.compile(r'(\w)-[\s\n]+')
     # New lines not following a full stop with negative look behind
     _sentence_break_regex = re.compile(r'(?<!\.|\n)[\n]+')
+    # Replace spaces/tabs between a period and new line
+    _space_between_period_newline = re.compile(r'(\.)[ \t]+(\n)')
 
     def __call__(self, text):
         text = self.normalise_variety(text)
-        text = self.replace_paragraph_hyphenation(text)
+        text = self.replace_paragraph_hyphenation(text)        
+        text = self.remove_space_between_period_newline(text)
         text = self.remove_sentence_new_lines(text)
         text = self.remove_extra_spaces(text)
         return text
@@ -34,4 +37,7 @@ class BHLPreprocess:
 
     def remove_extra_spaces(self, text):
         return self._whitespace_regex.sub(' ', text)
+    
+    def remove_space_between_period_newline(self, text):
+        return self._space_between_period_newline.sub(r'\1\2', text)  
       
