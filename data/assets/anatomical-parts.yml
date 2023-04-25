@@ -30,6 +30,8 @@ calyx:
   - calyces
 cambium:
   - cambia
+caryopsis:
+  - caryopses
 carpel:
 carpophore:
 catkin:
@@ -71,6 +73,7 @@ drupelet:
 emergent:
 epidermis:
   - epidermises
+epiphyte:
 fascicle:
 filament:
 floral envelope:
@@ -94,6 +97,8 @@ hood:
 horn:
 hypanthium:
   - hypanthia
+indusia:
+  - indusium
 inflorescence:
   - capitula
   - capitulum
@@ -119,6 +124,11 @@ leaf:
   - leave
   - blade
   - blades
+  - underleave
+  - underleaves
+  - underleaf
+  - leaf-blade
+  - lead blade
 leaflet:
 legume:
 lemma:
@@ -126,6 +136,8 @@ lemma:
 ligule:
 lobe:
 main leaflet:
+megaspore:
+  - macrospore
 mericarp:
 mesophyll:
 midrib:
@@ -154,12 +166,14 @@ peduncle:
 perianth:
 perigynium:
 perispore:
+peristome:
 petal:
   - corollas
 petaloid:
 petiole:
 phloem:
 pinnae:
+pinnules:
 pistil:
 placenta:
   - placentae
@@ -168,7 +182,8 @@ pollen:
 pollen grain:
 pollinium:
   - pollinia
-# pome:
+pome:
+propagule:
 prickle:
 phyllary:
   - phyllaries
@@ -193,12 +208,16 @@ seed:
 seed pod:
 sepal:
 sheath:
+sori:
 spadix:
   - spadices
 spathe:
 spike:
 spikelet:
 spore:
+sporangia:
+  - sporangium
+sporocarp:
 spur:
 stamen:
 stamenoid:
