@@ -5,34 +5,49 @@ import re
 from pandas.api.types import is_numeric_dtype
 from pathlib import Path
 import itertools
+import yaml
 from abc import ABC, abstractmethod,ABCMeta
 
-from adept.config import taxonomic_groups, logger, OUTPUT_DATA_DIR, DATA_DIR, INTERMEDIATE_DATA_DIR, INPUT_DATA_DIR
-from adept.tasks.pipeline import PipelineTask
+from adept.config import TaxonomicGroup, logger, OUTPUT_DATA_DIR, OCR_MODEL
+from adept.tasks.descriptions import DescriptionsTask
 from adept.tasks.base import BaseTask
 from adept.utils.helpers import list_uuid
+from adept.utils.aggregator import Aggregator
+from adept.tasks.description.ecoflora.description import EcofloraDescriptionTask
+from adept.tasks.description.bhl.description import BHLDescriptionTask
+from adept.tasks.description.efloras.description import EflorasChinaDescriptionTask, EflorasMossChinaDescriptionTask, EflorasNorthAmericaDescriptionTask, EflorasPakistanDescriptionTask
+  
 
-class AggregateBaseTask(BaseTask, metaclass=ABCMeta):
+class AggregateBaseTask(BaseTask):  
     
-    num_unit_regex = re.compile('([\d\.]+)\s([a-z]+)')
+    @property
+    def uuid(self):
+        if len(self.taxa) == 1:
+            return self.taxa[0].lower().replace(' ', '-')
+        else:
+            return list_uuid(self.taxa)
+              
+class AggregateTraitsTask(AggregateBaseTask):              
+                     
+    taxa = luigi.ListParameter()
+    taxonomic_group = luigi.EnumParameter(enum=TaxonomicGroup) 
+    aggregator = Aggregator()   
     
-    @abstractmethod
-    def _get_taxa_and_group(self):
-        return None  
-            
     def requires(self):
-        for taxon, taxon_group in self._get_taxa_and_group():
-            yield PipelineTask(taxon=taxon, taxonomic_group=taxon_group)  
-                      
+        for taxon in self.taxa:
+            yield DescriptionsTask(taxon=taxon, taxonomic_group=self.taxonomic_group)      
+
     def run(self):
         
         dfs = []    
         combined_dfs = []
 
-        for input_json in self.input():        
-            df = pd.read_json(input_json.path)
-            if not df.empty:
-                combined = df.groupby('taxon').agg(self._series_merge).reset_index()
+        for input_json in self.input():     
+            df = pd.read_json(input_json.path)            
+            if not df.empty:              
+                df.taxon = df.taxon.str.capitalize()  
+                column_mappings = self.aggregator.get_column_mappings(df, exclude=['taxon'])                                
+                combined = df.groupby('taxon').agg(column_mappings)                   
                 dfs.append(df)
                 combined_dfs.append(combined)            
         
@@ -46,136 +61,78 @@ class AggregateBaseTask(BaseTask, metaclass=ABCMeta):
         combined_dfs = combined_dfs.drop(columns=['source', 'source_id'])
         dfs = pd.concat(dfs)
         cols = set(dfs.columns).difference(set(['taxon', 'source', 'source_id']))
-        combined_dfs = combined_dfs.dropna(subset=cols, how="all")   
+        combined_dfs = combined_dfs.dropna(subset=cols, how="all")
+        ordered_combined_cols = [c for c in dfs.columns.tolist() if c in combined_dfs.columns.tolist()]
         
         with pd.ExcelWriter(self.output().path) as writer:    
-            combined_dfs.to_excel(writer, sheet_name="combined", index=False)
+            combined_dfs.to_excel(writer, sheet_name="combined", columns=ordered_combined_cols)
             for source, group in dfs.groupby('source'):
                 # If we don't have any values in a row, drop it         
                 group = group.dropna(subset=cols, how="all")               
                 if not group['source_id'].any(): group.drop('source_id', axis=1, inplace=True)
                 # Ensure taxon is first column 
                 ordered_cols = list(dict.fromkeys(['taxon'] + group.columns.tolist()))               
-                group.to_excel(writer, sheet_name=source, index=False, columns=ordered_cols)  
-                                
-    def _series_merge(self, rows):
-        # Remove any empty rows     
-        rows = rows[rows.notnull()]
-            
-        if rows.empty:
-            return
-        
-        if is_numeric_dtype(rows):
-            return rows.mean().round(2)
-        
-        num_unit = [g for row in rows if (g := self.num_unit_regex.match(row))]
-        
-        if num_unit:
-            num = np.array([float(n.group(1)) for n in num_unit]).mean().round(2)
-            unit = num_unit[0].group(2)   
-            return f'{num} {unit}'
-        
-        # Ploidy 2n contains , so we don't want to split or concatenate on ','     
-        text_list = [s.split(',') for s in rows if not s.startswith('2n')]
-        if text_list:
-            return ', '.join(set([t.strip() for t in itertools.chain(*text_list)]))
-        else:
-            return '| '.join(rows)        
-                     
-              
-class AggregateTask(AggregateBaseTask):              
-                     
-    taxa = luigi.ListParameter()
-    taxonomic_group = luigi.OptionalChoiceParameter(choices=taxonomic_groups, var_type=str) 
-
-    def _get_taxa_and_group(self):
-        for taxon in self.taxa:
-            yield taxon, self.taxonomic_group
+                group.to_excel(writer, sheet_name=source, index=False, columns=ordered_cols)                              
         
     def output(self):
-        uuid = list_uuid(self.taxa)
-        return luigi.LocalTarget(OUTPUT_DATA_DIR / f'{uuid}.traits.xlsx')                  
+        output_dir = OUTPUT_DATA_DIR / OCR_MODEL.name.lower()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        file_name = f'{self.taxonomic_group}-{self.uuid}.traits.xlsx'      
+        return luigi.LocalTarget(output_dir / file_name)
+    
+    def rebuild_descriptions(self):
+        """
+        Delete descriptions, for a complete re-run
+        """
+        logger.warning('Deleting descriptions for a complete rebuild')
+        for task in self.requires():
+            Path(task.output().path).unlink(missing_ok=True)    
                     
-class AggregateFileTask(AggregateBaseTask):
-    
-    file_path = luigi.PathParameter(exists=True)
-    taxon_column = luigi.Parameter(default='scientificName')
-    taxon_group_column = luigi.OptionalStrParameter(default=None)
-    taxonomic_group = luigi.OptionalChoiceParameter(choices=taxonomic_groups, var_type=str, default=None)  
- 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)        
-        self._validate_group_paramters(*args, **kwargs)
-        
-    def _validate_group_paramters(self, *args, **kwargs):
-        """
-        Ensure we have either taxonomic group column or taxonomic group set
-        """
-        params = self.get_params()
-        param_values = dict(self.get_param_values(params, args, kwargs))
-        group_params = ['taxonomic_group', 'taxon_group_column']
-        group_param_values = [param_values.get(p) for p in group_params]        
-        task_family = self.get_task_family()
-        exc_desc = '%s[args=%s, kwargs=%s]' % (task_family, args, kwargs)        
-        if not any(group_param_values):
-            raise luigi.parameter.MissingParameterException("%s: requires one of '%s' to be set" % (exc_desc, ' '.join(group_params)))
-        elif all(group_param_values):
-            raise luigi.parameter.DuplicateParameterException("%s: requires only one of '%s' to be set" % (exc_desc, ' '.join(group_params)))    
+class AggregateDescriptionsTask(BaseTask):    
+    """
+    Aggregate descriptions. Used for generating descriptions for training data etc.,
 
+    """
+        
+    taxa = luigi.ListParameter()
+
+    def requires(self):
+        for taxon in self.taxa:
+            yield from [
+                EcofloraDescriptionTask(taxon=taxon),
+                EflorasNorthAmericaDescriptionTask(taxon=taxon),
+                EflorasChinaDescriptionTask(taxon=taxon),
+                EflorasMossChinaDescriptionTask(taxon=taxon),
+                EflorasPakistanDescriptionTask(taxon=taxon),
+                BHLDescriptionTask(taxon=taxon)
+            ]    
+        
+    def run(self):
+        data = []
+
+        for task_input in self.input():
+            with task_input.open('r') as f:
+                descriptions = yaml.full_load(f)             
+                data.extend([d for d in descriptions if d['description']])
+        
+        pd.DataFrame(data).to_csv(self.output().path, index=False)
     
-    def _get_taxa_and_group(self):
-        for taxon, taxon_group in self._read_names_from_file():
-            taxon_group = taxon_group.lower()
-            if not taxon_group in taxonomic_groups: 
-                raise Exception('Unknown taxonomic group %s - must be one of %s '% (taxon_group, ' '.join(taxonomic_groups)))
-            
-            yield taxon, taxon_group
-    
-    def _read_names_from_file(self):        
-        df = self._read_file()
-        
-        if self.taxon_group_column:
-            yield from df[[self.taxon_column, self.taxon_group_column]].drop_duplicates().values.tolist()
-        else:
-            taxa = df[self.taxon_column].unique()
-            yield from list(zip(taxa, [self.taxonomic_group] * len(taxa)))
-  
-    def _read_file(self):
-        
-        if self.file_path.suffix == '.csv':
-            return pd.read_csv(self.file_path)
-        elif self.file_path.suffix  in ['.xlsx']:
-            return pd.read_excel(self.file_path)
-        
-        raise Exception('Only .csv and .xslx files are supported')
-            
     def output(self):
-        output_file_name = Path(self.file_path).stem
-        return luigi.LocalTarget(OUTPUT_DATA_DIR / f'{output_file_name}.traits.xlsx')           
+        file_name = f'{self.uuid}.{OCR_MODEL.name.lower()}.descriptions.csv'
+        return luigi.LocalTarget(OUTPUT_DATA_DIR / file_name)        
     
 
 if __name__ == "__main__":    
-    
-    input_file = INPUT_DATA_DIR / 'north-american-assessments.csv'
-    df = pd.read_csv(input_file)
-    
-    taxa = df['scientificName'].unique().tolist()   
-    # taxa = taxa[:10]
-    
+        
     taxa = [
-        'Aquilaria malaccensis, Brachystegia oblonga, Dracula lemurella, Ateleia popenoei, Ocotea monteverdensis, Puya lopezii, Trichosalpinx inquisiviensis, Auerodendron reticulatum, Koanophyllon tetranthum, Acca lanuginosa, Stelis hirtella, Oxyspora cernua, Pilosella procera, Alpinia jianganfeng',
-        'Melaleuca accedens'
+        'Carex binervis',
     ]
     
-    # print(taxa)
+    task = AggregateTraitsTask(taxa=taxa, taxonomic_group=TaxonomicGroup.angiosperm, force=True)    
+    task.rebuild_descriptions()
     
-
+    luigi.build([
+        task
+    ], local_scheduler=True) 
     
-    # taxon = 'Leersia hexandra'
-    # taxa = [taxon]
-    
-    # luigi.build([PipelineTask(taxon=taxon, taxonomic_group='angiosperm', force=True)], local_scheduler=True)  
-    
-    # luigi.build([AggregateTask(taxa=taxa, taxonomic_group='angiosperm', force=True)], local_scheduler=True)  
-    
-    luigi.build([AggregateFileTask(taxa=taxa, taxonomic_group='angiosperm', force=True)], local_scheduler=True) 
+    print('Task complete: traits written to ', task.output().path)
