@@ -20,6 +20,7 @@ class DescriptionsTask(BaseTask):
     taxonomic_group = luigi.EnumParameter(enum=TaxonomicGroup)  
     template_path = luigi.OptionalPathParameter(default=fields_template)       
     pipeline = Pipeline()
+    bhl = luigi.BoolParameter(default=False, significant=False)   
 
     def requires(self):
         yield from [
@@ -29,7 +30,7 @@ class DescriptionsTask(BaseTask):
             EflorasMossChinaDescriptionTask(taxon=self.taxon),
             EflorasPakistanDescriptionTask(taxon=self.taxon),            
         ]
-        if is_binomial(self.taxon):
+        if self.bhl and is_binomial(self.taxon):
             yield BHLDescriptionTask(taxon=self.taxon)
         
     def run(self):        
@@ -42,7 +43,12 @@ class DescriptionsTask(BaseTask):
             logger.info('Collecting descriptions for %s', self.taxon)            
             with i.open('r') as f:
                 descriptions = yaml.full_load(f)                
-                for description in descriptions:                                       
+                for description in descriptions:    
+                    source_id = description.get('source_id', None)
+                    
+                    # if source_id != '30059340':
+                    #     continue
+                                                          
                     if text := description.get('text'):
                         fields = self.pipeline(text, self.taxonomic_group)                                       
                         if field_mappings:
@@ -51,7 +57,7 @@ class DescriptionsTask(BaseTask):
                             record = fields.to_dict()
                         record['source'] = description['source']
                         # Additional source ID - e.g. BHL
-                        record['source_id'] = description.get('source_id', None)
+                        record['source_id'] = source_id
                         record['taxon'] = description['taxon']
                         data.append(record)
 
@@ -73,4 +79,4 @@ class DescriptionsTask(BaseTask):
                 
 
 if __name__ == "__main__":        
-    luigi.build([DescriptionsTask(taxon='Holcus lanatus', taxonomic_group=TaxonomicGroup.angiosperm, force=True)], local_scheduler=True)  
+    luigi.build([DescriptionsTask(taxon='Calluna vulgaris', taxonomic_group=TaxonomicGroup.angiosperm, force=True)], local_scheduler=True)  
