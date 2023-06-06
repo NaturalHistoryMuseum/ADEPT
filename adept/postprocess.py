@@ -45,13 +45,25 @@ class Postproccess():
         df = self.traits.get_discrete_traits(taxon_group)                
         trait_ents = self._filter_ents(sent, ['TRAIT'])
         # Process entities     
-        for ent in trait_ents:           
+        for ent in trait_ents:     
+            
+            # Special handling for bloody fig.XXX
+            if ent.lemma_ == 'fig':
+                try: 
+                    next_token = ent.doc[ent.end]
+                except IndexError:
+                    pass
+                else:
+                    if next_token.text == '.': continue
+                                      
             # Match on either term or character 
             mask = (((df.term == ent.lemma_) | (df.term == ent.text.lower()) | (df.character == ent.lemma_) | (df.character == ent.text.lower())))
             # If the trait ent is a part, no need to filter on part        
             if not ent._.anatomical_part:
-                if part:
+                if part == 'plant':
                     mask &= ((df.part == part) | (df.part.isna()))
+                elif part:
+                    mask &= (df.part == part)
                 else:
                     mask &= (df.part.isna())
       
@@ -62,7 +74,9 @@ class Postproccess():
                 # if row.character == 'syconium':
                 #     print('---')
                 #     print(row.trait)
+                #     print(row)
                 #     print(ent)
+                #     print(sent)
                                   
                 fields.upsert(row.trait, 'discrete', row.character)   
                 
