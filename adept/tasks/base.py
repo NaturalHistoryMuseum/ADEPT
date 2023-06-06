@@ -1,5 +1,5 @@
 import luigi
-from zipp import Path
+from pathlib import Path
 
 class TaskMixin:
     
