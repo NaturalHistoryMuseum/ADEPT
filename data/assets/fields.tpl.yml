@@ -1,3 +1,55 @@
+bryophyte:
+  plant growth:
+  stem growth:
+  life form: 'life cycle'
+  water retention:
+  substrate:
+  plant sex:
+  thallus shape:
+  thallus apex shape:
+  thallus arrangement:
+  thallus margin type:
+  thallus surface:
+  thallus vein presence:
+  thallus min. length [mm]: 'thallus measurement.length.min'
+  thallus max. length [mm]: 'thallus measurement.length.max'  
+  thallus min. width [mm]: 'thallus measurement.width.min'
+  thallus max. width [mm]: 'thallus measurement.width.max'   
+  sporophyte presence:
+  sporophyte abundance:
+  capsule min. length [mm]: 'capsule measurement.length.min'
+  capsule max. length [mm]: 'capsule measurement.length.max'  
+  capsule min. width [mm]: 'capsule measurement.width.min'
+  capsule max. width [mm]: 'capsule measurement.width.max'   
+  capsule shape:
+  capsule on seta:
+  seta shape:
+  seta min. length [mm]: 'seta measurement.length.min'
+  seta max. length [mm]: 'seta measurement.length.max'   
+  spore aperture:
+  spore shape:
+  spore ornamentation:
+  spore min. diameter [mm]: 'spore measurement.diameter.min'
+  spore max. diameter [mm]: 'spore measurement.diameter.max'
+  spore number per capsule min: 'spore number.min'
+  spore number per capsule max:  'spore number.max'
+  asexual diaspore size min. [mm]: 'asexual diaspore measurement.width.min'
+  asexual diaspore size max. [mm]: 'asexual diaspore measurement.width.max'   
+  permanent protonema:
+  polyploidy:
+  shoot min. length [mm]: 'shoot measurement.length.min'
+  shoot max. length [mm]: 'shoot measurement.length.max' 
+  stem max. diameter [mm]: 'stem measurement.diameter.max'     
+  paraphyllia:
+  rhizoid presence:
+  mucilage cavity:
+  lobule presence:
+  lobule shape:
+  lobule margin type:
+  lobule min. length [mm]: 'lobule measurement.length.min'
+  lobule max. length [mm]: 'lobule measurement.length.max'  
+  lobule min. width [mm]: 'lobule measurement.width.min'
+  lobule max. width [mm]: 'lobule measurement.width.max'   
 
 angiosperm:
   life form: 'life cycle'
