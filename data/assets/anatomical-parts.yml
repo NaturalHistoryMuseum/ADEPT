@@ -10,6 +10,7 @@ anther:
 anthophore:
 areoles:
 aril:
+asexual diaspore:
 auricle:
 awn:
 axil:
@@ -50,7 +51,6 @@ corona:
 cortex:
   - cortices
 corymb:
-costae:
 costule:
 cotyledon:
 costa:
@@ -75,6 +75,7 @@ epidermis:
   - epidermises
 epiphyte:
 fascicle:
+fertile frond:
 filament:
 floral envelope:
 flower:
@@ -97,6 +98,7 @@ hood:
 horn:
 hypanthium:
   - hypanthia
+indumentum:
 indusia:
   - indusium
 inflorescence:
@@ -135,6 +137,7 @@ lemma:
   - lemmata
 ligule:
 lobe:
+lobule:
 main leaflet:
 megaspore:
   - macrospore
@@ -143,6 +146,7 @@ mesophyll:
 midrib:
 monochasium:
   - monochasia
+mucilage cavity:
 nectary:
   - nectaries
 nerve:
@@ -161,6 +165,7 @@ palea:
 panicle:
 pappus:
   - pappi
+paraphyllia:
 pedicel:
 peduncle:
 perianth:
@@ -185,6 +190,8 @@ pollinium:
 pome:
 propagule:
 prickle:
+protonema:
+  protonemata:
 phyllary:
   - phyllaries
 raceme:
@@ -195,6 +202,7 @@ rachis:
 ray floret:
 receptacle:
 rhizome:
+rhizoid:
 root:
 root cap:
 root hair:
@@ -207,6 +215,7 @@ seed:
   - acorn
 seed pod:
 sepal:
+seta:
 sheath:
 sori:
 spadix:
@@ -218,6 +227,7 @@ spore:
 sporangia:
   - sporangium
 sporocarp:
+sporophyte:
 spur:
 stamen:
 stamenoid:
@@ -241,6 +251,8 @@ tendrill:
 tepal:
 thalamus:
   - thalami
+thallus: 
+  - thalli
 thorn:
 torus:
   - tori
