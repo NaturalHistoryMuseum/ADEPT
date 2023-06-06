@@ -15,16 +15,31 @@ class Interface():
     def __init__(self, file_path, taxon_column, group_column, taxa, taxon_group):
         if file_path:
             df = self._read_file(file_path)             
-            taxon_column = self._get_file_column(df, taxon_column, 'taxon')
-            group_column = self._get_file_column(df, group_column, 'group')                  
+            if not (taxon_column := self._get_file_column(df, taxon_column, 'taxon')):
+                self.error(f'Could not detect a column for taxon in file')
+                
             df[taxon_column] = df[taxon_column].str.strip()
-            df[group_column] = df[group_column].str.strip().str.lower() 
-            if taxon_group:
-                df = df[df[group_column] == taxon_group.name]
+                        
+            if group_column := self._get_file_column(df, group_column, 'group'):   
+                df[group_column] = df[group_column].str.strip().str.lower()   
+                if taxon_group:
+                    df = df[df[group_column] == taxon_group.name]
+                else:
+                    groups = [g.name for g in TaxonomicGroup]
+                    df = df[df[group_column].isin(groups)]      
+                    
+                self._taxa = df.groupby(group_column)[taxon_column].agg(list)            
+                
+            elif taxon_group:            
+                self._taxa = {
+                    taxon_group.name: df[taxon_column].unique().tolist()
+                }                
             else:
-                groups = [g.name for g in TaxonomicGroup]
-                df = df[df[group_column].isin(groups)]            
-            self._taxa = df.groupby(group_column)[taxon_column].agg(list)
+                self.error(f'Could not detect a column for group in file')
+            
+            
+           
+            
         elif taxa and taxon_group:       
             self._taxa = {
                 taxon_group.name: taxa
@@ -32,7 +47,7 @@ class Interface():
         else:
             self.error(f'Please specify either an input file, or taxa and taxon group') 
             
-        self.total = len(df. index)
+        self.total = len(self._taxa)
               
     def _get_file_column(self, df, col_name, col_type):
         
@@ -51,8 +66,7 @@ class Interface():
             cols = list(filter(lambda_filter, df.columns))
             if len(cols) == 1: 
                 typer.secho(f'Using column {cols[0]} for {col_type} in file')
-                return cols[0]
-            self.error(f'Could not detect a column for {col_type} in file')
+                return cols[0]            
             
     def _read_file(self, file_path: Path):
 
@@ -63,6 +77,7 @@ class Interface():
         
         self.error('Only .csv and .xslx files are supported')            
 
+    @staticmethod
     def error(msg, abort=True):
         typer.secho(msg, fg=typer.colors.RED)
         if abort: raise typer.Abort()               
@@ -90,6 +105,7 @@ def traits(
     taxa: Optional[List[str]] = typer.Option(None),
     taxon_group: Optional[TaxonomicGroup] = typer.Option(None,"--group"), 
     force: bool = typer.Option(False, "--force"),
+    bhl: bool = typer.Option(False, "--bhl"),
     rebuild_descriptions: bool = typer.Option(False, "--rebuild"),
     local_scheduler: bool = typer.Option(True),
     limit: Optional[int] = None
@@ -97,7 +113,10 @@ def traits(
 
     interface = Interface(file_path, taxon_column, group_column, taxa, taxon_group)    
     typer.secho(f'Total of {interface.total} taxonomic names to process', fg=typer.colors.MAGENTA)  
-    typer.secho(f'OCR Model {OCR_MODEL.name}', fg=typer.colors.YELLOW) 
+    if bhl:
+        typer.secho(f'OCR Model {OCR_MODEL.name}', fg=typer.colors.YELLOW) 
+    else:
+        typer.secho(f'Not using BHL source for descriptions', fg=typer.colors.YELLOW) 
     
     def status_update(task):
         global count
@@ -118,7 +137,7 @@ def traits(
         if limit: taxa = taxa[:limit]
 
         typer.secho(f'Queuing run task for {group} with {len(taxa)} taxa', fg=typer.colors.GREEN)
-        task = AggregateTraitsTask(taxa=taxa, taxonomic_group=TaxonomicGroup[group], force=force)
+        task = AggregateTraitsTask(taxa=taxa, taxonomic_group=TaxonomicGroup[group], force=force, bhl=bhl)
         if rebuild_descriptions: task.reset_requirements()      
         
         luigi.build([task], local_scheduler=local_scheduler) 
