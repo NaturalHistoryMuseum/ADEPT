@@ -16,7 +16,7 @@ from adept.utils.aggregator import Aggregator
 from adept.tasks.description.ecoflora.description import EcofloraDescriptionTask
 from adept.tasks.description.bhl.description import BHLDescriptionTask
 from adept.tasks.description.efloras.description import EflorasChinaDescriptionTask, EflorasMossChinaDescriptionTask, EflorasNorthAmericaDescriptionTask, EflorasPakistanDescriptionTask
-  
+from adept.utils.helpers import is_binomial
 
 class AggregateBaseTask(BaseTask):  
     
@@ -31,11 +31,12 @@ class AggregateTraitsTask(AggregateBaseTask):
                      
     taxa = luigi.ListParameter()
     taxonomic_group = luigi.EnumParameter(enum=TaxonomicGroup) 
-    aggregator = Aggregator()   
+    aggregator = Aggregator()
+    bhl = luigi.BoolParameter(default=False, significant=False)   
     
-    def requires(self):
+    def requires(self):        
         for taxon in self.taxa:
-            yield DescriptionsTask(taxon=taxon, taxonomic_group=self.taxonomic_group)      
+            yield DescriptionsTask(taxon=taxon, taxonomic_group=self.taxonomic_group, bhl=self.bhl)      
 
     def run(self):
         
@@ -125,10 +126,10 @@ class AggregateDescriptionsTask(BaseTask):
 if __name__ == "__main__":    
         
     taxa = [
-        'Carex binervis',
+        'Carex hirta',
     ]
     
-    task = AggregateTraitsTask(taxa=taxa, taxonomic_group=TaxonomicGroup.angiosperm, force=True)    
+    task = AggregateTraitsTask(taxa=taxa, taxonomic_group=TaxonomicGroup.angiosperm, force=True, bhl=True)    
     task.rebuild_descriptions()
     
     luigi.build([
