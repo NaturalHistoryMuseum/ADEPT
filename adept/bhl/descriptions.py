@@ -6,7 +6,7 @@ from spacy.tokens import Span
 
 from adept.bhl.preprocess import BHLPreprocess
 from adept.worldflora import WorldFlora
-from adept.bhl.model import TextClassifier
+from adept.bhl.classifier import BHLClassifier
 from adept.config import logger
 
 class BHLDetectDescriptions():
@@ -19,7 +19,8 @@ class BHLDetectDescriptions():
     taxonerd = TaxoNERD(prefer_gpu=False)
     nlp = taxonerd.load(model="en_core_eco_biobert", exclude=["pysbd_sentencizer"])    
     preprocess = BHLPreprocess()
-    text_classifier = TextClassifier()
+    
+    classifier = BHLClassifier()
     
     MINIMUM_WORD_COUNT = 50
     
@@ -81,7 +82,7 @@ class BHLDetectDescriptions():
             if len(para) <= self.MINIMUM_WORD_COUNT:
                 continue
 
-            if not self._paragraph_is_description(para):
+            if not self.classifier.is_description(para):
                 continue
 
             logger.debug(f"Description found for %s", para_matching_ents)           
@@ -116,7 +117,4 @@ class BHLDetectDescriptions():
             label = 'MATCHING_LIVB' if self._re_names.search(ent.text) else 'LIVB'
             return Span(ent.doc, ent.start, ent.end, label=label)
     
-        return [_get_labelled_ent(ent) for ent in doc.ents if ent.label_ == 'LIVB' and self._is_well_formed_name(ent.text)]        
-
-    def _paragraph_is_description(self, para: str) -> bool:
-        return self.text_classifier(para.text)  
+        return [_get_labelled_ent(ent) for ent in doc.ents if ent.label_ == 'LIVB' and self._is_well_formed_name(ent.text)]         

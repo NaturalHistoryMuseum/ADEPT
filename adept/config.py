@@ -38,11 +38,16 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 load_dotenv(ROOT_DIR / '.env')
 BHL_API_KEY = os.getenv('BHL_API_KEY')
 
+BHL_OCR_ARCHIVE_PATH = Path(os.getenv('BHL_OCR_ARCHIVE')) if os.getenv('BHL_OCR_ARCHIVE') else None
+
 class OCR(Enum):
     TESSERACT = 1
     BHL = 2
     
 OCR_MODEL = OCR.TESSERACT
+
+# DO we want to use BHL for OCR'd text
+OCR_TEXT_SOURCE = os.getenv('OCR_TEXT_SOURCE', 'BHL')
 
 class TaxonomicGroup(str, Enum):
     angiosperm = "angiosperm"

@@ -17,44 +17,15 @@ from requests.models import PreparedRequest
 from pathlib import Path
 from requests_futures.sessions import FuturesSession
 from concurrent.futures import as_completed
+from abc import ABCMeta, abstractmethod
 
-from adept.config import INTERMEDIATE_DATA_DIR, logger, BHL_API_KEY
+from adept.config import INTERMEDIATE_DATA_DIR, logger, BHL_API_KEY, INPUT_DATA_DIR, BHL_OCR_ARCHIVE_PATH
 from adept.tasks.base import BaseTask, BaseExternalTask
 from adept.utils.request import CachedRequest
+from adept.tasks.description.bhl.text import BHLTextAPITask, BHLTextArchiveTask
+from adept.traits import SimpleTraitTextClassifier
 from adept.tasks.description.bhl import BHL_BASE_URL
 from adept.traits import SimpleTraitTextClassifier
-
-class BHLNameListTask(BaseExternalTask):
-    
-    taxon = luigi.Parameter()
-    # https://www.biodiversitylibrary.org/namelistdownload/?type=c&name=Ancistrocladus_guineensis
-    namelist_url = f'{BHL_BASE_URL}/namelistdownload'
-    output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'name-list'
-    api_endpoint = f'{BHL_BASE_URL}/api3'
-    
-    def run(self):
-         
-        params = {
-            'type': 'c',
-            'name': self.encode_taxon(self.taxon)
-        }
-        req = PreparedRequest()
-        req.prepare_url(self.namelist_url, params)               
-        urlretrieve(req.url, self.output().path)
-        # No results
-        # Path(self.output().path).touch()
-        # logger.error('No BHL search results for %s', self.taxon)
-
-    def output(self):
-        return luigi.LocalTarget(self.output_dir / f'{self.taxon}.csv')   
-
-    @staticmethod
-    def encode_taxon(taxon):
-        # BHL URL for CSV has underscores for spaces and $ for special chars
-        # Artabotrys stenopetalus var. parviflorus => artabotrys_stenopetalus_var$_parviflorus     
-        taxon = taxon.replace(' ', '_')
-        taxon = re.sub(r'\W+', '$', taxon)
-        return taxon
 
 
 class BHLSearchTask(BaseTask):
@@ -65,55 +36,45 @@ class BHLSearchTask(BaseTask):
     
     taxon = luigi.Parameter()    
     output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'search'
+    names = pd.read_parquet(INPUT_DATA_DIR / 'bhl_names.parquet') 
     # Can change min_terms - lower = slower; higher = less images download but might miss some
     trait_classifier = SimpleTraitTextClassifier(min_terms=15, min_chars=2500)
-    
-    def requires(self):        
-        return BHLNameListTask(taxon=self.taxon) 
-            
-    def run(self):        
-        with self.input().open('r') as f: 
-            try:
-                df = pd.read_csv(f)
-            except pd.errors.EmptyDataError:
-                logger.error('Empty BHL name list for %s', self.taxon)
-                data = {}
-            else:                
-                logger.info('%s BHL pages located...filtering by language and trait term count', len(df.index))                 
-                df['page_id'] = df['Url'].apply(lambda url: int(url.split('/')[-1]))    
-                df = df.set_index('page_id')  
-                # Filter out non-english pages
-                df = df[df.Language == 'English']                   
-                # df = df.head(100)        
 
-                text = self.get_text(df.index.to_list())
-                df["text"] = df.index.map(text) 
-                # Filter out pages without any botanical trait terms in text                                   
-                df['is_desc'] = df['text'].apply(self._is_description)
-                df = df[df.is_desc == True]          
-                logger.info('Writing %s search results (filtered by english and basic description classification) to file', len(df.index))                                   
-                # bhl_ids = df.index.tolist()   
-                data = df.to_dict()['text'] 
+    def requires(self):
+        for row in self.search().itertuples():
+            if BHL_OCR_ARCHIVE_PATH:
+                yield BHLTextArchiveTask(
+                    page_id=row.PageID,
+                    item_id=row.ItemID,
+                    seq_order=row.SequenceOrder,               
+                )
+            else:
+                yield BHLTextAPITask(
+                    page_id=row.PageID              
+                )                
 
-        with self.output().open('w') as f:                  
-            f.write(yaml.dump(data, explicit_start=True, default_flow_style=False))             
+    def search(self): 
+        return self.names[self.names.NameConfirmed == self.taxon]
                            
     def output(self):
         return luigi.LocalTarget(self.output_dir / f'{self.taxon}.en.yaml')              
             
-    @staticmethod
-    def get_text(page_ids):                
-        # https://morioh.com/p/f9705e6b524b
-        with FuturesSession(max_workers=20, session=CachedRequest.session) as session:
-            def _future(page_id):
-                future = session.get(f'https://www.biodiversitylibrary.org/pagetext/{page_id}')
-                future.page_id = page_id
-                return future
+    def run(self): 
+        data = {}
+        for i in self.input():
+            p = Path(i.path)
+            page_id = int(p.stem)
+            with p.open() as f:
+                text = f.read()
+                if self._is_description(text):
+                    data[page_id] = text
+ 
+        with self.output().open('w') as f:                  
+            f.write(yaml.dump(data, explicit_start=True, default_flow_style=False))             
+                           
+    def output(self):
+        return luigi.LocalTarget(self.output_dir / f'{self.taxon}.en.yaml') 
 
-            futures=[_future(page_id) for page_id in page_ids]    
-            text = {int(future.page_id): future.result().text for future in as_completed(futures)}
-            return text
-    
     def _is_description(self, text):
         """
         So many results in BHL (some taxa, 1000s of pages), and most are irrelevant. 
@@ -129,5 +90,9 @@ if __name__ == "__main__":
     import time
     start = time.time()
     luigi.build([BHLSearchTask(taxon='Leersia hexandra', force=True)], local_scheduler=True)
+
+    # x = BHLTaxonSearchTask(taxon='Leersia hexandra')
+    # print(x.search())
+
     stop = time.time()
     print(stop-start)          

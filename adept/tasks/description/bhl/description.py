@@ -20,9 +20,9 @@ from taxonerd import TaxoNERD
 from pathlib import Path
 import concurrent
 
-from adept.config import INTERMEDIATE_DATA_DIR, logger, OCR_MODEL, INPUT_DATA_DIR, OCR
+from adept.config import INTERMEDIATE_DATA_DIR, logger, OCR_TEXT_SOURCE, INPUT_DATA_DIR, OCR
 from adept.bhl.descriptions import BHLDetectDescriptions
-from adept.tasks.description.bhl.ocr import BHLTesseractOCRTask
+from adept.tasks.description.bhl.tesseract import BHLTesseractOCRTask
 from adept.tasks.description.bhl.search import BHLSearchTask
 from adept.tasks.base import BaseTask
 from adept.utils.helpers import is_binomial
@@ -46,10 +46,10 @@ class BHLDescriptionTask(BaseTask):
            raise luigi.parameter.ParameterException('Taxon for BHL must be a binomial - taxon parameter is {}'.format(self.taxon))
     
     def requires(self):  
-        if OCR_MODEL == OCR.TESSERACT:
-            return BHLTesseractOCRTask(taxon=self.taxon)        
+        if OCR_TEXT_SOURCE == 'BHL':
+            return BHLSearchTask(taxon=self.taxon)                    
         else:
-            return BHLSearchTask(taxon=self.taxon)                  
+            return BHLTesseractOCRTask(taxon=self.taxon)    
             
     def run(self):
         data = []
@@ -74,24 +74,25 @@ class BHLDescriptionTask(BaseTask):
             f.write(yaml.dump(data, explicit_start=True, default_flow_style=False))                 
                         
     def output(self):            
-        file_name = f'{self.taxon}.bhl.yaml' if OCR_MODEL == OCR.BHL else f'{self.taxon}.yaml'
+        ocr_text_source = OCR_TEXT_SOURCE.lower()
+        file_name = f'{self.taxon}.{ocr_text_source}.yaml'
         return luigi.LocalTarget(self.output_dir / file_name)  
     
 if __name__ == "__main__":    
     import time
     start = time.time()   
     
-    p = INPUT_DATA_DIR / 'peatland-species.csv'
+    # p = INPUT_DATA_DIR / 'peatland-species.csv'
     
-    df = pd.read_csv(p)
+    # df = pd.read_csv(p)
     
-    taxa = df['Species name'].unique()
+    # taxa = df['Species name'].unique()
     
     # print(taxa[:2])
     
     # binomials = [taxon.strip() for taxon in taxa if len(taxon.split()) == 2]
     
-    binomials = ['Galium aparine']
+    # binomials = ['Galium aparine']
     
     # binomials = binomials[:1]
     
@@ -99,7 +100,7 @@ if __name__ == "__main__":
             
     # luigi.build([BHLAggregateOCRTask(bhl_ids=l, taxon='Metopium toxiferum')], local_scheduler=True) 
     # luigi.build([BHLDescriptionTask(taxon=taxon) for taxon in binomials], local_scheduler=True)
-    luigi.build([BHLDescriptionTask(taxon='Galium aparine', force=True)], local_scheduler=True)
+    luigi.build([BHLDescriptionTask(taxon='Leersia hexandra', force=True)], local_scheduler=True)
     # luigi.build([BHLDescriptionTask(bhl_id=27274329, force=True)], local_scheduler=True) 
     stop = time.time()
     print(stop-start)             

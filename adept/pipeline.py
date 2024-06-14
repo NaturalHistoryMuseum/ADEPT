@@ -3,23 +3,36 @@ import spacy
 from adept.components.registry import ComponentsRegistry
 from adept.preprocess import Preprocess
 from adept.postprocess import Postproccess
-from adept.config import MODEL_DIR
+from adept.config import MODEL_DIR, logger
 
 
 class Pipeline():
     
     def __init__(self):
 
+        model = 'en_adept_ner_trf'
+
         # self.nlp = spacy.load("en_core_web_trf")        
-        self.nlp = spacy.load(MODEL_DIR / 'adept')
+        try:
+            self.nlp = spacy.load(model)
+        except OSError:
+            print(f"Can't find model '{model}' - have you installed from train/ner/packages?")
+            raise
         
-        registry = ComponentsRegistry(self.nlp)        
-        registry.add_component('numeric')
-        registry.add_component('anatomical_ner')
-        registry.add_component('traits_ner', after="anatomical_ner")
+        registry = ComponentsRegistry(self.nlp)       
+        registry.add_component('numeric', before="ner")
+        registry.add_component('anatomical_ner', before="ner")
+        registry.add_component('traits_ner', after="ner")
         registry.add_component('traits_custom_ner', after="traits_ner")
         registry.add_component('dimension_ner')
-        registry.add_component('measurement_rel', after="dimension_ner")
+        registry.add_component('measurement_rel', after="dimension_ner")  
+
+        # registry.add_component('numeric')
+        # registry.add_component('anatomical_ner')
+        # registry.add_component('traits_ner', after="anatomical_ner")
+        # registry.add_component('traits_custom_ner', after="traits_ner")
+        # registry.add_component('dimension_ner')
+        # registry.add_component('measurement_rel', after="dimension_ner")
                 
         self.preprocess = Preprocess()        
         self.postprocess = Postproccess()  

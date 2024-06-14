@@ -1,7 +1,5 @@
 import luigi
-from traitlets import default
 import json
-from pathlib import Path
 import yaml
 
 from adept.config import OCR_MODEL, INTERMEDIATE_DATA_DIR
@@ -77,6 +75,5 @@ class DescriptionsTask(BaseTask):
             tpl = yaml.full_load(f)                 
             return tpl.get(self.taxonomic_group, None)
                 
-
 if __name__ == "__main__":        
-    luigi.build([DescriptionsTask(taxon='Calluna vulgaris', taxonomic_group=TaxonomicGroup.angiosperm, force=True)], local_scheduler=True)  
+    luigi.build([DescriptionsTask(taxon='Achillea millefolium', taxonomic_group=TaxonomicGroup.angiosperm, force=True)], local_scheduler=True)  
