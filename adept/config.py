@@ -36,18 +36,11 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
 load_dotenv(ROOT_DIR / '.env')
-BHL_API_KEY = os.getenv('BHL_API_KEY')
-
-BHL_OCR_ARCHIVE_PATH = Path(os.getenv('BHL_OCR_ARCHIVE')) if os.getenv('BHL_OCR_ARCHIVE') else None
 
 class OCR(Enum):
-    TESSERACT = 1
-    BHL = 2
-    
-OCR_MODEL = OCR.TESSERACT
+    BHL = "BHL"
+    TESSERACT = "TESSERACT"
 
-# DO we want to use BHL for OCR'd text
-OCR_TEXT_SOURCE = os.getenv('OCR_TEXT_SOURCE', 'BHL')
 
 class TaxonomicGroup(str, Enum):
     angiosperm = "angiosperm"
@@ -67,10 +60,8 @@ measurement_units = ['cm', 'ft', 'm', 'meter', 'metre', 'km', 'kilometer', 'kilo
 
 fields_template = ASSETS_DIR / 'fields.tpl.yml'
 
-DEBUG = os.getenv('DEBUG') or 0
 
 
-http.client.HTTPConnection.debuglevel = DEBUG
 
 # Set up logging - inherit from luigi so we use the same interface
 logger = logging.getLogger('luigi-interface')
@@ -99,8 +90,27 @@ logger.addHandler(debug_file_handler)
 # requests_log.setLevel(logging.DEBUG)
 # requests_log.propagate = True
 
+class Settings:
+  __conf = {
+    "BHL_OCR_SOURCE": OCR[os.getenv('BHL_OCR_SOURCE', OCR.BHL)],
+    # "BHL_API_KEY": os.getenv('BHL_API_KEY'),
+    "BHL_OCR_ARCHIVE_PATH": Path(os.getenv('BHL_OCR_ARCHIVE')) if os.getenv('BHL_OCR_ARCHIVE') else None,
+    "DESCRIPTION_SOURCES":  os.getenv('DESCRIPTION_SOURCES', 'BHL,EFLORAS,ECOFLORA').split(','),
+    "DEBUG": os.getenv('DEBUG') or 0
+  }
+
+  __setters = ["BHL_OCR_SOURCE"]
+
+  @staticmethod
+  def get(name):
+    return Settings.__conf[name]
+
+  @staticmethod
+  def set(name, value):
+    if name in Settings.__setters:
+      Settings.__conf[name] = value
+    else:
+      raise NameError("Name not accepted in set() method")
 
 
-
-
-
+http.client.HTTPConnection.debuglevel = Settings.get('DEBUG')

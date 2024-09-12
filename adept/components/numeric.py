@@ -40,10 +40,11 @@ class NumericComponent:
         Span.set_extension("unit", default=None, force=True)    
     
     def __call__(self, doc): 
-                
-        ents = [ent for ent in doc.ents if ent.label_ in self.ent_types]        
-        
+
+        ents = [ent for ent in doc.ents if ent.label_ in self.ent_types]     
+
         for ent in ents:
+
             if ent.label_ == 'DIMENSION':
                 self._parse_dimension_ent(ent, doc)
             else:

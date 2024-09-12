@@ -82,7 +82,7 @@ class BHLDetectDescriptions():
             if len(para) <= self.MINIMUM_WORD_COUNT:
                 continue
 
-            if not self.classifier.is_description(para):
+            if not self.classifier.is_description(para.text):
                 continue
 
             logger.debug(f"Description found for %s", para_matching_ents)           

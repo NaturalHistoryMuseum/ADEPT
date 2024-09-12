@@ -16,7 +16,7 @@ class CachedRequest():
         allowable_codes=[200, 400, 404],       
     )
     
-    timeout = 5
+    timeout = 30
     encoding = 'utf-8'
     raw_chunked = True
     
@@ -33,3 +33,7 @@ class CachedRequest():
     @property
     def text(self):
         return self._r.text   
+    
+    @property
+    def content(self):
+        return self._r.content     

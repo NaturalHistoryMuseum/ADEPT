@@ -20,11 +20,11 @@ class Pipeline():
             raise
         
         registry = ComponentsRegistry(self.nlp)       
-        registry.add_component('numeric', before="ner")
-        registry.add_component('anatomical_ner', before="ner")
+        registry.add_component('numeric', after="ner")
+        registry.add_component('anatomical_ner', after="ner")
         registry.add_component('traits_ner', after="ner")
         registry.add_component('traits_custom_ner', after="traits_ner")
-        registry.add_component('dimension_ner')
+        registry.add_component('dimension_ner', after="numeric")
         registry.add_component('measurement_rel', after="dimension_ner")  
 
         # registry.add_component('numeric')

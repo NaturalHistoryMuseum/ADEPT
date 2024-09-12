@@ -1,4 +1,3 @@
-
 import luigi
 import json
 import re
@@ -19,7 +18,7 @@ from requests_futures.sessions import FuturesSession
 from concurrent.futures import as_completed
 from abc import ABCMeta, abstractmethod
 
-from adept.config import INTERMEDIATE_DATA_DIR, logger, BHL_API_KEY, INPUT_DATA_DIR, BHL_OCR_ARCHIVE_PATH
+from adept.config import INTERMEDIATE_DATA_DIR, logger, INPUT_DATA_DIR, Settings
 from adept.tasks.base import BaseTask, BaseExternalTask
 from adept.utils.request import CachedRequest
 from adept.bhl.ocr_archive import BHLOCRArchive
@@ -33,12 +32,12 @@ class BHLTextTask(BaseExternalTask, metaclass=ABCMeta):
         pass
 
     def run(self):  
-        if text := self.get_text():
-            with self.output().open('w') as f:
-                f.write(str(text))
+        text = self.get_text() or bytes()
+        with self.output().open('wb') as f:
+            f.write(text)
 
     def output(self):
-        return luigi.LocalTarget(self.output_dir / f'{self.page_id}.txt')     
+        return luigi.LocalTarget(self.output_dir / f'{self.page_id}.txt', format=luigi.format.Nop)     
 
 class BHLTextAPITask(BHLTextTask):
     page_id = luigi.IntParameter()  
@@ -50,13 +49,25 @@ class BHLTextAPITask(BHLTextTask):
 
 class BHLTextArchiveTask(BHLTextTask):
 
-    if BHL_OCR_ARCHIVE_PATH:
-        _archive = BHLOCRArchive(BHL_OCR_ARCHIVE_PATH) 
+    if Settings.get('BHL_OCR_ARCHIVE_PATH'):
+        _archive = BHLOCRArchive(Settings.get('BHL_OCR_ARCHIVE_PATH')) 
 
     page_id = luigi.IntParameter()     
     item_id = luigi.IntParameter()  
     seq_order = luigi.IntParameter()       
 
     def get_text(self):        
-        return self._archive.get_text(page_id=self.page_id, item_id=self.item_id, seq_order=self.seq_order)
+        text = self._archive.get_text(page_id=self.page_id, item_id=self.item_id, seq_order=self.seq_order)
+        if not text:
+            logger.critical(f'Page not found in archive: page_id:{self.page_id} item_id:{self.item_id} seq_order:{self.seq_order}')
+        return text
 
+if __name__ == "__main__":    
+    import time
+    start = time.time()
+    luigi.build([BHLTextArchiveTask(page_id=38362363, item_id=118071, seq_order=311, force=True)], local_scheduler=True)
+    stop = time.time()
+    print(stop-start)    
+
+
+    # 118071_38362363_311

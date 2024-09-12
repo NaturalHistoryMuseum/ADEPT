@@ -9,45 +9,32 @@ import concurrent
 
 from adept.config import INTERMEDIATE_DATA_DIR, logger
 from adept.tasks.base import BaseTask
-from adept.tasks.description.bhl.images import BHLImagesTask
+from adept.tasks.description.bhl.image import BHLImageTask
 
 class BHLTesseractOCRTask(BaseTask):
     
-    taxon = luigi.Parameter()
-    output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'ocr'
+    page_id = luigi.IntParameter()
+    output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'tesseract'
     
     def requires(self):
-        return BHLImagesTask(taxon=self.taxon)     
+        return BHLImageTask(page_id=self.page_id)     
     
     def run(self):
-        logger.info('Running BHL OCR Task for %s', self.taxon)        
-        data = {}                     
-        image_dir = Path(self.input().path).parent                           
-        with self.input().open('r') as f:
-            images = yaml.full_load(f)                  
-            # images = images[:5]        
-        logger.info('OCRing %s images for %s', len(images), self.taxon)   
-            
-        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-            tasks = {executor.submit(self.image_to_string, p): p.stem for image in images if (p := image_dir / image) and p.is_file()}
-            for future in concurrent.futures.as_completed(tasks):                
-                page_id = tasks[future]
-                data[page_id] = future.result()
-                
-        logger.info('Outputting %s OCR text for %s', len(data), self.taxon) 
+        logger.info('Running BHL OCR Task for %s', self.page_id)        
+        text = self.image_to_string(self.input().path)                 
         with self.output().open('w') as f:
-            f.write(yaml.dump(data, explicit_start=True))   
+            f.write(text)   
     
     @staticmethod            
     def image_to_string(image_path: Path):
         try:
-            return pytesseract.image_to_string(str(image_path))
+            return pytesseract.image_to_string(image_path)
         except pytesseract.pytesseract.TesseractError as e:
             # Some files from BHL and empty - ignore
             logger.error('Error reading test from image %s: %s', image_path, e)
 
     def output(self):
-        return luigi.LocalTarget(self.output_dir / f'{self.taxon}.yaml')       
+        return luigi.LocalTarget(self.output_dir / f'{self.page_id}.txt')       
     
 if __name__ == "__main__":    
-    luigi.build([BHLTesseractOCRTask(taxon='Leersia hexandra', force=True)], local_scheduler=True)
+    luigi.build([BHLTesseractOCRTask(page_id=63297052, force=True)], local_scheduler=True)

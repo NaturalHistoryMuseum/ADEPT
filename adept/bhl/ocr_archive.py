@@ -1,6 +1,6 @@
 import ratarmountcore as rmc
 
-from adept.config import BHL_OCR_ARCHIVE_PATH, logger
+from adept.config import Settings, logger
 from pathlib import Path
 
 class BHLOCRArchive:  
@@ -12,10 +12,10 @@ class BHLOCRArchive:
 
     def get_text(self, page_id, item_id, seq_order):
         file_path = self._get_file_path(page_id, item_id, seq_order)
-        info = self._archive.getFileInfo(file_path)
-        with self._archive.open(info) as f:
-            return f.read()
-
+        if info := self._archive.getFileInfo(file_path):
+            with self._archive.open(info) as f:
+                return f.read()
+ 
     def _get_file_path(self, page_id, item_id, seq_order):
         page_id = str(page_id).zfill(8)
         item_id = str(item_id).zfill(6)
@@ -25,7 +25,7 @@ class BHLOCRArchive:
 if __name__ == "__main__":    
     import time
     start = time.time()
-    ocr = BHLOCRArchive(BHL_OCR_ARCHIVE_PATH)
+    ocr = BHLOCRArchive(Settings.get('BHL_OCR_ARCHIVE_PATH'))
     text = ocr.get_text(page_id = 63526627, item_id = 334580, seq_order = 175) 
     stop = time.time()
     print(stop-start)   

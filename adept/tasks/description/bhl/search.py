@@ -19,7 +19,7 @@ from requests_futures.sessions import FuturesSession
 from concurrent.futures import as_completed
 from abc import ABCMeta, abstractmethod
 
-from adept.config import INTERMEDIATE_DATA_DIR, logger, BHL_API_KEY, INPUT_DATA_DIR, BHL_OCR_ARCHIVE_PATH
+from adept.config import INTERMEDIATE_DATA_DIR, logger, INPUT_DATA_DIR, Settings
 from adept.tasks.base import BaseTask, BaseExternalTask
 from adept.utils.request import CachedRequest
 from adept.tasks.description.bhl.text import BHLTextAPITask, BHLTextArchiveTask
@@ -42,7 +42,7 @@ class BHLSearchTask(BaseTask):
 
     def requires(self):
         for row in self.search().itertuples():
-            if BHL_OCR_ARCHIVE_PATH:
+            if Settings.get('BHL_OCR_ARCHIVE_PATH'):
                 yield BHLTextArchiveTask(
                     page_id=row.PageID,
                     item_id=row.ItemID,
@@ -66,7 +66,7 @@ class BHLSearchTask(BaseTask):
             page_id = int(p.stem)
             with p.open() as f:
                 text = f.read()
-                if self._is_description(text):
+                if text and self._is_description(text):
                     data[page_id] = text
  
         with self.output().open('w') as f:                  
