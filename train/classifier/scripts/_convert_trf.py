@@ -7,17 +7,16 @@ from datasets import Dataset, DatasetDict, load_dataset
 
 import spacy
 from spacy.tokens import DocBin
-from adept.bhl.model import load_tokeniser
+from adept.bhl.tokenizer import load_tokenizer
 
 def convert(input_path: Path, output_dir: Path, checkpoint: str):
-
     df = pd.read_csv(input_path)
     # Rename the column is_desc to labels 
     df = df.rename(columns={"is_desc": "labels"}).astype({'labels':'int'})
     df = df.dropna()
     
     dataset = Dataset.from_pandas(df)
-    tokenizer = load_tokeniser(checkpoint)
+    tokenizer = load_tokenizer(checkpoint)
     
     train_test_dataset = dataset.train_test_split(test_size=0.1)
     _test_val_dataset = train_test_dataset['test'].train_test_split(test_size=0.5)    
@@ -31,8 +30,8 @@ def convert(input_path: Path, output_dir: Path, checkpoint: str):
     tokenized_datasets = tokenized_datasets.remove_columns(["text"])
     
     # Set dataset format to pytorch tensors
-    tokenized_datasets.set_format("torch")          
-    tokenized_datasets.save_to_disk(output_dir)
+    tokenized_datasets.set_format("torch")        
+    tokenized_datasets.save_to_disk(str(output_dir))
 
 if __name__ == "__main__":    
     typer.run(convert)

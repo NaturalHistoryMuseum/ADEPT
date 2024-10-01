@@ -15,22 +15,22 @@
 title: ""
 description: ""
 
-spacy_version: ">=3.3.0,<4.0.0"
+spacy_version: ">=3.4.0,<3.5.0"
 
 vars:
-  name: "adept-ner"
+  name: "adept_ner"
   lang: "en"
   version: "0.0.1"
   # Set your GPU ID, -1 is CPU
   gpu_id: 0
-  vectors_model: "en_core_web_md"  
+  vectors_model: "en_core_web_lg"  
   trf_model: "en_core_web_trf"
   dir: 
     corpus: 'corpus'
     training: 'training'
-    packages: 'training/packages'    
+    packages: 'packages' 
     assets: '../../data/assets'
-    models: '../../data/models'
+    # models: '../../data/models'
     training_vector: '${vars.dir.training}/vector'
     training_trf: '${vars.dir.training}/trf'
     config: 'config'
@@ -43,7 +43,7 @@ vars:
       test: '${vars.dir.corpus}/test_numeric.spacy' 
       val: '${vars.dir.corpus}/val_numeric.spacy' 
 
-directories: ['corpus', 'training', "config", "scripts"]
+directories: ['corpus', 'training', "config", "scripts", "packages"]
 
 assets:
   - dest: "${vars.file.train}"
@@ -59,10 +59,11 @@ workflows:
     - evaluate
 
 commands:
-  - name: "download"
-    help: "Download a spaCy model with pretrained vectors"
-    script:
-      - "python -m spacy download ${vars.vectors_model}"
+#   - name: "download"
+#     help: "Download a spaCy model with pretrained vectors"
+#     script:
+#       - "python -m spacy download ${vars.vectors_model}"
+#       - "python -m spacy download ${vars.trf_model}"
 
   - name: "convert"
     help: "Convert the data to spaCy's binary format"
@@ -123,14 +124,14 @@ commands:
     outputs:
       - "${vars.dir.training_trf}/metrics.json"
 
-  # - name: package
-  #   help: "Package the trained numeric model as a pip package"
-  #   script:
-  #     - "python -m spacy package ${vars.dir.training}/model-best ${vars.dir.packages} --name ${vars.name} --version ${vars.version} --force --code ${vars.file.code}"
-  #   deps:
-  #     - "${vars.dir.training}/numeric/model-best"
-  #   outputs_no_cache:
-  #     - "${vars.dir.packages}/${vars.lang}_${vars.name}-${vars.version}/dist/${vars.lang}_${vars.name}-${vars.version}.tar.gz"
+  - name: package-trf
+    help: "Package the trained numeric model as a pip package"
+    script:
+      - "python -m spacy package ${vars.dir.training_trf}/model-best ${vars.dir.packages} --name ${vars.name}_trf --version ${vars.version} --force --code ${vars.file.code}"
+    deps:
+      - "${vars.dir.training_trf}/model-best"
+    outputs_no_cache:
+      - "${vars.dir.packages}/${vars.lang}_${vars.name}-${vars.version}/dist/${vars.lang}_${vars.name}-${vars.version}.tar.gz"
 
   - name: visualize-model
     help: Visualize the model's output interactively using Streamlit
@@ -140,12 +141,12 @@ commands:
       - "scripts/visualize_model.py"
       - "${vars.dir.training}/model-best"
 
-  - name: "assemble"
-    help: "Assemble all parts into the complete ADEPT pipeline."
-    script:
-      - spacy assemble ${vars.dir.config}/assemble.cfg ${vars.dir.models}/adept --code ${vars.file.code} --paths.trained_model ${vars.dir.training_trf}/model-best
-    deps:
-      - ${vars.dir.training_vector}/model-best
-      - ${vars.dir.config}/assemble.cfg    
-    outputs:
-      - "${vars.dir.models}/adept"        
+  # - name: "assemble"
+  #   help: "Assemble all parts into the complete ADEPT pipeline."
+  #   script:
+  #     - spacy assemble ${vars.dir.config}/assemble.cfg ${vars.dir.models}/adept --code ${vars.file.code} --paths.trained_model ${vars.dir.training_trf}/model-best
+  #   deps:
+  #     - ${vars.dir.training_vector}/model-best
+  #     - ${vars.dir.config}/assemble.cfg    
+  #   outputs:
+  #     - "${vars.dir.models}/adept"        
