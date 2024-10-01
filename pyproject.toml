@@ -2,7 +2,7 @@
 name = "adept"
 version = "0.0.1"
 authors = [
-  { name="Ben Scott", email="ben@benscott.co.uk" },
+  { name="Ben Scott", email="ben@benscott.co.uk" }
 ]
 description = "ADEPT"
 readme = "README.md"
@@ -12,3 +12,12 @@ classifiers = [
 
 [project.urls]
 "Homepage" = "https://github.com/benscott/adept"
+
+[project.scripts]
+adept = "adept.cli:cli"
+
+[tool.setuptools.packages.find]
+where = ["."]  # list of folders that contain the packages (["."] by default)
+include = ["adept"]  # package names should match these glob patterns (["*"] by default)
+exclude = []  # exclude packages matching these glob patterns (empty by default)
+namespaces = false 

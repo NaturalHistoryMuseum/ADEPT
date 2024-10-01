@@ -24,13 +24,14 @@ class TraitsTask(BaseTask):
     taxa = luigi.ListParameter()
     taxonomic_group = luigi.EnumParameter(enum=TaxonomicGroup) 
     aggregator = Aggregator()
+    file_name = luigi.Parameter(default=None)
     
     def requires(self):        
         for taxon in self.taxa:
             yield DescriptionsTask(taxon=taxon, taxonomic_group=self.taxonomic_group)      
 
     def run(self):
-        
+
         dfs = []    
         combined_dfs = []
 
@@ -71,9 +72,12 @@ class TraitsTask(BaseTask):
 
         output_dir = OUTPUT_DATA_DIR / Settings.get('BHL_OCR_SOURCE').name.lower()
         output_dir.mkdir(parents=True, exist_ok=True)
+
+        file_id = self.file_name if self.file_name else self.uuid
         # file_name = f'{self.taxonomic_group}-{self.uuid}.traits.xlsx'      
-        file_name = f"{self.taxonomic_group}-{self.uuid}.{ Settings.get('BHL_OCR_SOURCE').name.lower()}.traits.xlsx"
-        return luigi.LocalTarget(output_dir / file_name)
+        output_file_name = f"{self.taxonomic_group}-{file_id}.{ Settings.get('BHL_OCR_SOURCE').name.lower()}.traits.xlsx"
+
+        return luigi.LocalTarget(output_dir / output_file_name)
     
     @property
     def uuid(self):
@@ -95,11 +99,11 @@ class TraitsTask(BaseTask):
 if __name__ == "__main__":    
         
     taxa = [
-        'Achillea millefolium',
+        'Festuca arundinacea',
     ]
     
     task = TraitsTask(taxa=taxa, taxonomic_group=TaxonomicGroup.angiosperm, force=True)    
-    task.rebuild_descriptions()
+    # task.rebuild_descriptions()
     
     luigi.build([
         task

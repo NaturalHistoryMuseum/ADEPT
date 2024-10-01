@@ -105,8 +105,11 @@ class PreprocessFractions(object):
     re_fraction = re.compile(r'[0-9]+\/[0-9]+')         
         
     def __call__(self, text):
-        for m in self.re_fraction.finditer(text):        
-            fraction = Fraction(m.group())
+        for m in self.re_fraction.finditer(text):   
+            try:    
+                fraction = Fraction(m.group())
+            except ZeroDivisionError:
+                fraction = 0
             text = text[:m.start()] + str(round(float(fraction), 1)) + text[m.end():]
         return text
     

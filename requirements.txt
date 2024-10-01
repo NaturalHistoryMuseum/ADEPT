@@ -1,5 +1,5 @@
 beautifulsoup4==4.11.1
-en-core-web-trf @ https://github.com/explosion/spacy-models/releases/download/en_core_web_trf-3.4.1/en_core_web_trf-3.4.1-py3-none-any.whl
+# en-core-web-trf @ https://github.com/explosion/spacy-models/releases/download/en_core_web_trf-3.4.1/en_core_web_trf-3.4.1-py3-none-any.whl
 jsonlines==3.1.0
 numpy==1.24.1
 pandas==1.5.2
@@ -20,4 +20,4 @@ luigi==3.2.0
 openpyxl==3.1.2
 html5lib==1.1
 taxonerd==1.5.1
-en-core-eco-biobert @ https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_biobert-1.0.2.tar.gz#sha256=67c318239ac80121677451bafc3668a6f76ad8767b6de507112705c9181195d8
+# en-core-eco-biobert @ https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_biobert-1.0.2.tar.gz#sha256=67c318239ac80121677451bafc3668a6f76ad8767b6de507112705c9181195d8

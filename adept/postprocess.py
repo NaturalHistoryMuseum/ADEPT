@@ -30,6 +30,7 @@ class Postproccess():
             self._process_numeric_fields(doc, sent, fields)
              
         logger.debug(fields.to_dict())   
+
         return fields
           
     @staticmethod

@@ -17,9 +17,23 @@ class Aggregator():
         text_list = [s.split(',') for s in rows if not s.startswith('2n')]
         if text_list:
             return ', '.join(set([t.strip() for t in itertools.chain(*text_list)]))
+            # return ', '.join(self._dedupe([t.strip() for t in itertools.chain(*text_list)]))
         else:
             return '| '.join(rows)  
-    
+        
+    @staticmethod
+    def _dedupe(terms):
+        terms = set(terms)
+        # If we have a term with a /, see if either of it's terms
+        # already exist and then drop it
+        # e.g. erect leafy/tussock should be dropped if either erect leafy or tussock exists
+        with_slash = [t for t in terms if '/' in t]
+        for slash_term in with_slash:
+            if set(slash_term.split('/')) & terms:
+                terms.discard(slash_term)
+
+        return terms
+
     def mean_measurement(self, rows):
         return self._parse_measurement(rows, np.mean)
 

@@ -142,7 +142,18 @@ def traits(
         if limit: taxa = taxa[:limit]
 
         typer.secho(f'Queuing run task for {group} with {len(taxa)} taxa', fg=typer.colors.GREEN)
-        task = TraitsTask(taxa=taxa, taxonomic_group=TaxonomicGroup[group], force=force)
+
+        params = {
+            'taxa': taxa, 
+            'taxonomic_group': TaxonomicGroup[group], 
+            'force': force
+        }
+
+        if file_path:
+            params['file_name'] = f'{file_path.stem}-{len(taxa)}'
+
+
+        task = TraitsTask(**params)
         if rebuild_descriptions: task.rebuild_descriptions()      
         
         luigi.build([task], local_scheduler=local_scheduler) 
