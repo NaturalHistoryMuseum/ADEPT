@@ -1,19 +1,20 @@
 import requests
 from requests_cache import CachedSession, RedisCache
 import http.client
-
-
-from adept.config import CACHE_DIR
+from adept.config import Settings, logger, CacheBackend, CACHE_DIR
 
 class CachedRequest():
 
-    backend = RedisCache(host='localhost')
-    
+    params = {
+        'allowable_codes': [200, 400, 404] 
+    }
+
+    if Settings.get('CACHE_BACKEND') == CacheBackend.REDIS:
+        params['backend'] = RedisCache(host='localhost')
+
     session = CachedSession(
         CACHE_DIR / '.requests',
-        backend=backend,
-         # Cache 400 responses so we don't keep retrying them
-        allowable_codes=[200, 400, 404],       
+        **params
     )
     
     timeout = 30
