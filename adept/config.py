@@ -48,6 +48,10 @@ class TaxonomicGroup(str, Enum):
     pteridophyte = "pteridophyte"
     gymnosperm = "gymnosperm"
 
+class CacheBackend(Enum):
+    REDIS = "REDIS"
+    SQLITE = "SQLITE"
+
 unit_registry = UnitRegistry()
 unit_registry.default_format = '~P'
 
@@ -96,7 +100,8 @@ class Settings:
     # "BHL_API_KEY": os.getenv('BHL_API_KEY'),
     "BHL_OCR_ARCHIVE_PATH": Path(os.getenv('BHL_OCR_ARCHIVE')) if os.getenv('BHL_OCR_ARCHIVE') else None,
     "DESCRIPTION_SOURCES":  os.getenv('DESCRIPTION_SOURCES', 'BHL,EFLORAS,ECOFLORA').split(','),
-    "DEBUG": os.getenv('DEBUG') or 0
+    "DEBUG": os.getenv('DEBUG') or 0,
+    "CACHE_BACKEND": os.getenv('CACHE_BACKEND', CacheBackend.REDIS) 
   }
 
   __setters = ["BHL_OCR_SOURCE"]
