@@ -26,6 +26,7 @@ from adept.tasks.description.bhl.text import BHLTextAPITask, BHLTextArchiveTask
 from adept.traits import SimpleTraitTextClassifier
 from adept.tasks.description.bhl import BHL_BASE_URL
 from adept.traits import SimpleTraitTextClassifier
+from adept.worldflora import WorldFlora
 
 
 class BHLSearchTask(BaseTask):
@@ -39,6 +40,7 @@ class BHLSearchTask(BaseTask):
     names = pd.read_parquet(INPUT_DATA_DIR / 'bhl_names.parquet') 
     # Can change min_terms - lower = slower; higher = less images download but might miss some
     trait_classifier = SimpleTraitTextClassifier(min_terms=15, min_chars=2500)
+    wf = WorldFlora()
 
     def requires(self):
         for row in self.search().itertuples():
@@ -54,7 +56,12 @@ class BHLSearchTask(BaseTask):
                 )                
 
     def search(self): 
-        return self.names[self.names.NameConfirmed == self.taxon]
+        if synonyms := self.wf.get_related_names(self.taxon):
+            logger.debug(f'{len(synonyms)} Synonyms found for {self.taxon}')
+            synonyms.add(self.taxon)
+            return self.names[self.names.NameConfirmed.isin(synonyms)]
+        else:
+            return self.names[self.names.NameConfirmed == self.taxon]
                            
     def output(self):
         return luigi.LocalTarget(self.output_dir / f'{self.taxon}.en.yaml')              
