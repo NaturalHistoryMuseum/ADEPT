@@ -112,7 +112,10 @@ class MeasurementField(NumericField):
     
     def _format_output(self, value, target_unit=None):
         if target_unit:
-            value = value.to(target_unit)
+            try:
+                value = value.to(target_unit)
+            except Exception:
+                return ''
 
         # Convert value to string - uses the default formatting set in adept.config unit_registry.default_format  
         return f'{value}'
