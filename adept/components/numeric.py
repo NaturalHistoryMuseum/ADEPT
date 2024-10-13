@@ -120,8 +120,12 @@ class NumericComponent:
     def _split_span_on_x(ent: Span, doc: Doc):
 
         if x := next((token for token in ent if token.lower_ in ['x', 'by']), None):
-            nbor = x.nbor()
-            return [doc[ent.start: x.i], doc[nbor.i: ent.end]]        
+            try:
+                nbor = x.nbor()
+            except IndexError:
+                pass
+            else:
+                return [doc[ent.start: x.i], doc[nbor.i: ent.end]]        
             
         logger.error('Could not split dimension "%s" in sentence: %s', ent, ent.sent)  
             
