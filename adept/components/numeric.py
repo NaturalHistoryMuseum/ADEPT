@@ -71,7 +71,7 @@ class NumericComponent:
         # unit most likely to last element, so loop backwards
         for token in reversed(ent):
             if token.lower_ in measurement_units:
-                ent._.unit = getattr(unit_registry, token.text)  
+                ent._.unit = getattr(unit_registry, token.lower_)  
                 break
                             
     def _parse_numeric(self, ent: Span):
