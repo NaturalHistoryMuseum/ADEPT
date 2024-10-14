@@ -35,21 +35,13 @@ class BHLDetectDescriptions():
         logger.debug('Using name and synonyms %s for taxon %s', names, taxon)
         # Add pattern Genus species => G. species
         try:
-            abbrv_names = {r'{0}\.\s{1}'.format(n[0][0],n[1]) for name in names if (n := name.split())}
-        except Exception:
+            names |= {r'{0}\.\s{1}'.format(n[0][0],n[1]) for name in names if (n := name.split())}
+        except IndexError:
             pass
-
+        names = {n.replace('**', '') for n in names}
         names_pattern = '|'.join(names)
-
-        try:
-            names_pattern = '|'.join(names | abbrv_names)
-            r = re.compile(fr'{names_pattern}', re.IGNORECASE)
-        except Exception:
-            names_pattern = '|'.join(names)
-            r = re.compile(fr'{names_pattern}', re.IGNORECASE)            
-
-        return r
-    
+        return re.compile(fr'{names_pattern}', re.IGNORECASE)
+        
     def __call__(self, text: str):
         text = self.preprocess(text)
         doc = self.nlp(text)  
