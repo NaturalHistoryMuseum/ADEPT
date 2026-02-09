@@ -17,7 +17,7 @@ class BHLDetectDescriptions():
      
     wf = WorldFlora()
     taxonerd = TaxoNERD(prefer_gpu=False)
-    nlp = taxonerd.load(model="en_core_eco_biobert", exclude=["pysbd_sentencizer"])    
+    nlp = taxonerd.load(model="en_ner_eco_biobert", exclude=["pysbd_sentencizer"])    
     preprocess = BHLPreprocess()
     
     classifier = BHLClassifier()

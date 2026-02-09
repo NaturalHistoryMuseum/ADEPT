@@ -40,7 +40,9 @@ workflows:
     - evaluate
   train-eval:
     - train
-    - evaluate    
+    - evaluate  
+  evaluation2: 
+    - evaluation  
 
 commands:
   # - name: "download"
@@ -89,14 +91,30 @@ commands:
     outputs:
       - "${vars.dir.training}/metrics.json"  
 
+  # - name: "evaluation"
+  #   help: "Convert the data to transformer database format"
+  #   script:
+  #     - python ${vars.dir.scripts}/evaluation.py ${vars.dir.corpus} ${vars.dir.training} ${vars.dir.training}/model-best
+  #   deps:
+  #     - "${vars.dir.training}/model-best"
+  #   outputs:
+  #     - "${vars.dir.training}/evaluation.json"      
+
   - name: "package"
     help: "Package the trained model"
     script:
-      - "python -m spacy package ${vars.dir.training}/model-best ${vars.dir.packages} --name ${vars.name} --version ${vars.version} --force"
+      - "python -m spacy package ${vars.dir.training}/model-best ${vars.dir.packages} --name ${vars.name} --version ${vars.version} --force --build wheel"
     deps:
       - "${vars.dir.training}/model-best"
-    # outputs_no_cache:
-    #   - "${vars.dir.packages}/${vars.lang}_${vars.name}-${vars.version}/dist/${vars.lang}_${vars.name}-${vars.version}.tar.gz"          
+    outputs:
+      - "${vars.dir.packages}/${vars.lang}_${vars.name}-${vars.version}/dist/${vars.lang}_${vars.name}-${vars.version}-py3-none-any.whl"          
+
+  - name: "push"
+    help: "Push the model to huggingface hub"
+    script:
+      - "python -m spacy huggingface-hub push ${vars.dir.packages}/${vars.lang}_${vars.name}-${vars.version}/dist/${vars.lang}_${vars.name}-${vars.version}-py3-none-any.whl"
+    deps:
+      - "${vars.dir.packages}/${vars.lang}_${vars.name}-${vars.version}/dist/${vars.lang}_${vars.name}-${vars.version}-py3-none-any.whl"
 
   # - name: "convert-trf"
   #   help: "Convert the data to transformer database format"
@@ -114,14 +132,7 @@ commands:
   #   deps:
   #     - "${vars.file.train}"
 
-  # - name: "evaluate-trf"
-  #   help: "Convert the data to transformer database format"
-  #   script:
-  #     - python ${vars.dir.scripts}/evaluation.py ${vars.dir.corpus} ${vars.dir.training_trf} ${vars.trf_checkpoint}
-    # deps:
-    #   - "${vars.dir.training_trf}/model.pt"
-    # outputs:
-    #   - "${vars.dir.corpus}/dataset_dict.json"
+
   
 
 

@@ -49,6 +49,7 @@ def evaluate(dataset_dir: Path, training_dir: Path, checkpoint: str):
     class_report = sklearn.metrics.classification_report(y_test, y_pred, target_names=['0', '1'])
     
     print(class_report)
+    print(training_dir)
     
     with (training_dir / 'confusion_matrix.png').open('w') as f:
         json.dump(class_report, f)    

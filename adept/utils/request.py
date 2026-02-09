@@ -21,9 +21,9 @@ class CachedRequest():
     encoding = 'utf-8'
     raw_chunked = True
     
-    def __init__(self, url, params=None):  
+    def __init__(self, url, verify=True, params=None):  
         # self._r = requests.get(url, params=params)
-        self._r = self.session.get(url, params=params, timeout=self.timeout)
+        self._r = self.session.get(url, params=params, timeout=self.timeout, verify=verify)
         self._r.raw.chunked = self.raw_chunked
         self._r.encoding = self.encoding       
         self._r.raise_for_status()        

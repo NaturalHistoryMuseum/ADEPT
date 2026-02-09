@@ -13,6 +13,15 @@ class WorldFlora():
     def get_taxon_by_id(self, taxon_id):      
         df = self._df[self._df['taxonID'] == taxon_id]    
         return df.squeeze()
+    
+    def get_id_by_name(self, name):
+        df = self._df[self._df['scientificName'] == name]
+        if df.empty:
+            logger.warning('Taxa %s not found in worldflora', name)
+            return
+        elif len(df.index) > 1:
+            raise Exception('Multiple taxa found in worldflora for %s', name)       
+        return df.squeeze()['taxonID']
         
     def get_synonyms(self, accepted_name_id):      
         return self._df[(self._df['acceptedNameUsageID'] == accepted_name_id) & (self._df['taxonRank'] == 'SPECIES')]

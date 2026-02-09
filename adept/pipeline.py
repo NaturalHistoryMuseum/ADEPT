@@ -1,23 +1,20 @@
 import spacy
+from huggingface_hub import snapshot_download
 
 from adept.components.registry import ComponentsRegistry
 from adept.preprocess import Preprocess
 from adept.postprocess import Postproccess
 from adept.config import MODEL_DIR, logger
 
-
 class Pipeline():
     
     def __init__(self):
 
-        model = 'en_adept_ner_trf'
-
-        # self.nlp = spacy.load("en_core_web_trf")        
-        try:
-            self.nlp = spacy.load(model)
-        except OSError:
-            print(f"Can't find model '{model}' - have you installed from train/ner/packages?")
-            raise
+        model = snapshot_download(
+            repo_id="Benscott/en_adept_ner_trf",
+            local_dir=MODEL_DIR
+        )    
+        self.nlp = spacy.load(model)    
         
         registry = ComponentsRegistry(self.nlp)       
         registry.add_component('numeric', after="ner")
