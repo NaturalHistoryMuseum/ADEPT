@@ -53,6 +53,7 @@ class BHLImageTask(BaseTask):
 if __name__ == "__main__":    
     import time
     start = time.time()
-    luigi.build([BHLImageTask(page_id=11321112)], local_scheduler=True)
+    luigi.build([BHLImageTask(page_id=18090047
+    )], local_scheduler=True)
     stop = time.time()
     print(stop-start)      

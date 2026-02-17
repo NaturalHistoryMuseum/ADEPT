@@ -14,6 +14,4 @@ setup(
             'adept = adept.cli:cli',
         ],
     },
-
-
 )

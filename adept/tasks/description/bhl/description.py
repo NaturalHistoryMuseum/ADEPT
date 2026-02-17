@@ -54,6 +54,9 @@ class BHLDescriptionBaseTask(BaseTask, metaclass=ABCMeta):
 
         # Note: this is faster without using concurrent futures 
         for bhl_id, text in ocr_text.items():   
+
+            # if str(bhl_id) != '22866582': continue
+            # print(text)
             
             if descriptions := detect_descriptions(text):
                 logger.debug('%s descriptions detected in BHL page %s', len(descriptions), bhl_id)
@@ -145,7 +148,7 @@ if __name__ == "__main__":
             
     # luigi.build([BHLAggregateOCRTask(bhl_ids=l, taxon='Metopium toxiferum')], local_scheduler=True) 
     # luigi.build([BHLDescriptionTask(taxon=taxon) for taxon in binomials], local_scheduler=True)
-    luigi.build([BHLTesseractDescriptionTask(taxon='Achillea millefolium', force=True)], local_scheduler=True)
+    luigi.build([BHLDescriptionTask(taxon='Achillea millefolium', force=True)], local_scheduler=True)
     # luigi.build([BHLDescriptionTask(bhl_id=27274329, force=True)], local_scheduler=True) 
     stop = time.time()
     print(stop-start)             

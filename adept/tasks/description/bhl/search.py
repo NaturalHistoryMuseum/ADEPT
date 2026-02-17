@@ -84,7 +84,7 @@ class BHLSearchTask(BaseTask):
 
     def _is_description(self, text):
         """
-        So many results in BHL (some taxa, 1000s of pages), and most are irrelevant. 
+        So many results in BHL (some taxa, 1000s of pages), and mostly are irrelevant. 
         If we download and then OCR the image and then check for a description, this
         pipeline takes ages. 
         
