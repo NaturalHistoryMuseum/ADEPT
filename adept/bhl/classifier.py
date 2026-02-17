@@ -1,11 +1,17 @@
 import spacy
+from huggingface_hub import snapshot_download
+from adept.config import MODEL_DIR
 
 class BHLClassifier:  
 
     threshold = 0.9
 
     def __init__(self) -> None:
-        self.nlp = spacy.load('en_description_classifier')
+        model = snapshot_download(
+            repo_id="Benscott/en_description_classifier",
+            local_dir=MODEL_DIR
+        )
+        self.nlp = spacy.load(model)
 
     def is_description(self, text):
         predicted = self.nlp(text)

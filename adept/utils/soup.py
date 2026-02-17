@@ -26,12 +26,13 @@ class RequestSoup(Soup):
           
     def __init__(self, url, **params):        
         self.url = url
+        self.verify = params.pop('verify', True)
         self.params = params
         self._markup = self.parse()        
         
     def parse(self):        
         logger.debug(self.parametised_url)
-        request = CachedRequest(self.url, params=self.params)
+        request = CachedRequest(self.url, params=self.params, verify=self.verify)
         return self._to_soup(request.text)  
 
     @property

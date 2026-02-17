@@ -44,8 +44,7 @@ class EcofloraDescriptionTask(BaseDescriptionTask):
             ps = [p for p in div.findAll('p') if bool(re.search(r"[a-z]", p.text))]
             description = ' '.join([p.text for p in ps])
             return description
-        
-            
+                    
     def output(self):
         return luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'ecoflora' / f'{self.taxon}.yaml')    
     

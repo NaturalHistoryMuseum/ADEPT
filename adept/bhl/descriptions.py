@@ -17,7 +17,7 @@ class BHLDetectDescriptions():
      
     wf = WorldFlora()
     taxonerd = TaxoNERD(prefer_gpu=False)
-    nlp = taxonerd.load(model="en_core_eco_biobert", exclude=["pysbd_sentencizer"])    
+    nlp = taxonerd.load(model="en_ner_eco_biobert", exclude=["pysbd_sentencizer"])    
     preprocess = BHLPreprocess()
     
     classifier = BHLClassifier()
@@ -86,11 +86,25 @@ class BHLDetectDescriptions():
             if len(para) <= self.MINIMUM_WORD_COUNT:
                 continue
 
-            if not self.classifier.is_description(para.text):
+            # Clean the text prior to running the description classifier
+            # Better classification accuracy if we remove the taxon name
+            # and any non char prefix/suffix
+            clean_text = self._clean_text(para.text, para_matching_ents)
+
+            if not self.classifier.is_description(clean_text):
                 continue
 
             logger.debug(f"Description found for %s", para_matching_ents)           
-            yield para.text   
+            yield para.text  
+            
+    @staticmethod
+    def _clean_text(text: str, para_matching_ents:list[Span]) -> str:
+        pattern = "|".join(re.escape(ent.text) for ent in para_matching_ents)
+        clean_text = re.sub(pattern, "", text)  
+        # Remove any non alpha chars at the beginging and end of the text
+        # EG 4. ; /. with a lanceolate outline bipinnatifid woolly
+        clean_text = re.sub(r'^[^A-Za-z]+|[^A-Za-z]+$', '', clean_text)
+        return clean_text        
             
     @staticmethod
     def _doc_to_paragraphs(document: Doc) -> Span:

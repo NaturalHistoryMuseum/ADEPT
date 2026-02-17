@@ -109,7 +109,7 @@ def traits(
     force: bool = typer.Option(False, "--force"),
     ocr_source: Optional[OCR] = typer.Option(None,"--ocr"),
     rebuild_descriptions: bool = typer.Option(False, "--rebuild"),
-    local_scheduler: bool = typer.Option(True),
+    local_scheduler: bool = typer.Option(True, "--central-scheduler"),
     limit: Optional[int] = None
     ):
 
