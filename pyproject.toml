@@ -2,7 +2,7 @@
 name = "adept"
 version = "0.0.1"
 authors = [
-  { name="Ben Scott", email="ben@benscott.co.uk" }
+  { name="Ben Hartley", email="b.hartley@nhm.ac.uk" }
 ]
 description = "ADEPT"
 readme = "README.md"
@@ -39,7 +39,7 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/benscott/adept"
+"Homepage" = "https://github.com/NaturalHistoryMuseum/ADEPT"
 
 [project.scripts]
 adept = "adept.cli:cli"
