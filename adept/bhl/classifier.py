@@ -9,7 +9,8 @@ class BHLClassifier:
     def __init__(self) -> None:
         model = snapshot_download(
             repo_id="Benscott/en_description_classifier",
-            local_dir=MODEL_DIR
+            local_dir=MODEL_DIR,
+            revision='d009096cdbfaf67526bb5187e7a980c1a765d984'
         )
         self.nlp = spacy.load(model)
 
