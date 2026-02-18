@@ -1,0 +1,27 @@
+import unittest
+
+
+from adept.pipeline import Pipeline
+from adept.config import ASSETS_DIR
+from adept.tasks.description.bhl.text import BHLTextAPITask, BHLTextArchiveTask
+
+class BHLTest(unittest.TestCase):
+    
+    # def setUp(self):
+    #     self.pipeline = Pipeline()
+
+    def test_bhl_api(self):  
+
+        api_task = BHLTextAPITask(page_id=387803)
+        print(api_task.get_text())
+        
+        # print(fields.to_dict())
+        
+        
+        # RAW_DATA_DIR / 'fields.tpl.yml'
+
+
+
+
+if __name__ == '__main__':
+    unittest.main()
