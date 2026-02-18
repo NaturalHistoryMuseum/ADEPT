@@ -10,8 +10,8 @@ import time
 
 from adept.config import TaxonomicGroup, Settings, OCR
 from adept import config
-from adept.tasks.traits import TraitsTask
-from adept.tasks.descriptions import DescriptionsTask
+
+from adept.assets import create_bhl_ocr_text_archive, create_bhl_names_index
 
 class Interface():
         
@@ -113,6 +113,9 @@ def traits(
     limit: Optional[int] = None
     ):
 
+    from adept.tasks.descriptions import DescriptionsTask
+    from adept.tasks.traits import TraitsTask
+
     interface = Interface(file_path, taxon_column, group_column, taxa, taxon_group)    
     typer.secho(f'Total of {interface.total} taxonomic names to process', fg=typer.colors.MAGENTA)  
 
@@ -164,6 +167,47 @@ def traits(
 
     typer.secho(f'Processing complete', fg=typer.colors.GREEN)
     typer.secho(f'Processing time: {stop-start}', fg=typer.colors.GREEN)
+
+
+assets_cli = typer.Typer(help="Download/build external data assets (cached locally).")
+cli.add_typer(assets_cli, name="assets")
+
+@assets_cli.command("bhl-ocr")
+def fetch_bhl_ocr(
+    archive_url: str = typer.Option(
+            "https://ndownloader.figshare.com/files/52893371",
+            "--url",
+            help="URL of the BHL OCR archive to download",
+        )    
+    ):
+    """
+    Download the BHL OCR archive to the local cache directory.
+    """
+    try:
+        typer.secho(f"Downloading BHL OCR archive {archive_url}", fg=typer.colors.YELLOW)
+        path = create_bhl_ocr_text_archive(archive_url)
+        typer.secho(f"Downloaded: {path}", fg=typer.colors.GREEN)
+    except Exception as e:
+        typer.secho(f"Download failed: {e}", fg=typer.colors.RED)
+        raise typer.Abort()
+    
+@assets_cli.command("bhl-names")
+def fetch_bhl_names(
+    bhl_data_url: str = typer.Option(
+            "https://www.biodiversitylibrary.org/data/hosted/data.zip",
+            "--url",
+            help="URL of the BHL data archive to download",
+        )    
+    ):
+    """
+    Download the BHL OCR archive to the local cache directory.
+    """
+    try:
+        if path := create_bhl_names_index(bhl_data_url, echo=lambda msg: typer.secho(msg, fg=typer.colors.YELLOW)):
+            typer.secho(f"Created BHL names index: {path}", fg=typer.colors.GREEN)
+    except Exception as e:
+        typer.secho(f"Download failed: {e}", fg=typer.colors.RED)
+        raise typer.Abort()    
 
 if __name__ == "__main__":
     cli()
