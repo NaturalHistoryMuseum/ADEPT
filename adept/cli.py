@@ -11,7 +11,6 @@ import time
 from adept.config import TaxonomicGroup, Settings, OCR
 from adept import config
 from adept.assets import create_bhl_ocr_text_archive, create_bhl_names_index
-from adept.tasks.aggregate import AggregateTrainingDescriptionsTask
 
 
 class Interface():
@@ -96,6 +95,8 @@ def descriptions(
     taxa: Optional[List[str]] = typer.Option(None), 
     force: bool = typer.Option(False, "--force"),
     local_scheduler: bool = typer.Option(True)):
+
+    from adept.tasks.aggregate import AggregateTrainingDescriptionsTask
 
     start = time.time()   
 
