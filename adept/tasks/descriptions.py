@@ -38,7 +38,8 @@ class DescriptionsTask(BaseTask):
             else:
                 yield BHLDescriptionTask(taxon=self.taxon)
         
-    def run(self):       
+    def run(self):    
+           
         field_mappings = self._get_tpl_field_mappings() if self.template_path else None
         if field_mappings:
             logger.info('Using %s field mappings from %s for %s', self.taxonomic_group, self.template_path, self.taxon)
@@ -83,7 +84,10 @@ import os
 if __name__ == "__main__":        
 
     # print(OCR[os.getenv('BHL_OCR_SOURCE', OCR.BHL)])
-    luigi.build([DescriptionsTask(taxon='Achillea millefolium', taxonomic_group=TaxonomicGroup.angiosperm, force=True)], local_scheduler=True)  
+    n = 'Achillea millefolium'
+    n = 'Leersia hexandra'
+    n = 'Festuca arundinacea'
+    luigi.build([DescriptionsTask(taxon=n, taxonomic_group=TaxonomicGroup.angiosperm, force=True)], local_scheduler=True)  
 
 
     # print(Settings.get('BHL_OCR_SOURCE').name)
