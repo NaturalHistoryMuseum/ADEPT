@@ -6,22 +6,29 @@ Automated Data Extraction for Plant Traits
 
 This project uses [uv](https://github.com/astral-sh/uv) for dependency management.
 
-# Install uv (if needed)
+#### Install uv (if needed)
+```bash
 curl -Ls https://astral.sh/uv/install.sh | sh
+```
 
-# Create a virtual environment
+#### Create a virtual environment
+```bash
 uv venv --python 3.11
+```
 
-# Activate it (macOS/Linux)
+#### Activate it (macOS/Linux)
+```bash
 source .venv/bin/activate
+```
 
-# Install ADEPT from GitHub
+#### Install ADEPT from GitHub
+```bash
 uv pip install git+https://github.com/NaturalHistoryMuseum/ADEPT.git
-
+```
 
 ## Install assets
 
-# BHL Names Index (required)
+#### BHL Names Index (required)
 
 Creates an index of taxa occurences on BHL pages, constructed from BHL data downloads.
 
