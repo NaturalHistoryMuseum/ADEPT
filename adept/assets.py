@@ -10,7 +10,7 @@ import tarfile
 import shutil
 from urllib.parse import urlparse, parse_qs
 
-from adept.config import CACHE_DIR, BHL_NAMES_INDEX_PATH, BHL_OCR_ARCHIVE_PATH, BHL_OCR_ARCHIVE_DOI
+from adept.config import CACHE_DIR, BHL_NAMES_INDEX_PATH, BHL_OCR_ARCHIVE_PATH
 
 
 def _download_archive(url:AnyHttpUrl, target_path:Path):
