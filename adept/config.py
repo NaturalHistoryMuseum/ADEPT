@@ -89,6 +89,9 @@ debug_file_handler = logging.FileHandler(LOG_DIR / 'debug.log')
 debug_file_handler.setLevel(logging.DEBUG)
 logger.addHandler(debug_file_handler)
 
+BHL_NAMES_INDEX_PATH = CACHE_DIR / "bhl-names.parquet"
+BHL_OCR_ARCHIVE_PATH = CACHE_DIR / 'bhl-ocr-archive'
+BHL_OCR_ARCHIVE_PATH.mkdir(parents=True, exist_ok=True)
 
 # requests_log = logging.getLogger("requests.packages.urllib3")
 # requests_log.setLevel(logging.DEBUG)
@@ -96,12 +99,10 @@ logger.addHandler(debug_file_handler)
 
 class Settings:
   __conf = {
-    "BHL_OCR_SOURCE": OCR[os.getenv('BHL_OCR_SOURCE', OCR.BHL)],
-    # "BHL_API_KEY": os.getenv('BHL_API_KEY'),
-    "BHL_OCR_ARCHIVE_PATH": Path(os.getenv('BHL_OCR_ARCHIVE')) if os.getenv('BHL_OCR_ARCHIVE') else None,
+    "BHL_OCR_SOURCE": OCR[os.getenv('BHL_OCR_SOURCE', "BHL")],
     "DESCRIPTION_SOURCES":  os.getenv('DESCRIPTION_SOURCES', 'BHL,EFLORAS,ECOFLORA').split(','),
     "DEBUG": os.getenv('DEBUG') or 0,
-    "CACHE_BACKEND": os.getenv('CACHE_BACKEND', CacheBackend.REDIS) 
+    "CACHE_BACKEND": os.getenv('CACHE_BACKEND', CacheBackend.SQLITE) 
   }
 
   __setters = ["BHL_OCR_SOURCE"]
