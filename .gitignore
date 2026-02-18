@@ -7,10 +7,10 @@ __pycache__/
 .DS_Store
 *.code-workspace
 .tool-versions
-data/training
-data/processing
-data/packages
-data/models/
+adept/data/training
+adept/data/processing
+adept/data/packages
+adept/data/models/
 train/classifier/training/
 train/ner/training/
 project.lock

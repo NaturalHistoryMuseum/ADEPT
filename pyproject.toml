@@ -43,11 +43,18 @@ dependencies = [
 [project.scripts]
 adept = "adept.cli:cli"
 
+[tool.setuptools]
+include-package-data = true
+
 [tool.setuptools.packages.find]
-where = ["."]  # list of folders that contain the packages (["."] by default)
-include = ["adept", "adept.*", "data", "data.*"]  # package names should match these glob patterns (["*"] by default)
-exclude = []  # exclude packages matching these glob patterns (empty by default)
-namespaces = false 
+where = ["."]
+include = ["adept", "adept.*"]
+exclude = []
+namespaces = false
+
+# This assumes you moved assets to: adept/data/...
+[tool.setuptools.package-data]
+adept = ["data/**/*"]
 
 [tool.uv]
 package = true
