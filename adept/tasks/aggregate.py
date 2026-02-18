@@ -47,7 +47,7 @@ class AggregateTrainingDescriptionsTask(BaseTask):
         for task_input in self.input():
             with task_input.open('r') as f:
                 descriptions = yaml.full_load(f)             
-                data.extend([d for d in descriptions if d['description']])
+                data.extend([d for d in descriptions if d['text']])
         
         pd.DataFrame(data).to_csv(self.output().path, index=False)
     
@@ -62,8 +62,7 @@ if __name__ == "__main__":
         'Achillea millefolium',
     ]
     
-    task = AggregateTrainingDescriptionsTask(taxa=taxa, taxonomic_group=TaxonomicGroup.angiosperm, force=True)    
-    task.rebuild_descriptions()
+    task = AggregateTrainingDescriptionsTask(taxa=taxa, force=True)    
     
     luigi.build([
         task
