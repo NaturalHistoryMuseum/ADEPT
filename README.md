@@ -99,13 +99,13 @@ ADEPT provides a command-line interface for running extraction workflows.
 Generate a trait matrix for a species:
 
 ```bash
-adept traits --taxa "Anisotes trisulcus" --group angiosperm
+adept traits --taxa "Leersia hexandra" --group angiosperm
 ```
 
 Use Tesseract OCR instead of BHL OCR:
 
 ```bash
-adept traits --taxa "Anisotes trisulcus" --group angiosperm --ocr TESSERACT
+adept traits --taxa "Leersia hexandra" --group angiosperm --ocr TESSERACT
 ```
 
 Process species from an input spreadsheet:
@@ -125,6 +125,10 @@ adept descriptions --taxa "Achillea millefolium"
 ```
 
 ---
+
+## Issues
+
+If you encounter bugs, unexpected behaviour, or have feature requests, please open an issue in this repository.
 
 ## Advanced Options
 
@@ -169,18 +173,6 @@ CACHE_BACKEND=REDIS
 
 ---
 
-## Data Sources
-
-ADEPT uses OCR text and metadata derived from:
-
-* Biodiversity Heritage Library (BHL)
-* Associated biodiversity literature datasets
-* Taxonomic reference datasets such as World Flora Online
-
-Some BHL items may be restricted or unavailable via the public interface; local indexing improves retrieval efficiency while maintaining compatibility with API-based fallback retrieval when necessary.
-
----
-
 ## Luigi scheduler
 
 ADEPT workflows are orchestrated using Luigi, which manages task dependencies, execution order, and pipeline monitoring. By default the pipeline runs with Luigi’s local scheduler, which is suitable for single-machine execution and simple workflows.
@@ -215,11 +207,7 @@ To use this mode, start the Luigi scheduler service separately (typically via lu
 
 ## Citation
 
-If you use ADEPT, please cite:
-
-* The ADEPT paper (once published)
-* The BHL OCR dataset
-* The ADEPT Hugging Face models listed above
+If you use ADEPT in your research, please cite the ADEPT paper (once published)
 
 A BibTeX entry will be added once the paper is formally published.
 
@@ -227,6 +215,8 @@ A BibTeX entry will be added once the paper is formally published.
 
 ## License
 
-(Insert license information here.)
+This project is released under the MIT Licence.
+
+You are free to use, modify, and distribute the software with minimal restrictions. See the LICENSE file for full details.
 
 ---
