@@ -19,10 +19,10 @@ from requests_futures.sessions import FuturesSession
 from concurrent.futures import as_completed
 from abc import ABCMeta, abstractmethod
 
-from adept.config import INTERMEDIATE_DATA_DIR, logger, INPUT_DATA_DIR, Settings
+from adept.config import INTERMEDIATE_DATA_DIR, logger, INPUT_DATA_DIR, Settings, BHL_NAMES_INDEX_PATH, BHL_OCR_ARCHIVE_PATH
 from adept.tasks.base import BaseTask, BaseExternalTask
 from adept.utils.request import CachedRequest
-from adept.tasks.description.bhl.text import BHLTextAPITask, BHLTextArchiveTask
+from adept.tasks.description.bhl.text import BHLTextTask
 from adept.traits import SimpleTraitTextClassifier
 from adept.tasks.description.bhl import BHL_BASE_URL
 from adept.traits import SimpleTraitTextClassifier
@@ -34,27 +34,30 @@ class BHLSearchTask(BaseTask):
     """
     Search BHL for a taxon            
     """
-    
+
     taxon = luigi.Parameter()    
     output_dir = INTERMEDIATE_DATA_DIR / 'bhl' / 'search'
-    names = pd.read_parquet(INPUT_DATA_DIR / 'bhl_names.parquet') 
+    try:
+        names = pd.read_parquet(BHL_NAMES_INDEX_PATH) 
+    except FileNotFoundError:
+        raise RuntimeError(
+            f"{BHL_NAMES_INDEX_PATH} missing.\n"
+            "Run: `adept assets bhl-names` to download required data."
+        )        
+
     # Can change min_terms - lower = slower; higher = less images download but might miss some
     trait_classifier = SimpleTraitTextClassifier(min_terms=15, min_chars=2500)
     wf = WorldFlora()
 
     def requires(self):
         for row in self.search().itertuples():
-            if Settings.get('BHL_OCR_ARCHIVE_PATH'):
-                yield BHLTextArchiveTask(
-                    page_id=row.PageID,
-                    item_id=row.ItemID,
-                    seq_order=row.SequenceOrder,               
-                )
-            else:
-                yield BHLTextAPITask(
-                    page_id=row.PageID              
-                )                
 
+            yield BHLTextTask(
+                page_id=row.PageID,
+                item_id=row.ItemID,
+                seq_order=row.SequenceOrder,               
+            )
+ 
     def search(self): 
         if synonyms := self.wf.get_related_names(self.taxon):
             logger.debug(f'{len(synonyms)} Synonyms found for {self.taxon}')
