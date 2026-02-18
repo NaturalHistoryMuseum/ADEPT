@@ -36,7 +36,9 @@ class TraitsTask(BaseTask):
         combined_dfs = []
 
         for input_json in self.input():     
-            df = pd.read_json(input_json.path)            
+            df = pd.read_json(input_json.path)   
+
+
             if not df.empty:              
                 df.taxon = df.taxon.str.capitalize()  
                 column_mappings = self.aggregator.get_column_mappings(df, exclude=['taxon'])                                
@@ -75,7 +77,7 @@ class TraitsTask(BaseTask):
 
         file_id = self.file_name if self.file_name else self.uuid
         # file_name = f'{self.taxonomic_group}-{self.uuid}.traits.xlsx'      
-        output_file_name = f"{self.taxonomic_group}-{file_id}.{ Settings.get('BHL_OCR_SOURCE').name.lower()}.traits.xlsx"
+        output_file_name = f"{self.taxonomic_group.name.lower()}-{file_id}.{ Settings.get('BHL_OCR_SOURCE').name.lower()}.traits.xlsx"
 
         return luigi.LocalTarget(output_dir / output_file_name)
     
@@ -100,6 +102,7 @@ if __name__ == "__main__":
         
     taxa = [
         'Festuca arundinacea',
+        # 'Leersia hexandra'
     ]
     
     task = TraitsTask(taxa=taxa, taxonomic_group=TaxonomicGroup.angiosperm, force=True)    
