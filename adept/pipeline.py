@@ -12,7 +12,8 @@ class Pipeline():
 
         model = snapshot_download(
             repo_id="Benscott/en_adept_ner_trf",
-            local_dir=MODEL_DIR
+            local_dir=MODEL_DIR,
+            revision='857dba16758cc25e50dfd7a9d42795f4747f6394'
         )    
         self.nlp = spacy.load(model)    
         
