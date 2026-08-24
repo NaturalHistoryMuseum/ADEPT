@@ -57,16 +57,18 @@ class BHLDescriptionBaseTask(BaseTask, metaclass=ABCMeta):
 
             # if str(bhl_id) != '22866582': continue
             # print(text)
+
             
-            if descriptions := detect_descriptions(text):
+            if result := detect_descriptions(text):
+                descriptions, matched_names = result
                 logger.debug('%s descriptions detected in BHL page %s', len(descriptions), bhl_id)
                 data.append({                        
                     'source': f"bhl",
                     'source_id': bhl_id,
                     'taxon': self.taxon,
-                    'text': '\n\n'.join(descriptions) 
+                    'text': '\n\n'.join(descriptions),
+                    'matched_name': '; '.join(matched_names) 
                 })   
-
         logger.debug('BHLDescriptionTask: %s descriptions detected for taxon %s', len(data), self.taxon)
         with self.output().open('w') as f:            
             f.write(yaml.dump(data, explicit_start=True, default_flow_style=False)) 
@@ -148,7 +150,7 @@ if __name__ == "__main__":
             
     # luigi.build([BHLAggregateOCRTask(bhl_ids=l, taxon='Metopium toxiferum')], local_scheduler=True) 
     # luigi.build([BHLDescriptionTask(taxon=taxon) for taxon in binomials], local_scheduler=True)
-    luigi.build([BHLDescriptionTask(taxon='Achillea millefolium', force=True)], local_scheduler=True)
+    luigi.build([BHLDescriptionTask(taxon='Betula nana', force=True)], local_scheduler=True)
     # luigi.build([BHLDescriptionTask(bhl_id=27274329, force=True)], local_scheduler=True) 
     stop = time.time()
     print(stop-start)             

@@ -37,8 +37,6 @@ class TraitsTask(BaseTask):
 
         for input_json in self.input():     
             df = pd.read_json(input_json.path)   
-
-
             if not df.empty:              
                 df.taxon = df.taxon.str.capitalize()  
                 column_mappings = self.aggregator.get_column_mappings(df, exclude=['taxon'])                                
@@ -55,7 +53,7 @@ class TraitsTask(BaseTask):
         
         combined_dfs = combined_dfs.drop(columns=['source', 'source_id'])
         dfs = pd.concat(dfs)
-        cols = set(dfs.columns).difference(set(['taxon', 'source', 'source_id']))
+        cols = set(dfs.columns).difference(set(['taxon', 'source', 'source_id', 'matched_name']))
         combined_dfs = combined_dfs.dropna(subset=cols, how="all")
         ordered_combined_cols = [c for c in dfs.columns.tolist() if c in combined_dfs.columns.tolist()]
         
@@ -65,6 +63,7 @@ class TraitsTask(BaseTask):
                 # If we don't have any values in a row, drop it         
                 group = group.dropna(subset=cols, how="all")               
                 if not group['source_id'].any(): group.drop('source_id', axis=1, inplace=True)
+                if not group['matched_name'].any(): group.drop('matched_name', axis=1, inplace=True)
                 # Ensure taxon is first column 
                 ordered_cols = list(dict.fromkeys(['taxon'] + group.columns.tolist()))               
                 group.to_excel(writer, sheet_name=source, index=False, columns=ordered_cols) 
@@ -101,7 +100,7 @@ class TraitsTask(BaseTask):
 if __name__ == "__main__":    
         
     taxa = [
-        'Festuca arundinacea',
+        'Achillea millefolium',
         # 'Leersia hexandra'
     ]
     

@@ -8,7 +8,7 @@ import luigi
 import os
 import time
 
-from adept.config import TaxonomicGroup, Settings, OCR
+from adept.config import TaxonomicGroup, Settings, OCR, BHL_OCR_ARCHIVE_PATH
 from adept import config
 from adept.assets import create_bhl_ocr_text_archive, create_bhl_names_index
 
@@ -113,7 +113,7 @@ def traits(
     taxon_column: Optional[str] = None, 
     group_column: Optional[str] = None, 
     taxa: Optional[List[str]] = typer.Option(None),
-    taxon_group: Optional[TaxonomicGroup] = typer.Option(None,"--group"), 
+    taxon_group: TaxonomicGroup = typer.Option(TaxonomicGroup.angiosperm,"--group"),
     force: bool = typer.Option(False, "--force"),
     ocr_source: Optional[OCR] = typer.Option(None,"--ocr"),
     rebuild_descriptions: bool = typer.Option(False, "--rebuild"),
@@ -171,9 +171,10 @@ def traits(
 
     stop = time.time()
 
-
-
     typer.secho(f'Processing complete', fg=typer.colors.GREEN)
+    typer.secho(f'Traits written to {task.output().path}', fg=typer.colors.GREEN)
+
+
     typer.secho(f'Processing time: {stop-start}', fg=typer.colors.GREEN)
 
 
@@ -191,6 +192,14 @@ def fetch_bhl_ocr(
     """
     Download the BHL OCR archive to the local cache directory.
     """
+
+    with os.scandir(BHL_OCR_ARCHIVE_PATH) as entries:
+        if next(entries, None) is not None:
+            if not typer.confirm(
+                "BHL OCR Archive directory isn't empty - do you want to continue?"
+            ):
+                raise typer.Abort()
+
     try:
         typer.secho(f"Downloading BHL OCR archive {archive_url}", fg=typer.colors.YELLOW)
         path = create_bhl_ocr_text_archive(archive_url)

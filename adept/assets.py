@@ -48,18 +48,21 @@ def download_bhl_ocr_archive(archive_url):
     r = requests.get(archive_url, allow_redirects=True, stream=True, headers={"User-Agent":"Mozilla/5.0"})
     r.raise_for_status()
 
-    archive_target_path = CACHE_DIR / "bhl-ocr-archive-new.tar.bz2"
+    archive_target_path = CACHE_DIR / "bhl-ocr-archive-orig.tar.bz2"
 
     return _download_archive(r.url, archive_target_path)
 
 def create_bhl_ocr_text_archive(archive_url):
 
     bhl_ocr_tar_path = download_bhl_ocr_archive(archive_url)
-    df = pd.read_parquet(CACHE_DIR / 'bhl_names.parquet')
+    df = pd.read_parquet(CACHE_DIR / 'bhl-names.parquet')
     page_ids = set(df["PageID"].astype(str))    
 
     found = 0
-    with tarfile.open(bhl_ocr_tar_path, "r:bz2") as tar, tqdm(total=50000000) as pbar:
+
+    print(f'Opening BHL OCR Archive {bhl_ocr_tar_path}')
+
+    with tarfile.open(bhl_ocr_tar_path, "r:bz2") as tar, tqdm(total=63000000) as pbar:
         
         for member in tar:
             if member.isfile() and member.name.endswith(".txt"):
@@ -93,24 +96,26 @@ def create_bhl_names_index(bhl_data_url, rebuild=False, echo=None):
 
     echo(f"Reading data files from archive")
 
+    archive_base_dir = 'Data'
+
     with zipfile.ZipFile(zip_path) as z:
 
         echo(f"Extracting names")
-        with z.open("BHL/pagename.txt") as f:    
+        with z.open(f"{archive_base_dir}/pagename.txt") as f:    
             name_df = pd.read_csv(f, sep="\t", usecols=['PageID', 'NameConfirmed'])
 
         echo(f"Extracting pages")
-        with z.open("BHL/page.txt") as f:    
+        with z.open(f"{archive_base_dir}/page.txt") as f:    
             page_df = pd.read_csv(f, sep="\t", usecols=['PageID', 'ItemID', 'SequenceOrder'])            
             page_df = page_df.set_index('PageID')
 
         echo(f"Extracting items")
-        with z.open("BHL/item.txt") as f:    
+        with z.open(f"{archive_base_dir}/item.txt") as f:    
             item_df = pd.read_csv(f, sep="\t", usecols=['ItemID', 'TitleID'])            
             item_df = item_df.set_index('ItemID')
 
         echo(f"Extracting titles")
-        with z.open("BHL/title.txt") as f:    
+        with z.open(f"{archive_base_dir}/title.txt") as f:    
             title_df = pd.read_csv(f, sep="\t", usecols=['TitleID', 'LanguageCode'])            
             title_df = title_df.set_index('TitleID')    
 

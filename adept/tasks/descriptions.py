@@ -62,6 +62,7 @@ class DescriptionsTask(BaseTask):
                         # Additional source ID - e.g. BHL
                         record['source_id'] = source_id
                         record['taxon'] = description['taxon']
+                        record['matched_name'] = description.get('matched_name')
                         data.append(record)
 
         with self.output().open('w') as f:            
@@ -86,7 +87,7 @@ if __name__ == "__main__":
     # print(OCR[os.getenv('BHL_OCR_SOURCE', OCR.BHL)])
     n = 'Achillea millefolium'
     n = 'Leersia hexandra'
-    n = 'Festuca arundinacea'
+    n = 'betula nana'
     luigi.build([DescriptionsTask(taxon=n, taxonomic_group=TaxonomicGroup.angiosperm, force=True)], local_scheduler=True)  
 
 

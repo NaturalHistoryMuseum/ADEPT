@@ -99,7 +99,7 @@ class BHLSearchTask(BaseTask):
 if __name__ == "__main__":    
     import time
     start = time.time()
-    luigi.build([BHLSearchTask(taxon='Leersia hexandra', force=True)], local_scheduler=True)
+    luigi.build([BHLSearchTask(taxon='Agrostis capillaris')], local_scheduler=True)
 
     # x = BHLTaxonSearchTask(taxon='Leersia hexandra')
     # print(x.search())

@@ -13,8 +13,12 @@ class TraitPatternsTask(BaseTask):
         traits = Traits()
         patterns = Patterns()
 
-        for term in traits.get_unique_discrete_terms():            
-            patterns.add(term.strip(), 'TRAIT')
+        for term in traits.get_unique_discrete_terms():  
+            try:          
+                patterns.add(term.strip(), 'TRAIT')
+            except AttributeError:
+                print(term)
+                raise
             
         for term in traits.get_unique_colour_terms():            
             patterns.add(term.strip(), 'COLOUR')            

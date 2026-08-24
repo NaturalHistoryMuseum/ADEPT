@@ -34,7 +34,6 @@ CACHE_DIR.mkdir(parents=True, exist_ok=True)
 LOG_DIR = Path(ROOT_DIR / '.log')
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-
 load_dotenv(ROOT_DIR / '.env')
 
 class OCR(Enum):
@@ -90,8 +89,11 @@ debug_file_handler.setLevel(logging.DEBUG)
 logger.addHandler(debug_file_handler)
 
 BHL_NAMES_INDEX_PATH = CACHE_DIR / "bhl-names.parquet"
+# This is the target for the unpacked and processed BHL OCR Archive
 BHL_OCR_ARCHIVE_PATH = CACHE_DIR / 'bhl-ocr-archive'
 BHL_OCR_ARCHIVE_PATH.mkdir(parents=True, exist_ok=True)
+
+BHL_OCR_ARCHIVE_PATH_ALLOW_EMPTY = os.getenv('BHL_OCR_ARCHIVE_PATH_ALLOW_EMPTY', False)
 
 # requests_log = logging.getLogger("requests.packages.urllib3")
 # requests_log.setLevel(logging.DEBUG)
@@ -99,6 +101,7 @@ BHL_OCR_ARCHIVE_PATH.mkdir(parents=True, exist_ok=True)
 
 class Settings:
   __conf = {
+    "BHL_API_KEY": os.getenv("BHL_API_KEY"),  
     "BHL_OCR_SOURCE": OCR[os.getenv('BHL_OCR_SOURCE', "BHL")],
     "DESCRIPTION_SOURCES":  os.getenv('DESCRIPTION_SOURCES', 'BHL,EFLORAS,ECOFLORA').split(','),
     "DEBUG": os.getenv('DEBUG') or 0,

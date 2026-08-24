@@ -9,6 +9,8 @@ from adept.worldflora import WorldFlora
 from adept.bhl.classifier import BHLClassifier
 from adept.config import logger
 
+Span.set_extension("matched_name", default=None, force=True)
+
 class BHLDetectDescriptions():
     
     # Match 15a. etc., at start of string
@@ -25,28 +27,34 @@ class BHLDetectDescriptions():
     MINIMUM_WORD_COUNT = 50
     
     def __init__(self, taxon: str):
-        self._re_names = self._name_match_regex(taxon)
-
-    def _name_match_regex(self, taxon: str):
         names = set([taxon])
         if synonyms := self.wf.get_related_names(taxon):
             names |= synonyms        
 
         logger.debug('Using name and synonyms %s for taxon %s', names, taxon)
         # Add pattern Genus species => G. species
+
+        self.name_map = {
+            r'{0}. {1}'.format(n[0][0],n[1]):name for name in names if (n := name.split())
+        }      
+
         try:
-            names |= {r'{0}\.\s{1}'.format(n[0][0],n[1]) for name in names if (n := name.split())}
+            names |= set(self.name_map.keys())
         except IndexError:
-            pass
+            pass         
+
+        self._re_names = self._name_match_regex(names)
+
+    def _name_match_regex(self, names: set):
         names = {n.replace('**', '') for n in names}
-        names_pattern = '|'.join(names)
+        names_pattern = "|".join(re.escape(name) for name in sorted(names, key=len, reverse=True))
         return re.compile(fr'{names_pattern}', re.IGNORECASE)
         
     def __call__(self, text: str):
         text = self.preprocess(text)
         doc = self.nlp(text)  
         doc.ents = self._segment_ents(doc)        
-        return list(self._get_descriptions(doc))
+        return self._get_descriptions(doc)
         
     def _get_descriptions(self, doc):
         
@@ -58,6 +66,10 @@ class BHLDetectDescriptions():
             return
     
         is_name_match = False
+
+        descriptions = []
+        matched_names = set()
+
         for para in self._doc_to_paragraphs(doc):
             
             if self._is_figure(para.text):
@@ -94,8 +106,14 @@ class BHLDetectDescriptions():
             if not self.classifier.is_description(clean_text):
                 continue
 
-            logger.debug(f"Description found for %s", para_matching_ents)           
-            yield para.text  
+            logger.debug(f"Description found for %s", para_matching_ents)  
+
+            matched_names.update({ent._.matched_name for ent in para_matching_ents})
+
+            descriptions.append(para.text)
+
+        if descriptions:
+            return descriptions, matched_names
             
     @staticmethod
     def _clean_text(text: str, para_matching_ents:list[Span]) -> str:
@@ -132,7 +150,13 @@ class BHLDetectDescriptions():
     
     def _segment_ents(self, doc: Doc):
         def _get_labelled_ent(ent):
-            label = 'MATCHING_LIVB' if self._re_names.search(ent.text) else 'LIVB'
-            return Span(ent.doc, ent.start, ent.end, label=label)
+            match = self._re_names.search(ent.text)
+            label = "MATCHING_LIVB" if match else "LIVB"            
+            # label = 'MATCHING_LIVB' if self._re_names.search(ent.text) else 'LIVB'
+            span = Span(ent.doc, ent.start, ent.end, label=label)
+            if match:
+                name = match.group()                
+                span._.matched_name = self.name_map.get(name, name)
+            return span
     
         return [_get_labelled_ent(ent) for ent in doc.ents if ent.label_ == 'LIVB' and self._is_well_formed_name(ent.text)]         

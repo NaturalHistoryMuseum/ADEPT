@@ -21,7 +21,7 @@ class Postproccess():
 
         fields = Fields()
         for sent in doc.sents:
-            part = self._sent_get_part(sent)            
+            part = self._sent_get_part(sent)       
             self._process_discrete_fields(sent, fields, part, taxon_group)
             self._process_custom_fields(sent, fields)
             if part:
