@@ -8,7 +8,7 @@ class WorldFlora():
         self._df = pd.read_parquet(ASSETS_DIR / 'worldflora.parquet') 
     
     def get_taxa_by_name(self, name):      
-        return self._df[self._df['scientificName'] == name]
+        return self._df[self._df["scientificName"].str.casefold() == name.casefold()]
     
     def get_taxon_by_id(self, taxon_id):      
         df = self._df[self._df['taxonID'] == taxon_id]    
