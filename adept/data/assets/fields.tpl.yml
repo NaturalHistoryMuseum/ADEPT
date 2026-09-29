@@ -144,7 +144,6 @@ angiosperm:
   seeds per fruit max: 
     - 'seed number.max'
     - 'nut number.max'
-  seeds per fruit min.: 'seed number.max'
   seed min. width [mm]: 
     - 'seed measurement.width.min'
     - 'nut measurement.width.min'
