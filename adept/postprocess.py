@@ -16,6 +16,32 @@ class Postproccess():
     """
     
     traits = Traits()
+
+    PART_ALIASES = {
+        "inflorescence": {
+            "flower",
+            "flowers",
+        },
+        "leaf": {
+            "leaves",
+            "foliage",
+        },
+        "petal": {
+            "corolla",
+            "corolla tube",
+        },        
+    }
+
+    ALIAS_TO_CANONICAL = {
+        canonical: canonical
+        for canonical in PART_ALIASES
+    }
+    
+    ALIAS_TO_CANONICAL.update({
+        alias: canonical
+        for canonical, aliases in PART_ALIASES.items()
+        for alias in aliases
+    })
     
     def __call__(self, doc, taxon_group):
 
@@ -26,7 +52,7 @@ class Postproccess():
             self._process_custom_fields(sent, fields)
             if part:
                 self._process_measurement_fields(sent, fields, part)
-                self._process_colours_fields(sent, fields, part)
+                self._process_colours_fields(sent, fields, part, taxon_group)
             self._process_numeric_fields(doc, sent, fields)
              
         logger.debug(fields.to_dict())   
@@ -37,17 +63,48 @@ class Postproccess():
     def _sent_get_part(sent):
         return sent._.anatomical_part if sent._.anatomical_part else None
     
-    def _process_colours_fields(self, sent: Doc, fields: Fields, part: str):
+    def _process_colours_fields(self, sent: Doc, fields: Fields, part: str, taxon_group: str):
+
+        colour_mappings = self.traits.get_colour_mappings(taxon_group)     
+
         colour_ents = self._filter_ents(sent, ['COLOUR'])
         for ent in colour_ents:
-            fields.upsert(f'{part} colour', 'discrete', ent.lemma_)
+            colour_value = colour_mappings.get(ent.lemma_, ent.lemma_)
+            fields.upsert(f'{part} colour', 'discrete', colour_value, ent.text)
+
+    # def _get_rows(self)
+
+    def search_part_alises(self, part: str) -> set[str]:
+
+        canonical = self.ALIAS_TO_CANONICAL.get(part.strip().casefold())
+    
+        if canonical is None:
+            return {part}
+    
+        return {canonical} | self.PART_ALIASES[canonical]    
             
     def _process_discrete_fields(self, sent: Doc, fields: Fields, part: str, taxon_group: str):        
         df = self.traits.get_discrete_traits(taxon_group)                
-        trait_ents = self._filter_ents(sent, ['TRAIT'])
+        trait_ents = set(self._filter_ents(sent, ['TRAIT', 'PART']))
+
+        # trait_ents.add(part)
+        # print(type(sent._.anatomical_part))
+
+        
+        # if part != 'stem':
+        #     return
+
+        # print(sent)
+        # print(sent.ents)
+        # # # print(part)
+        # for ent in sent.ents:
+        #     print(ent)
+        #     print(ent.label_)
+
+        
         # Process entities     
         for ent in trait_ents:     
-            
+
             # Special handling for bloody fig.XXX
             if ent.lemma_ == 'fig':
                 try: 
@@ -59,16 +116,21 @@ class Postproccess():
                                       
             # Match on either term or character 
             mask = (((df.term == ent.lemma_) | (df.term == ent.text.lower()) | (df.character == ent.lemma_) | (df.character == ent.text.lower())))
-            # If the trait ent is a part, no need to filter on part        
-            if not ent._.anatomical_part:
-                if part == 'plant':
-                    mask &= ((df.part == part) | (df.part.isna()))
-                elif part:
-                    mask &= (df.part == part)
-                else:
-                    mask &= (df.part.isna())
+
+            # BUGFIX - change logic here - previous: If the trait ent is a part, no need to filter on part        
+            # Now - filter on part/part synonyms, plant and isna
+            if part:
+                parts = set(['plant'])
+                parts.update(self.search_part_alises(part))
+                mask &= ((df.part.isin(parts)) | (df.part.isna()))
+            else:
+                # No part - filter on na and plant
+                mask &= ((df.part.isna()) | (df.part == 'plant'))
       
             rows = df[mask]    
+
+            # if ent.text.lower() == 'leaf':
+            #     print(rows)
 
             for row in rows.itertuples():   
                 
@@ -79,12 +141,12 @@ class Postproccess():
                 #     print(ent)
                 #     print(sent)
                                   
-                fields.upsert(row.trait, 'discrete', row.character)   
+                fields.upsert(row.trait, 'discrete', row.character, ent.text)   
                 
     def _process_custom_fields(self, sent: Doc, fields: Fields):         
         for ent in sent.ents:
             if trait_value := ent._.get("trait_value"):
-                fields.upsert(ent.label_.lower(), 'discrete', trait_value)        
+                fields.upsert(ent.label_.lower(), 'discrete', trait_value, ent.text)        
     
     @staticmethod    
     def _get_sentence_measurements_filtered_by_part(sent, part: str):
