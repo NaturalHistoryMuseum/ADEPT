@@ -54,8 +54,11 @@ class TraitsTask(BaseTask):
         combined_dfs = combined_dfs.drop(columns=['source', 'source_id'])
         dfs = pd.concat(dfs)
         cols = set(dfs.columns).difference(set(['taxon', 'source', 'source_id', 'matched_name']))
+        
+        provenance = self.build_provenance(dfs)
+
         combined_dfs = combined_dfs.dropna(subset=cols, how="all")
-        ordered_combined_cols = [c for c in dfs.columns.tolist() if c in combined_dfs.columns.tolist()]
+        ordered_combined_cols = [c for c in dfs.columns.tolist() if c in combined_dfs.columns.tolist() and not c.endswith("_verbatim")]
         
         with pd.ExcelWriter(self.output().path) as writer:    
             combined_dfs.to_excel(writer, sheet_name="combined", columns=ordered_combined_cols)
@@ -66,8 +69,81 @@ class TraitsTask(BaseTask):
                 if not group['matched_name'].any(): group.drop('matched_name', axis=1, inplace=True)
                 # Ensure taxon is first column 
                 ordered_cols = list(dict.fromkeys(['taxon'] + group.columns.tolist()))               
+                ordered_cols = [col for col in ordered_cols if not col.endswith("_verbatim")]
                 group.to_excel(writer, sheet_name=source, index=False, columns=ordered_cols) 
-            logger.debug(f'Writing traits to {self.output().path}')                             
+
+            provenance.to_excel(writer, sheet_name="provenance", index=False)
+            logger.debug(f'Writing traits to {self.output().path}')     
+
+    def build_provenance(self, dfs):
+
+        url_templates = {
+                "bhl": "https://www.biodiversitylibrary.org/page/{source_id}",
+                "ecoflora":  "http://ecoflora.org.uk/info/{source_id}.html",
+                "efloras.flora_of_north_america": "http://www.efloras.org/florataxon.aspx?flora_id=1&taxon_id={source_id}",
+                "efloras.flora_of_china": "http://www.efloras.org/florataxon.aspx?flora_id=2&taxon_id={source_id}",
+                "efloras.flora_of_pakistan": "http://www.efloras.org/florataxon.aspx?flora_id=5&taxon_id={source_id}",                   
+            }
+
+
+        metadata_cols = [
+            c for c in
+            ["record_id", "taxon", "source", "source_id", "matched_name"]
+            if c in dfs.columns
+        ]
+
+        trait_cols = [
+            c for c in dfs.columns
+            if c not in metadata_cols and not c.endswith("_verbatim")
+        ]
+
+        rows = []
+
+        for trait in trait_cols:
+            part = dfs[metadata_cols].copy()
+            part["trait"] = trait
+            part["value"] = dfs[trait]
+
+            verbatim_col = f"{trait}_verbatim"
+
+            if verbatim_col in dfs.columns:
+                verbatim = dfs[verbatim_col].replace(r"^\s*$", pd.NA, regex=True)
+                part["verbatim"] = verbatim.fillna(dfs[trait])
+            else:
+                part["verbatim"] = dfs[trait]
+
+            rows.append(part)
+
+        if not rows:
+            return pd.DataFrame(
+                columns=metadata_cols + ["trait", "value", "verbatim"]
+            )
+
+        provenance = pd.concat(rows, ignore_index=True)
+
+        # Keep only populated trait values.
+        provenance = provenance.loc[
+            provenance["value"].notna()
+            & provenance["value"].astype(str).str.strip().ne("")
+        ].reset_index(drop=True)    
+
+        provenance["source_url"] = pd.NA
+
+        mask = provenance["source"].notna() & provenance["source_id"].notna()
+
+        provenance.loc[mask, "source_url"] = provenance.loc[mask].apply(
+            lambda row: url_templates[row["source"]].format(
+                source_id=str(row["source_id"]).removesuffix(".0").strip()
+            ) if row["source"] in url_templates else pd.NA,
+            axis=1,
+        )
+
+        provenance["matched_name"] = provenance["matched_name"].fillna(provenance["taxon"])
+
+        provenance = provenance.sort_values(by='taxon')
+
+        return provenance
+                                 
         
     def output(self):
 
