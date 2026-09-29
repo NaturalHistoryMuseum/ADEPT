@@ -15,6 +15,7 @@ class Field(ABC):
     def __init__(self, name):
         self.name = name
         self.value = set()
+        self._verbatim = set()
 
     @property
     @abstractmethod
@@ -23,9 +24,15 @@ class Field(ABC):
         
     def set_value(self, value):
         self.value.add(value)
+
+    def set_verbatim(self, verbatim):
+        self._verbatim.add(verbatim)        
     
     def get_value(self):
         return ', '.join(self.value)
+
+    def get_verbatim(self):
+        return ', '.join(self._verbatim)    
     
     def __repr__(self):
         return f'{self.__class__.__name__}({self.value})'
@@ -64,9 +71,9 @@ class MeasurementField(NumericField):
     field_type = 'measurement'
     
     def __init__(self, name):
-        self.name = name
+        super().__init__(name)
         self.value = {}
- 
+
     # In botanical descriptions length measurements are provided first, then width.  
     # These can be set without specifying a dimension_type
     implicit_dimension_types = [DimensionType.LENGTH, DimensionType.WIDTH]
@@ -152,12 +159,14 @@ class Fields(object):
     def __init__(self):
         self._fields = OrderedDict()
         
-    def upsert(self, field_name, field_type, value):
+    def upsert(self, field_name, field_type, value, verbatim=None):
         # If we do not already have the field defined create it       
         if not field_name in self._fields: 
             self._fields[field_name] = self._factory(field_type, field_name)
             
         self._fields[field_name].set_value(value)
+        if verbatim:
+            self._fields[field_name].set_verbatim(verbatim)
             
     def _factory(self, field_type, field_name):
         return self._classes[field_type](field_name)  
@@ -174,7 +183,8 @@ class Fields(object):
                     # We want to turn measurement dicts etc into single dimension dicts e.g.
                     # {'field_name': {'y': {'min': 40.0, 'max': 100.0}}} => {'field_name.y.min': 40.0, 'field_name.y.max': 100.0}
                     value_dict = flatten_dict(value_dict)
-                data.update(value_dict)                   
+                data.update(value_dict) 
+                data.update({f"{field.name}_verbatim": field.get_verbatim()})                   
         return data   
     
     def build_fields_config(self,field_mappings: dict):
@@ -193,18 +203,23 @@ class Fields(object):
                     
         return field_configs
     
-    def to_mapped_dict(self, field_mappings):   
-        
+    def to_mapped_dict(self, field_mappings):  
         field_configs = self.build_fields_config(field_mappings)
         data_dict = self.to_dict(field_configs)
-        
+
         def _get_value(field_name):
             field_names = field_name if isinstance(field_name, list) else [field_name] 
             for field_name in field_names:
                 if value := data_dict.get(field_name):
                     return value
-        
-        return OrderedDict([(template_name, _get_value(field_name or template_name)) for template_name, field_name in field_mappings.items()])
+
+        dict_values = []
+        for template_name, field_name in field_mappings.items():
+            dict_values.append((template_name, _get_value(field_name or template_name)))
+            if verbatim_value := data_dict.get(f'{template_name}_verbatim'):
+                dict_values.append((f'{template_name}_verbatim', verbatim_value))
+
+        return OrderedDict(dict_values)
 
     def extract_unit(self, string):        
         if match := self.re_unit.search(string):
