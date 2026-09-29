@@ -130,6 +130,8 @@ def create_bhl_names_index(bhl_data_url, rebuild=False, echo=None):
 
         merged_df = merged_df.drop(['LanguageCode'], axis=1)
 
+        merged_df["NameConfirmed"] = merged_df["NameConfirmed"].str.lower()
+
         # Save index fle
         merged_df.to_parquet(BHL_NAMES_INDEX_PATH, index=False)
 
