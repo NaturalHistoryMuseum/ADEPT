@@ -150,7 +150,7 @@ if __name__ == "__main__":
             
     # luigi.build([BHLAggregateOCRTask(bhl_ids=l, taxon='Metopium toxiferum')], local_scheduler=True) 
     # luigi.build([BHLDescriptionTask(taxon=taxon) for taxon in binomials], local_scheduler=True)
-    luigi.build([BHLDescriptionTask(taxon='Betula nana', force=True)], local_scheduler=True)
+    luigi.build([BHLDescriptionTask(taxon='Montia fontana', force=True)], local_scheduler=True)
     # luigi.build([BHLDescriptionTask(bhl_id=27274329, force=True)], local_scheduler=True) 
     stop = time.time()
     print(stop-start)             

@@ -51,7 +51,6 @@ class BHLSearchTask(BaseTask):
 
     def requires(self):
         for row in self.search().itertuples():
-
             yield BHLTextTask(
                 page_id=row.PageID,
                 item_id=row.ItemID,
@@ -59,12 +58,18 @@ class BHLSearchTask(BaseTask):
             )
  
     def search(self): 
+
+        taxon = self.taxon.lower()
+
         if synonyms := self.wf.get_related_names(self.taxon):
             logger.debug(f'{len(synonyms)} Synonyms found for {self.taxon}')
-            synonyms.add(self.taxon)
-            return self.names[self.names.NameConfirmed.isin(synonyms)]
+            synonyms = {s.lower() for s in synonyms}
+            synonyms.add(taxon)
+            results_df = self.names[self.names.NameConfirmed.isin(synonyms)]
         else:
-            return self.names[self.names.NameConfirmed == self.taxon]
+            results_df = self.names[self.names.NameConfirmed == taxon]
+
+        return results_df
                            
     def output(self):
         return luigi.LocalTarget(self.output_dir / f'{self.taxon}.en.yaml')              
@@ -99,7 +104,7 @@ class BHLSearchTask(BaseTask):
 if __name__ == "__main__":    
     import time
     start = time.time()
-    luigi.build([BHLSearchTask(taxon='Agrostis capillaris')], local_scheduler=True)
+    luigi.build([BHLSearchTask(taxon='montia fontana', force=True)], local_scheduler=True)
 
     # x = BHLTaxonSearchTask(taxon='Leersia hexandra')
     # print(x.search())

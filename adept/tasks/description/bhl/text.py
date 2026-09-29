@@ -66,9 +66,8 @@ class BHLTextTask(BaseExternalTask, metaclass=ABCMeta):
             logger.info(f'Page {self.page_id} not found in archive - retrieving text with API')
             text = self.api_get_text()
 
-        if text:
-            with self.output().open('wb') as f:
-                f.write(text)
+        with self.output().open('wb') as f:
+            f.write(text)
 
     def output(self):
         return luigi.LocalTarget(self.output_dir / f'{self.page_id}.txt', format=luigi.format.Nop)     
@@ -86,7 +85,7 @@ if __name__ == "__main__":
 
 
 
-    luigi.build([BHLTextTask(page_id='15469214', item_id='52984', seq_order='414', force=True)], local_scheduler=True)
+    luigi.build([BHLTextTask(page_id='15460978', item_id='52984', seq_order='414', force=True)], local_scheduler=True)
     stop = time.time()
     print(stop-start)    
 
