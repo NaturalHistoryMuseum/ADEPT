@@ -1,0 +1,253 @@
+key,taxon,source,field,tp,fp,fn,reference_values,predicted_values,reference_present,predicted_present,active,exact_match,reference_normalised,predicted_normalised,extra_values,missed_values
+achillea millefolium|efloras.flora_of_china,achillea millefolium,efloras.flora_of_china,indumentum,1,2,1,2,3,True,True,True,False,"[""bristly"", ""glandular""]","[""glandular"", ""villous"", ""villouse""]","[""villous"", ""villouse""]","[""bristly""]"
+achillea millefolium|efloras.flora_of_china,achillea millefolium,efloras.flora_of_china,leaf architecture,1,1,0,1,2,True,True,True,False,"[""pinnatisect""]","[""pinnatipartite"", ""pinnatisect""]","[""pinnatipartite""]",[]
+achillea millefolium|efloras.flora_of_china,achillea millefolium,efloras.flora_of_china,leaf apex,1,1,0,1,2,True,True,True,False,"[""attenuate""]","[""attenuate"", ""lanceolate""]","[""lanceolate""]",[]
+achillea millefolium|efloras.flora_of_china,achillea millefolium,efloras.flora_of_china,inflorescence arrangement,0,0,2,2,0,True,False,True,False,"[""capitulum"", ""panicle""]",[],[],"[""capitulum"", ""panicle""]"
+achillea millefolium|efloras.flora_of_china,achillea millefolium,efloras.flora_of_china,flower shape,0,0,1,1,0,True,False,True,False,"[""tubulate""]",[],[],"[""tubulate""]"
+achillea millefolium|efloras.flora_of_china,achillea millefolium,efloras.flora_of_china,flower colour,0,0,3,3,0,True,False,True,False,"[""pink"", ""purple"", ""white""]",[],[],"[""pink"", ""purple"", ""white""]"
+achillea millefolium|efloras.flora_of_china,achillea millefolium,efloras.flora_of_china,fruit type,0,0,1,1,0,True,False,True,False,"[""achene""]",[],[],"[""achene""]"
+achillea millefolium|efloras.flora_of_china,achillea millefolium,efloras.flora_of_china,seed min. width [mm],0,0,1,1,0,True,False,True,False,"[""2.0""]",[],[],"[""2.0""]"
+achillea millefolium|efloras.flora_of_china,achillea millefolium,efloras.flora_of_china,seed max. length [mm],0,1,0,0,1,False,True,True,False,[],"[""2.0""]","[""2.0""]",[]
+achillea millefolium|efloras.flora_of_north_america,achillea millefolium,efloras.flora_of_north_america,fruit type,0,0,1,1,0,True,False,True,False,"[""cypsela""]",[],[],"[""cypsela""]"
+alchemilla alpina|efloras.flora_of_north_america,alchemilla alpina,efloras.flora_of_north_america,indumentum,2,0,2,4,2,True,True,True,False,"[""glabrous"", ""hairy"", ""pubescent"", ""sericeous""]","[""glabrous"", ""sericeous""]",[],"[""hairy"", ""pubescent""]"
+alchemilla alpina|efloras.flora_of_north_america,alchemilla alpina,efloras.flora_of_north_america,leaf shape,3,2,0,3,5,True,True,True,False,"[""elliptic"", ""orbicular"", ""spatulate""]","[""elliptic"", ""oblanceolate"", ""orbicular"", ""orbiculate"", ""spatulate""]","[""oblanceolate"", ""orbiculate""]",[]
+alchemilla alpina|efloras.flora_of_north_america,alchemilla alpina,efloras.flora_of_north_america,fruit type,0,0,1,1,0,True,False,True,False,"[""achene""]",[],[],"[""achene""]"
+andromeda polifolia|efloras.flora_of_north_america,andromeda polifolia,efloras.flora_of_north_america,fruit structure,0,1,0,0,1,False,True,True,False,[],"[""dry""]","[""dry""]",[]
+andromeda polifolia|efloras.flora_of_north_america,andromeda polifolia,efloras.flora_of_north_america,fruit dehiscence,0,1,0,0,1,False,True,True,False,[],"[""dehiscent""]","[""dehiscent""]",[]
+betula nana|efloras.flora_of_north_america,betula nana,efloras.flora_of_north_america,plant max. height [m],0,0,1,1,0,True,False,True,False,"[""1.0""]",[],[],"[""1.0""]"
+betula nana|efloras.flora_of_north_america,betula nana,efloras.flora_of_north_america,indumentum,0,0,2,2,0,True,False,True,False,"[""glabrous"", ""pubescent""]",[],[],"[""glabrous"", ""pubescent""]"
+betula nana|efloras.flora_of_north_america,betula nana,efloras.flora_of_north_america,leaf shape,4,2,0,4,6,True,True,True,False,"[""obovate"", ""orbicular"", ""orbiculate"", ""reniform""]","[""cordate"", ""obovate"", ""orbicular"", ""orbiculate"", ""reniform"", ""rounded""]","[""cordate"", ""rounded""]",[]
+betula nana|efloras.flora_of_north_america,betula nana,efloras.flora_of_north_america,flower sex,0,0,1,1,0,True,False,True,False,"[""staminate""]",[],[],"[""staminate""]"
+betula nana|efloras.flora_of_north_america,betula nana,efloras.flora_of_north_america,fruit type,0,0,1,1,0,True,False,True,False,"[""samara""]",[],[],"[""samara""]"
+carex capillaris|efloras.flora_of_north_america,carex capillaris,efloras.flora_of_north_america,clonality,0,0,1,1,0,True,False,True,False,"[""rhizomatous""]",[],[],"[""rhizomatous""]"
+carex capillaris|efloras.flora_of_north_america,carex capillaris,efloras.flora_of_north_america,inflorescence arrangement,0,0,1,1,0,True,False,True,False,"[""spike""]",[],[],"[""spike""]"
+carex capillaris|efloras.flora_of_north_america,carex capillaris,efloras.flora_of_north_america,flower sex,0,0,1,1,0,True,False,True,False,"[""staminate""]",[],[],"[""staminate""]"
+carex capillaris|efloras.flora_of_north_america,carex capillaris,efloras.flora_of_north_america,fruit type,0,0,1,1,0,True,False,True,False,"[""achene""]",[],[],"[""achene""]"
+carex capillaris|efloras.flora_of_north_america,carex capillaris,efloras.flora_of_north_america,fruit shape,0,0,1,1,0,True,False,True,False,"[""obovoid""]",[],[],"[""obovoid""]"
+carex capillaris|efloras.flora_of_north_america,carex capillaris,efloras.flora_of_north_america,seed min. length [mm],0,1,0,0,1,False,True,True,False,[],"[""1.2""]","[""1.2""]",[]
+carex capillaris|efloras.flora_of_north_america,carex capillaris,efloras.flora_of_north_america,seed max. length [mm],0,1,1,1,1,True,True,True,False,"[""1.2""]","[""1.7""]","[""1.7""]","[""1.2""]"
+carex capillaris|efloras.flora_of_north_america,carex capillaris,efloras.flora_of_north_america,seed min. diameter [mm],0,0,1,1,0,True,False,True,False,"[""1.7""]",[],[],"[""1.7""]"
+cuscuta epithymum|efloras.flora_of_pakistan,cuscuta epithymum,efloras.flora_of_pakistan,indumentum,0,0,1,1,0,True,False,True,False,"[""glandular""]",[],[],"[""glandular""]"
+cuscuta epithymum|efloras.flora_of_pakistan,cuscuta epithymum,efloras.flora_of_pakistan,petal fusion,0,0,1,1,0,True,False,True,False,"[""fusion""]",[],[],"[""fusion""]"
+eleocharis palustris|ecoflora,eleocharis palustris,ecoflora,indumentum,0,0,2,2,0,True,False,True,False,"[""glabrous"", ""pubescent""]",[],[],"[""glabrous"", ""pubescent""]"
+eleocharis palustris|ecoflora,eleocharis palustris,ecoflora,flower architecture,0,1,0,0,1,False,True,True,False,[],"[""naked""]","[""naked""]",[]
+eleocharis palustris|ecoflora,eleocharis palustris,ecoflora,fruit type,0,0,1,1,0,True,False,True,False,"[""nut""]",[],[],"[""nut""]"
+galium palustre|efloras.flora_of_pakistan,galium palustre,efloras.flora_of_pakistan,plant min. height [m],0,0,1,1,0,True,False,True,False,"[""0.5""]",[],[],"[""0.5""]"
+galium palustre|efloras.flora_of_pakistan,galium palustre,efloras.flora_of_pakistan,plant max. height [m],0,0,1,1,0,True,False,True,False,"[""0.8""]",[],[],"[""0.8""]"
+galium palustre|efloras.flora_of_pakistan,galium palustre,efloras.flora_of_pakistan,indumentum,2,0,1,3,2,True,True,True,False,"[""glabrous"", ""papillose"", ""scabrous""]","[""glabrous"", ""scabrous""]",[],"[""papillose""]"
+galium palustre|efloras.flora_of_pakistan,galium palustre,efloras.flora_of_pakistan,leaf position,0,0,1,1,0,True,False,True,False,"[""whorled""]",[],[],"[""whorled""]"
+galium palustre|efloras.flora_of_pakistan,galium palustre,efloras.flora_of_pakistan,leaf shape,1,0,1,2,1,True,True,True,False,"[""lanceolate"", ""linear""]","[""lanceolate""]",[],"[""linear""]"
+galium palustre|efloras.flora_of_pakistan,galium palustre,efloras.flora_of_pakistan,leaf apex,2,1,0,2,3,True,True,True,False,"[""acute"", ""cuspidate""]","[""acute"", ""cuspidate"", ""recurved""]","[""recurved""]",[]
+galium palustre|efloras.flora_of_pakistan,galium palustre,efloras.flora_of_pakistan,inflorescence arrangement,0,0,1,1,0,True,False,True,False,"[""panicle""]",[],[],"[""panicle""]"
+hypochaeris radicata|efloras.flora_of_china,hypochaeris radicata,efloras.flora_of_china,habit,2,1,0,2,3,True,True,True,False,"[""erect leafy"", ""herb""]","[""erect leafy"", ""erect leavy"", ""herb""]","[""erect leavy""]",[]
+hypochaeris radicata|efloras.flora_of_china,hypochaeris radicata,efloras.flora_of_china,leaf shape,2,2,0,2,4,True,True,True,False,"[""oblanceolate"", ""spatulate""]","[""oblanceolate"", ""orbicular"", ""rounded"", ""spatulate""]","[""orbicular"", ""rounded""]",[]
+hypochaeris radicata|efloras.flora_of_china,hypochaeris radicata,efloras.flora_of_china,leaf base,1,1,0,1,2,True,True,True,False,"[""attenuate""]","[""attenuate"", ""rounded""]","[""rounded""]",[]
+hypochaeris radicata|efloras.flora_of_china,hypochaeris radicata,efloras.flora_of_china,inflorescence arrangement,1,0,1,2,1,True,True,True,False,"[""capitulum"", ""corymb""]","[""capitulum""]",[],"[""corymb""]"
+hypochaeris radicata|efloras.flora_of_china,hypochaeris radicata,efloras.flora_of_china,fruit type,0,0,1,1,0,True,False,True,False,"[""achene""]",[],[],"[""achene""]"
+lythrum salicaria|efloras.flora_of_pakistan,lythrum salicaria,efloras.flora_of_pakistan,leaf shape,3,1,0,3,4,True,True,True,False,"[""elliptic"", ""lanceolate"", ""ovate""]","[""cordate"", ""elliptic"", ""lanceolate"", ""ovate""]","[""cordate""]",[]
+lythrum salicaria|efloras.flora_of_pakistan,lythrum salicaria,efloras.flora_of_pakistan,leaf apex,2,2,0,2,4,True,True,True,False,"[""acuminate"", ""acute""]","[""acuminate"", ""acute"", ""attenuate"", ""lanceolate""]","[""attenuate"", ""lanceolate""]",[]
+lythrum salicaria|efloras.flora_of_pakistan,lythrum salicaria,efloras.flora_of_pakistan,leaf base,1,0,1,2,1,True,True,True,False,"[""amplexicaul"", ""cordate""]","[""amplexicaul""]",[],"[""cordate""]"
+lythrum salicaria|efloras.flora_of_pakistan,lythrum salicaria,efloras.flora_of_pakistan,inflorescence arrangement,0,0,1,1,0,True,False,True,False,"[""spike""]",[],[],"[""spike""]"
+lythrum salicaria|efloras.flora_of_pakistan,lythrum salicaria,efloras.flora_of_pakistan,fruit structure,0,1,0,0,1,False,True,True,False,[],"[""dry""]","[""dry""]",[]
+lythrum salicaria|efloras.flora_of_pakistan,lythrum salicaria,efloras.flora_of_pakistan,fruit dehiscence,0,1,0,0,1,False,True,True,False,[],"[""dehiscent""]","[""dehiscent""]",[]
+phalaris arundinacea|ecoflora,phalaris arundinacea,ecoflora,leaf min. width [cm],0,0,1,1,0,True,False,True,False,"[""1.0""]",[],[],"[""1.0""]"
+phalaris arundinacea|ecoflora,phalaris arundinacea,ecoflora,leaf max. width [cm],0,0,1,1,0,True,False,True,False,"[""4.0""]",[],[],"[""4.0""]"
+phalaris arundinacea|ecoflora,phalaris arundinacea,ecoflora,leaf min. length [cm],0,0,1,1,0,True,False,True,False,"[""10.0""]",[],[],"[""10.0""]"
+phalaris arundinacea|ecoflora,phalaris arundinacea,ecoflora,leaf max. length [cm],0,0,1,1,0,True,False,True,False,"[""35.0""]",[],[],"[""35.0""]"
+phalaris arundinacea|ecoflora,phalaris arundinacea,ecoflora,inflorescence arrangement,0,0,2,2,0,True,False,True,False,"[""panicle"", ""spikelet""]",[],[],"[""panicle"", ""spikelet""]"
+rumex acetosa|efloras.flora_of_china,rumex acetosa,efloras.flora_of_china,indumentum,0,0,1,1,0,True,False,True,False,"[""glabrous""]",[],[],"[""glabrous""]"
+rumex acetosa|efloras.flora_of_china,rumex acetosa,efloras.flora_of_china,leaf architecture,0,0,1,1,0,True,False,True,False,"[""flat""]",[],[],"[""flat""]"
+rumex acetosa|efloras.flora_of_china,rumex acetosa,efloras.flora_of_china,leaf apex,2,1,0,2,3,True,True,True,False,"[""acute"", ""attenuate""]","[""acute"", ""attenuate"", ""lanceolate""]","[""lanceolate""]",[]
+rumex acetosa|efloras.flora_of_china,rumex acetosa,efloras.flora_of_china,fruit type,0,0,1,1,0,True,False,True,False,"[""achene""]",[],[],"[""achene""]"
+rumex acetosa|efloras.flora_of_china,rumex acetosa,efloras.flora_of_china,fruit shape,0,0,1,1,0,True,False,True,False,"[""ellipsoid""]",[],[],"[""ellipsoid""]"
+rumex acetosa|efloras.flora_of_china,rumex acetosa,efloras.flora_of_china,fruit colour,0,0,2,2,0,True,False,True,False,"[""black"", ""brown""]",[],[],"[""black"", ""brown""]"
+rumex acetosa|efloras.flora_of_china,rumex acetosa,efloras.flora_of_china,seed colour,0,2,0,0,2,False,True,True,False,[],"[""black"", ""brown""]","[""black"", ""brown""]",[]
+rumex conglomeratus|bhl|46694846.0,rumex conglomeratus,bhl,leaf apex,1,2,0,1,3,True,True,True,False,"[""acute""]","[""acute"", ""attenuate"", ""truncate""]","[""attenuate"", ""truncate""]",[]
+rumex conglomeratus|bhl|46694846.0,rumex conglomeratus,bhl,inflorescence arrangement,0,0,2,2,0,True,False,True,False,"[""clustered"", ""panicle""]",[],[],"[""clustered"", ""panicle""]"
+salix reticulata|efloras.flora_of_north_america,salix reticulata,efloras.flora_of_north_america,life form,0,1,0,0,1,False,True,True,False,[],"[""perennial""]","[""perennial""]",[]
+salix reticulata|efloras.flora_of_north_america,salix reticulata,efloras.flora_of_north_america,habit,1,1,0,1,2,True,True,True,False,"[""erect leafy""]","[""erect leafy"", ""tree""]","[""tree""]",[]
+salix reticulata|efloras.flora_of_north_america,salix reticulata,efloras.flora_of_north_america,perennial organ,1,1,0,1,2,True,True,True,False,"[""stem""]","[""stem"", ""stipe""]","[""stipe""]",[]
+salix reticulata|efloras.flora_of_north_america,salix reticulata,efloras.flora_of_north_america,indumentum,3,2,1,4,5,True,True,True,False,"[""glabrescent"", ""glabrous"", ""glandular"", ""hairy""]","[""glabrescent"", ""glabrous"", ""glandular"", ""pubescent"", ""sericeous""]","[""pubescent"", ""sericeous""]","[""hairy""]"
+salix reticulata|efloras.flora_of_north_america,salix reticulata,efloras.flora_of_north_america,reproduction architecture,0,1,0,0,1,False,True,True,False,[],"[""monadelphous""]","[""monadelphous""]",[]
+salix reticulata|efloras.flora_of_north_america,salix reticulata,efloras.flora_of_north_america,fruit structure,0,1,0,0,1,False,True,True,False,[],"[""dry""]","[""dry""]",[]
+salix reticulata|efloras.flora_of_north_america,salix reticulata,efloras.flora_of_north_america,fruit dehiscence,0,1,0,0,1,False,True,True,False,[],"[""dehiscent""]","[""dehiscent""]",[]
+stellaria alsine|efloras.flora_of_pakistan,stellaria alsine,efloras.flora_of_pakistan,leaf apex,1,1,0,1,2,True,True,True,False,"[""acute""]","[""acute"", ""lanceolate""]","[""lanceolate""]",[]
+stellaria alsine|efloras.flora_of_pakistan,stellaria alsine,efloras.flora_of_pakistan,fruit structure,0,1,0,0,1,False,True,True,False,[],"[""dry""]","[""dry""]",[]
+stellaria alsine|efloras.flora_of_pakistan,stellaria alsine,efloras.flora_of_pakistan,fruit dehiscence,0,1,0,0,1,False,True,True,False,[],"[""dehiscent""]","[""dehiscent""]",[]
+urtica dioica|efloras.flora_of_pakistan,urtica dioica,efloras.flora_of_pakistan,indumentum,0,0,3,3,0,True,False,True,False,"[""ciliate"", ""hairy"", ""pubescent""]",[],[],"[""ciliate"", ""hairy"", ""pubescent""]"
+urtica dioica|efloras.flora_of_pakistan,urtica dioica,efloras.flora_of_pakistan,leaf shape,0,0,2,2,0,True,False,True,False,"[""lanceolate"", ""ovate""]",[],[],"[""lanceolate"", ""ovate""]"
+urtica dioica|efloras.flora_of_pakistan,urtica dioica,efloras.flora_of_pakistan,leaf apex,0,0,2,2,0,True,False,True,False,"[""acuminate"", ""acute""]",[],[],"[""acuminate"", ""acute""]"
+urtica dioica|efloras.flora_of_pakistan,urtica dioica,efloras.flora_of_pakistan,leaf base,0,0,1,1,0,True,False,True,False,"[""cordate""]",[],[],"[""cordate""]"
+urtica dioica|efloras.flora_of_pakistan,urtica dioica,efloras.flora_of_pakistan,leaf margin,0,0,1,1,0,True,False,True,False,"[""serrate""]",[],[],"[""serrate""]"
+urtica dioica|efloras.flora_of_pakistan,urtica dioica,efloras.flora_of_pakistan,leaf min. width [cm],0,0,1,1,0,True,False,True,False,"[""2.5""]",[],[],"[""2.5""]"
+urtica dioica|efloras.flora_of_pakistan,urtica dioica,efloras.flora_of_pakistan,leaf max. width [cm],0,0,1,1,0,True,False,True,False,"[""8.0""]",[],[],"[""8.0""]"
+urtica dioica|efloras.flora_of_pakistan,urtica dioica,efloras.flora_of_pakistan,leaf min. length [cm],0,1,1,1,1,True,True,True,False,"[""5.0""]","[""1.5""]","[""1.5""]","[""5.0""]"
+urtica dioica|efloras.flora_of_pakistan,urtica dioica,efloras.flora_of_pakistan,leaf max. length [cm],0,1,1,1,1,True,True,True,False,"[""12.0""]","[""4.0""]","[""4.0""]","[""12.0""]"
+urtica dioica|efloras.flora_of_pakistan,urtica dioica,efloras.flora_of_pakistan,inflorescence arrangement,0,0,2,2,0,True,False,True,False,"[""cyme"", ""raceme""]",[],[],"[""cyme"", ""raceme""]"
+urtica dioica|efloras.flora_of_pakistan,urtica dioica,efloras.flora_of_pakistan,petal colour,0,0,1,1,0,True,False,True,False,"[""white""]",[],[],"[""white""]"
+urtica dioica|efloras.flora_of_pakistan,urtica dioica,efloras.flora_of_pakistan,fruit type,0,0,1,1,0,True,False,True,False,"[""achene""]",[],[],"[""achene""]"
+urtica dioica|efloras.flora_of_pakistan,urtica dioica,efloras.flora_of_pakistan,fruit shape,0,0,2,2,0,True,False,True,False,"[""ellipsoid"", ""ovoid""]",[],[],"[""ellipsoid"", ""ovoid""]"
+vaccinium myrtillus|efloras.flora_of_china,vaccinium myrtillus,efloras.flora_of_china,petal fusion,0,1,0,0,1,False,True,True,False,[],"[""fusion""]","[""fusion""]",[]
+vaccinium myrtillus|efloras.flora_of_china,vaccinium myrtillus,efloras.flora_of_china,fruit type,0,0,1,1,0,True,False,True,False,"[""berry""]",[],[],"[""berry""]"
+valeriana dioica|efloras.flora_of_pakistan,valeriana dioica,efloras.flora_of_pakistan,indumentum,0,0,1,1,0,True,False,True,False,"[""glabrous""]",[],[],"[""glabrous""]"
+valeriana dioica|efloras.flora_of_pakistan,valeriana dioica,efloras.flora_of_pakistan,fruit type,0,0,1,1,0,True,False,True,False,"[""achene""]",[],[],"[""achene""]"
+agrostis stolonifera|efloras.flora_of_pakistan,agrostis stolonifera,efloras.flora_of_pakistan,inflorescence arrangement,0,0,3,3,0,True,False,True,False,"[""clustered"", ""panicle"", ""spikelet""]",[],[],"[""clustered"", ""panicle"", ""spikelet""]"
+aira caryophyllea|efloras.flora_of_china,aira caryophyllea,efloras.flora_of_china,habit,3,0,1,4,3,True,True,True,False,"[""caespitose"", ""erect leafy/tussock"", ""stoloniferous"", ""tussock""]","[""caespitose"", ""erect leafy/tussock"", ""tussock""]",[],"[""stoloniferous""]"
+aira caryophyllea|efloras.flora_of_china,aira caryophyllea,efloras.flora_of_china,inflorescence arrangement,0,0,3,3,0,True,False,True,False,"[""clustered"", ""panicle"", ""spikelet""]",[],[],"[""clustered"", ""panicle"", ""spikelet""]"
+ajuga reptans|ecoflora,ajuga reptans,ecoflora,indumentum,2,0,1,3,2,True,True,True,False,"[""glabrescent"", ""glabrous"", ""hairy""]","[""glabrescent"", ""glabrous""]",[],"[""hairy""]"
+ajuga reptans|ecoflora,ajuga reptans,ecoflora,fruit type,0,0,1,1,0,True,False,True,False,"[""nut""]",[],[],"[""nut""]"
+anthoxanthum odoratum|efloras.flora_of_china,anthoxanthum odoratum,efloras.flora_of_china,inflorescence arrangement,0,0,3,3,0,True,False,True,False,"[""panicle"", ""spike"", ""spikelet""]",[],[],"[""panicle"", ""spike"", ""spikelet""]"
+arrhenatherum elatius|efloras.flora_of_china,arrhenatherum elatius,efloras.flora_of_china,clonality,0,0,1,1,0,True,False,True,False,"[""rhizomatous""]",[],[],"[""rhizomatous""]"
+arrhenatherum elatius|efloras.flora_of_china,arrhenatherum elatius,efloras.flora_of_china,indumentum,2,0,1,3,2,True,True,True,False,"[""glabrous"", ""pubescent"", ""scabrous""]","[""glabrous"", ""scabrous""]",[],"[""pubescent""]"
+arrhenatherum elatius|efloras.flora_of_china,arrhenatherum elatius,efloras.flora_of_china,inflorescence arrangement,0,0,2,2,0,True,False,True,False,"[""panicle"", ""spikelet""]",[],[],"[""panicle"", ""spikelet""]"
+berula erecta|efloras.flora_of_china,berula erecta,efloras.flora_of_china,leaf shape,0,0,2,2,0,True,False,True,False,"[""oblong"", ""ovate""]",[],[],"[""oblong"", ""ovate""]"
+berula erecta|efloras.flora_of_china,berula erecta,efloras.flora_of_china,leaf base,0,0,1,1,0,True,False,True,False,"[""truncate""]",[],[],"[""truncate""]"
+berula erecta|efloras.flora_of_china,berula erecta,efloras.flora_of_china,leaf margin,0,0,1,1,0,True,False,True,False,"[""serrate""]",[],[],"[""serrate""]"
+berula erecta|efloras.flora_of_china,berula erecta,efloras.flora_of_china,leaf min. width [cm],0,0,1,1,0,True,False,True,False,"[""0.8""]",[],[],"[""0.8""]"
+berula erecta|efloras.flora_of_china,berula erecta,efloras.flora_of_china,leaf max. width [cm],0,0,1,1,0,True,False,True,False,"[""3.0""]",[],[],"[""3.0""]"
+berula erecta|efloras.flora_of_china,berula erecta,efloras.flora_of_china,leaf min. length [cm],0,0,1,1,0,True,False,True,False,"[""1.5""]",[],[],"[""1.5""]"
+berula erecta|efloras.flora_of_china,berula erecta,efloras.flora_of_china,leaf max. length [cm],0,0,1,1,0,True,False,True,False,"[""7.0""]",[],[],"[""7.0""]"
+berula erecta|efloras.flora_of_china,berula erecta,efloras.flora_of_china,inflorescence arrangement,0,0,1,1,0,True,False,True,False,"[""umbel""]",[],[],"[""umbel""]"
+caltha palustris|efloras.flora_of_north_america,caltha palustris,efloras.flora_of_north_america,leaf margin,3,1,0,3,4,True,True,True,False,"[""crenate"", ""dentate"", ""entire""]","[""crenate"", ""dentate"", ""denticulate"", ""entire""]","[""denticulate""]",[]
+caltha palustris|efloras.flora_of_north_america,caltha palustris,efloras.flora_of_north_america,fruit type,0,0,1,1,0,True,False,True,False,"[""follicle""]",[],[],"[""follicle""]"
+caltha palustris|efloras.flora_of_north_america,caltha palustris,efloras.flora_of_north_america,fruit shape,0,0,1,1,0,True,False,True,False,"[""ellipsoid""]",[],[],"[""ellipsoid""]"
+campanula rotundifolia|ecoflora,campanula rotundifolia,ecoflora,indumentum,0,0,2,2,0,True,False,True,False,"[""glabrous"", ""pubescent""]",[],[],"[""glabrous"", ""pubescent""]"
+campanula rotundifolia|ecoflora,campanula rotundifolia,ecoflora,leaf apex,1,1,0,1,2,True,True,True,False,"[""acute""]","[""acute"", ""lanceolate""]","[""lanceolate""]",[]
+cardamine pratensis|efloras.flora_of_north_america,cardamine pratensis,efloras.flora_of_north_america,indumentum,0,0,1,1,0,True,False,True,False,"[""glabrous""]",[],[],"[""glabrous""]"
+cardamine pratensis|efloras.flora_of_north_america,cardamine pratensis,efloras.flora_of_north_america,succulence,0,1,0,0,1,False,True,True,False,[],"[""fleshy""]","[""fleshy""]",[]
+cardamine pratensis|efloras.flora_of_north_america,cardamine pratensis,efloras.flora_of_north_america,leaf architecture,1,1,0,1,2,True,True,True,False,"[""pinnatipartite""]","[""pinnatipartite"", ""pinnatisect""]","[""pinnatisect""]",[]
+cardamine pratensis|efloras.flora_of_north_america,cardamine pratensis,efloras.flora_of_north_america,leaf shape,0,0,6,6,0,True,False,True,False,"[""lanceolate"", ""linear"", ""oblong"", ""obovate"", ""orbicular"", ""ovate""]",[],[],"[""lanceolate"", ""linear"", ""oblong"", ""obovate"", ""orbicular"", ""ovate""]"
+cardamine pratensis|efloras.flora_of_north_america,cardamine pratensis,efloras.flora_of_north_america,leaf margin,0,0,4,4,0,True,False,True,False,"[""crenate"", ""dentate"", ""entire"", ""repand""]",[],[],"[""crenate"", ""dentate"", ""entire"", ""repand""]"
+cardamine pratensis|efloras.flora_of_north_america,cardamine pratensis,efloras.flora_of_north_america,inflorescence arrangement,0,0,1,1,0,True,False,True,False,"[""raceme""]",[],[],"[""raceme""]"
+centaurea nigra|efloras.flora_of_north_america,centaurea nigra,efloras.flora_of_north_america,indumentum,0,0,4,4,0,True,False,True,False,"[""glabrous"", ""hairy"", ""scabrous"", ""tomentose""]",[],[],"[""glabrous"", ""hairy"", ""scabrous"", ""tomentose""]"
+centaurea nigra|efloras.flora_of_north_america,centaurea nigra,efloras.flora_of_north_america,leaf architecture,0,2,0,0,2,False,True,True,False,[],"[""decurrent"", ""lobed""]","[""decurrent"", ""lobed""]",[]
+centaurea nigra|efloras.flora_of_north_america,centaurea nigra,efloras.flora_of_north_america,leaf shape,5,1,0,5,6,True,True,True,False,"[""elliptic"", ""lanceolate"", ""linear"", ""lobate"", ""spatulate""]","[""elliptic"", ""lanceolate"", ""linear"", ""lobate"", ""oblanceolate"", ""spatulate""]","[""oblanceolate""]",[]
+centaurea nigra|efloras.flora_of_north_america,centaurea nigra,efloras.flora_of_north_america,leaf apex,1,1,0,1,2,True,True,True,False,"[""acute""]","[""acute"", ""lanceolate""]","[""lanceolate""]",[]
+centaurea nigra|efloras.flora_of_north_america,centaurea nigra,efloras.flora_of_north_america,fruit type,0,0,1,1,0,True,False,True,False,"[""cypsela""]",[],[],"[""cypsela""]"
+cynosurus cristatus|efloras.flora_of_china,cynosurus cristatus,efloras.flora_of_china,inflorescence arrangement,0,0,1,1,0,True,False,True,False,"[""spikelet""]",[],[],"[""spikelet""]"
+cynosurus cristatus|efloras.flora_of_china,cynosurus cristatus,efloras.flora_of_china,fruit type,0,0,1,1,0,True,False,True,False,"[""caryopsis""]",[],[],"[""caryopsis""]"
+alopecurus alpinus|ecoflora,alopecurus alpinus,ecoflora,inflorescence arrangement,0,0,2,2,0,True,False,True,False,"[""panicle"", ""spikelet""]",[],[],"[""panicle"", ""spikelet""]"
+alopecurus alpinus|ecoflora,alopecurus alpinus,ecoflora,reproduction architecture,0,1,0,0,1,False,True,True,False,[],"[""monadelphous""]","[""monadelphous""]",[]
+ammophila arenaria|ecoflora,ammophila arenaria,ecoflora,inflorescence arrangement,0,0,3,3,0,True,False,True,False,"[""panicle"", ""spike"", ""spikelet""]",[],[],"[""panicle"", ""spike"", ""spikelet""]"
+bartsia alpina|ecoflora,bartsia alpina,ecoflora,leaf min. width [cm],0,0,1,1,0,True,False,True,False,"[""1.0""]",[],[],"[""1.0""]"
+bartsia alpina|ecoflora,bartsia alpina,ecoflora,leaf max. width [cm],0,0,1,1,0,True,False,True,False,"[""2.0""]",[],[],"[""2.0""]"
+bartsia alpina|ecoflora,bartsia alpina,ecoflora,leaf min. length [cm],0,1,0,0,1,False,True,True,False,[],"[""1.0""]","[""1.0""]",[]
+bartsia alpina|ecoflora,bartsia alpina,ecoflora,leaf max. length [cm],0,1,0,0,1,False,True,True,False,[],"[""2.0""]","[""2.0""]",[]
+bartsia alpina|ecoflora,bartsia alpina,ecoflora,inflorescence arrangement,0,0,2,2,0,True,False,True,False,"[""raceme"", ""spike""]",[],[],"[""raceme"", ""spike""]"
+bellis perennis|efloras.flora_of_north_america,bellis perennis,efloras.flora_of_north_america,leaf shape,0,2,0,0,2,False,True,True,False,[],"[""orbicular"", ""rounded""]","[""orbicular"", ""rounded""]",[]
+bellis perennis|efloras.flora_of_north_america,bellis perennis,efloras.flora_of_north_america,leaf apex,1,1,0,1,2,True,True,True,False,"[""rounded""]","[""attenuate"", ""rounded""]","[""attenuate""]",[]
+bellis perennis|efloras.flora_of_north_america,bellis perennis,efloras.flora_of_north_america,corolla tube min. length [cm],0,1,0,0,1,False,True,True,False,[],"[""0.4""]","[""0.4""]",[]
+bellis perennis|efloras.flora_of_north_america,bellis perennis,efloras.flora_of_north_america,corolla tube max. length [cm],0,1,0,0,1,False,True,True,False,[],"[""1.1""]","[""1.1""]",[]
+bellis perennis|efloras.flora_of_north_america,bellis perennis,efloras.flora_of_north_america,fruit type,0,0,1,1,0,True,False,True,False,"[""cypsela""]",[],[],"[""cypsela""]"
+bellis perennis|efloras.flora_of_north_america,bellis perennis,efloras.flora_of_north_america,dispersal mode,0,1,0,0,1,False,True,True,False,[],"[""anemochory""]","[""anemochory""]",[]
+briza media|efloras.flora_of_china,briza media,efloras.flora_of_china,habit,2,1,0,2,3,True,True,True,False,"[""erect leafy/tussock"", ""tussock""]","[""caespitose"", ""erect leafy/tussock"", ""tussock""]","[""caespitose""]",[]
+briza media|efloras.flora_of_china,briza media,efloras.flora_of_china,plant min. height [m],0,0,1,1,0,True,False,True,False,"[""0.4""]",[],[],"[""0.4""]"
+briza media|efloras.flora_of_china,briza media,efloras.flora_of_china,plant max. height [m],0,0,1,1,0,True,False,True,False,"[""0.6""]",[],[],"[""0.6""]"
+briza media|efloras.flora_of_china,briza media,efloras.flora_of_china,indumentum,1,1,0,1,2,True,True,True,False,"[""scabrous""]","[""glabrous"", ""scabrous""]","[""glabrous""]",[]
+briza media|efloras.flora_of_china,briza media,efloras.flora_of_china,leaf margin,0,0,1,1,0,True,False,True,False,"[""scabrous""]",[],[],"[""scabrous""]"
+briza media|efloras.flora_of_china,briza media,efloras.flora_of_china,inflorescence arrangement,0,0,2,2,0,True,False,True,False,"[""panicle"", ""spikelet""]",[],[],"[""panicle"", ""spikelet""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,life form,1,1,0,1,2,True,True,True,False,"[""annual""]","[""annual"", ""perennial""]","[""perennial""]",[]
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,habit,1,1,0,1,2,True,True,True,False,"[""erect leafy""]","[""erect leafy"", ""erect leafy/tussock""]","[""erect leafy/tussock""]",[]
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,clonality,1,1,0,1,2,True,True,True,False,"[""solitary plant""]","[""rhizome"", ""solitary plant""]","[""rhizome""]",[]
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,perennial organ,1,1,0,1,2,True,True,True,False,"[""stem""]","[""rhizome"", ""stem""]","[""rhizome""]",[]
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,plant min. height [m],0,0,1,1,0,True,False,True,False,"[""0.06""]",[],[],"[""0.06""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,plant max. height [m],0,0,1,1,0,True,False,True,False,"[""0.5""]",[],[],"[""0.5""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,indumentum,0,0,3,3,0,True,False,True,False,"[""ciliate"", ""glabrous"", ""hirsute""]",[],[],"[""ciliate"", ""glabrous"", ""hirsute""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,leaf shape,3,1,2,5,4,True,True,True,False,"[""elliptic"", ""oblong"", ""orbicular"", ""ovate"", ""reniform""]","[""elliptic"", ""oblong"", ""ovate"", ""repand""]","[""repand""]","[""orbicular"", ""reniform""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,leaf apex,0,0,1,1,0,True,False,True,False,"[""truncate""]",[],[],"[""truncate""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,leaf base,0,0,1,1,0,True,False,True,False,"[""rounded""]",[],[],"[""rounded""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,leaf min. width [cm],0,0,1,1,0,True,False,True,False,"[""0.4""]",[],[],"[""0.4""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,leaf max. width [cm],0,0,1,1,0,True,False,True,False,"[""3.0""]",[],[],"[""3.0""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,leaf min. length [cm],0,1,1,1,1,True,True,True,False,"[""0.5""]","[""2.0""]","[""2.0""]","[""0.5""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,leaf max. length [cm],0,1,1,1,1,True,True,True,False,"[""2.5""]","[""7.0""]","[""7.0""]","[""2.5""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,inflorescence arrangement,0,0,1,1,0,True,False,True,False,"[""raceme""]",[],[],"[""raceme""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,seed min. width [mm],0,1,1,1,1,True,True,True,False,"[""0.9""]","[""0.6""]","[""0.6""]","[""0.9""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,seed max. width [mm],0,1,2,2,1,True,True,True,False,"[""1"", ""5""]","[""1.0""]","[""1.0""]","[""1"", ""5""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,seed min. length [mm],0,1,1,1,1,True,True,True,False,"[""0.6""]","[""0.9""]","[""0.9""]","[""0.6""]"
+cardamine flexuosa|efloras.flora_of_north_america,cardamine flexuosa,efloras.flora_of_north_america,seed max. length [mm],0,1,1,1,1,True,True,True,False,"[""1.0""]","[""1.5""]","[""1.5""]","[""1.0""]"
+chrysosplenium oppositifolium|ecoflora,chrysosplenium oppositifolium,ecoflora,leaf base,2,1,0,2,3,True,True,True,False,"[""cuneate"", ""truncate""]","[""cuneate"", ""orbicular"", ""truncate""]","[""orbicular""]",[]
+cornus suecica|efloras.flora_of_north_america,cornus suecica,efloras.flora_of_north_america,plant min. height [m],0,0,1,1,0,True,False,True,False,"[""0.05""]",[],[],"[""0.05""]"
+cornus suecica|efloras.flora_of_north_america,cornus suecica,efloras.flora_of_north_america,plant max. height [m],0,0,1,1,0,True,False,True,False,"[""0.22""]",[],[],"[""0.22""]"
+cornus suecica|efloras.flora_of_north_america,cornus suecica,efloras.flora_of_north_america,indumentum,1,0,1,2,1,True,True,True,False,"[""glandular"", ""hairy""]","[""hairy""]",[],"[""glandular""]"
+cornus suecica|efloras.flora_of_north_america,cornus suecica,efloras.flora_of_north_america,leaf architecture,1,1,0,1,2,True,True,True,False,"[""scale""]","[""appressed"", ""scale""]","[""appressed""]",[]
+cornus suecica|efloras.flora_of_north_america,cornus suecica,efloras.flora_of_north_america,bract colour,0,2,0,0,2,False,True,True,False,[],"[""purple"", ""white""]","[""purple"", ""white""]",[]
+cornus suecica|efloras.flora_of_north_america,cornus suecica,efloras.flora_of_north_america,corolla tube min. length [cm],0,0,1,1,0,True,False,True,False,"[""0.12""]",[],[],"[""0.12""]"
+cornus suecica|efloras.flora_of_north_america,cornus suecica,efloras.flora_of_north_america,corolla tube max. length [cm],0,0,1,1,0,True,False,True,False,"[""0.15""]",[],[],"[""0.15""]"
+cornus suecica|efloras.flora_of_north_america,cornus suecica,efloras.flora_of_north_america,stamen number,0,0,1,1,0,True,False,True,False,"[""4.0""]",[],[],"[""4.0""]"
+dactylorhiza maculata|ecoflora,dactylorhiza maculata,ecoflora,leaf shape,3,1,0,3,4,True,True,True,False,"[""lanceolate"", ""linear"", ""oblong""]","[""lanceolate"", ""linear"", ""oblong"", ""orbicular""]","[""orbicular""]",[]
+dactylorhiza maculata|ecoflora,dactylorhiza maculata,ecoflora,leaf apex,2,1,0,2,3,True,True,True,False,"[""acute"", ""attenuate""]","[""acute"", ""attenuate"", ""lanceolate""]","[""lanceolate""]",[]
+digitalis purpurea|efloras.flora_of_china,digitalis purpurea,efloras.flora_of_china,indumentum,0,0,3,3,0,True,False,True,False,"[""glandular"", ""hairy"", ""pubescent""]",[],[],"[""glandular"", ""hairy"", ""pubescent""]"
+digitalis purpurea|efloras.flora_of_china,digitalis purpurea,efloras.flora_of_china,leaf position,0,0,1,1,0,True,False,True,False,"[""rosette""]",[],[],"[""rosette""]"
+digitalis purpurea|efloras.flora_of_china,digitalis purpurea,efloras.flora_of_china,fruit structure,0,1,0,0,1,False,True,True,False,[],"[""dry""]","[""dry""]",[]
+digitalis purpurea|efloras.flora_of_china,digitalis purpurea,efloras.flora_of_china,fruit dehiscence,0,1,0,0,1,False,True,True,False,[],"[""dehiscent""]","[""dehiscent""]",[]
+digitalis purpurea|efloras.flora_of_china,digitalis purpurea,efloras.flora_of_china,dispersal mode,0,1,0,0,1,False,True,True,False,[],"[""anemochory""]","[""anemochory""]",[]
+epilobium hirsutum|ecoflora,epilobium hirsutum,ecoflora,indumentum,2,0,1,3,2,True,True,True,False,"[""ciliate"", ""glandular"", ""hairy""]","[""ciliate"", ""hairy""]",[],"[""glandular""]"
+epilobium hirsutum|ecoflora,epilobium hirsutum,ecoflora,leaf apex,1,1,0,1,2,True,True,True,False,"[""acute""]","[""acute"", ""attenuate""]","[""attenuate""]",[]
+epilobium hirsutum|ecoflora,epilobium hirsutum,ecoflora,inflorescence arrangement,0,0,2,2,0,True,False,True,False,"[""corymb"", ""raceme""]",[],[],"[""corymb"", ""raceme""]"
+epilobium hirsutum|ecoflora,epilobium hirsutum,ecoflora,fruit structure,0,1,0,0,1,False,True,True,False,[],"[""dry""]","[""dry""]",[]
+epilobium hirsutum|ecoflora,epilobium hirsutum,ecoflora,fruit dehiscence,0,1,0,0,1,False,True,True,False,[],"[""dehiscent""]","[""dehiscent""]",[]
+erica vagans|efloras.flora_of_north_america,erica vagans,efloras.flora_of_north_america,leaf architecture,0,0,2,2,0,True,False,True,False,"[""decurrent"", ""flat""]",[],[],"[""decurrent"", ""flat""]"
+erica vagans|efloras.flora_of_north_america,erica vagans,efloras.flora_of_north_america,leaf shape,1,0,1,2,1,True,True,True,False,"[""lanceolate"", ""linear""]","[""lanceolate""]",[],"[""linear""]"
+erica vagans|efloras.flora_of_north_america,erica vagans,efloras.flora_of_north_america,leaf apex,0,1,0,0,1,False,True,True,False,[],"[""acute""]","[""acute""]",[]
+erica vagans|efloras.flora_of_north_america,erica vagans,efloras.flora_of_north_america,flower shape,0,0,1,1,0,True,False,True,False,"[""campanulate""]",[],[],"[""campanulate""]"
+erica vagans|efloras.flora_of_north_america,erica vagans,efloras.flora_of_north_america,calyx min. length [cm],0,0,1,1,0,True,False,True,False,"[""0.1""]",[],[],"[""0.1""]"
+erica vagans|efloras.flora_of_north_america,erica vagans,efloras.flora_of_north_america,calyx max. length [cm],0,0,1,1,0,True,False,True,False,"[""0.1""]",[],[],"[""0.1""]"
+erica vagans|efloras.flora_of_north_america,erica vagans,efloras.flora_of_north_america,stamen number,0,1,0,0,1,False,True,True,False,[],"[""10.0""]","[""10.0""]",[]
+erica vagans|efloras.flora_of_north_america,erica vagans,efloras.flora_of_north_america,fruit structure,0,1,0,0,1,False,True,True,False,[],"[""dry""]","[""dry""]",[]
+erica vagans|efloras.flora_of_north_america,erica vagans,efloras.flora_of_north_america,fruit dehiscence,0,1,0,0,1,False,True,True,False,[],"[""dehiscent""]","[""dehiscent""]",[]
+erica vagans|efloras.flora_of_north_america,erica vagans,efloras.flora_of_north_america,dispersal mode,0,1,0,0,1,False,True,True,False,[],"[""ectozoochory""]","[""ectozoochory""]",[]
+eriophorum angustifolium|efloras.flora_of_north_america,eriophorum angustifolium,efloras.flora_of_north_america,clonality,2,0,1,3,2,True,True,True,False,"[""rhizomatous"", ""rhizome"", ""stoloniferous""]","[""rhizome"", ""stoloniferous""]",[],"[""rhizomatous""]"
+eriophorum angustifolium|efloras.flora_of_north_america,eriophorum angustifolium,efloras.flora_of_north_america,plant min. height [m],0,0,1,1,0,True,False,True,False,"[""1.0""]",[],[],"[""1.0""]"
+eriophorum angustifolium|efloras.flora_of_north_america,eriophorum angustifolium,efloras.flora_of_north_america,plant max. height [m],0,0,1,1,0,True,False,True,False,"[""1.0""]",[],[],"[""1.0""]"
+eriophorum angustifolium|efloras.flora_of_north_america,eriophorum angustifolium,efloras.flora_of_north_america,indumentum,0,0,1,1,0,True,False,True,False,"[""pubescent""]",[],[],"[""pubescent""]"
+eriophorum angustifolium|efloras.flora_of_north_america,eriophorum angustifolium,efloras.flora_of_north_america,inflorescence arrangement,0,0,1,1,0,True,False,True,False,"[""spikelet""]",[],[],"[""spikelet""]"
+eriophorum angustifolium|efloras.flora_of_north_america,eriophorum angustifolium,efloras.flora_of_north_america,petal fusion,0,0,1,1,0,True,False,True,False,"[""no perianth""]",[],[],"[""no perianth""]"
+eriophorum angustifolium|efloras.flora_of_north_america,eriophorum angustifolium,efloras.flora_of_north_america,fruit type,0,0,1,1,0,True,False,True,False,"[""achene""]",[],[],"[""achene""]"
+eriophorum angustifolium|efloras.flora_of_north_america,eriophorum angustifolium,efloras.flora_of_north_america,fruit shape,0,0,1,1,0,True,False,True,False,"[""oblanceoloid""]",[],[],"[""oblanceoloid""]"
+eriophorum angustifolium|efloras.flora_of_north_america,eriophorum angustifolium,efloras.flora_of_north_america,fruit colour,0,0,1,1,0,True,False,True,False,"[""black""]",[],[],"[""black""]"
+eriophorum angustifolium|efloras.flora_of_north_america,eriophorum angustifolium,efloras.flora_of_north_america,seed colour,0,1,0,0,1,False,True,True,False,[],"[""black""]","[""black""]",[]
+eriophorum vaginatum|efloras.flora_of_north_america,eriophorum vaginatum,efloras.flora_of_north_america,clonality,1,1,0,1,2,True,True,True,False,"[""rhizomatous""]","[""rhizomatous"", ""solitary plant""]","[""solitary plant""]",[]
+eriophorum vaginatum|efloras.flora_of_north_america,eriophorum vaginatum,efloras.flora_of_north_america,plant min. height [m],0,0,1,1,0,True,False,True,False,"[""0.1""]",[],[],"[""0.1""]"
+eriophorum vaginatum|efloras.flora_of_north_america,eriophorum vaginatum,efloras.flora_of_north_america,plant max. height [m],0,0,1,1,0,True,False,True,False,"[""0.6""]",[],[],"[""0.6""]"
+eriophorum vaginatum|efloras.flora_of_north_america,eriophorum vaginatum,efloras.flora_of_north_america,indumentum,0,0,1,1,0,True,False,True,False,"[""pubescent""]",[],[],"[""pubescent""]"
+eriophorum vaginatum|efloras.flora_of_north_america,eriophorum vaginatum,efloras.flora_of_north_america,leaf shape,0,1,0,0,1,False,True,True,False,[],"[""filiform""]","[""filiform""]",[]
+eriophorum vaginatum|efloras.flora_of_north_america,eriophorum vaginatum,efloras.flora_of_north_america,leaf min. length [cm],0,0,1,1,0,True,False,True,False,"[""1.0""]",[],[],"[""1.0""]"
+eriophorum vaginatum|efloras.flora_of_north_america,eriophorum vaginatum,efloras.flora_of_north_america,leaf max. length [cm],0,0,1,1,0,True,False,True,False,"[""1.0""]",[],[],"[""1.0""]"
+eriophorum vaginatum|efloras.flora_of_north_america,eriophorum vaginatum,efloras.flora_of_north_america,inflorescence arrangement,0,0,1,1,0,True,False,True,False,"[""spikelet""]",[],[],"[""spikelet""]"
+eriophorum vaginatum|efloras.flora_of_north_america,eriophorum vaginatum,efloras.flora_of_north_america,flower colour,0,3,0,0,3,False,True,True,False,[],"[""brown"", ""red"", ""white""]","[""brown"", ""red"", ""white""]",[]
+eriophorum vaginatum|efloras.flora_of_north_america,eriophorum vaginatum,efloras.flora_of_north_america,stamen number,0,0,1,1,0,True,False,True,False,"[""1.0""]",[],[],"[""1.0""]"
+eriophorum vaginatum|efloras.flora_of_north_america,eriophorum vaginatum,efloras.flora_of_north_america,fruit type,0,0,1,1,0,True,False,True,False,"[""achene""]",[],[],"[""achene""]"
+eriophorum vaginatum|efloras.flora_of_north_america,eriophorum vaginatum,efloras.flora_of_north_america,fruit shape,0,0,2,2,0,True,False,True,False,"[""obovoid"", ""ovoid""]",[],[],"[""obovoid"", ""ovoid""]"
+glaux maritima|efloras.flora_of_pakistan,glaux maritima,efloras.flora_of_pakistan,fruit structure,0,1,0,0,1,False,True,True,False,[],"[""dry""]","[""dry""]",[]
+glaux maritima|efloras.flora_of_pakistan,glaux maritima,efloras.flora_of_pakistan,fruit dehiscence,0,1,0,0,1,False,True,True,False,[],"[""dehiscent""]","[""dehiscent""]",[]
+gymnadenia conopsea|efloras.flora_of_china,gymnadenia conopsea,efloras.flora_of_china,labellum min. width [cm],0,1,0,0,1,False,True,True,False,[],"[""0.4""]","[""0.4""]",[]
+gymnadenia conopsea|efloras.flora_of_china,gymnadenia conopsea,efloras.flora_of_china,labellum max. width [cm],0,1,0,0,1,False,True,True,False,[],"[""0.4""]","[""0.4""]",[]
+gymnadenia conopsea|efloras.flora_of_china,gymnadenia conopsea,efloras.flora_of_china,spur min. length [cm],0,1,0,0,1,False,True,True,False,[],"[""1.0""]","[""1.0""]",[]
+gymnadenia conopsea|efloras.flora_of_china,gymnadenia conopsea,efloras.flora_of_china,spur max. length [cm],0,1,0,0,1,False,True,True,False,[],"[""1.4""]","[""1.4""]",[]
+holcus mollis|ecoflora,holcus mollis,ecoflora,habit,2,1,0,2,3,True,True,True,False,"[""erect leafy/tussock"", ""scrambler""]","[""erect leafy/tussock"", ""scrambler"", ""tussock""]","[""tussock""]",[]
+holcus mollis|ecoflora,holcus mollis,ecoflora,indumentum,0,0,4,4,0,True,False,True,False,"[""ciliate"", ""glabrous"", ""hairy"", ""pubescent""]",[],[],"[""ciliate"", ""glabrous"", ""hairy"", ""pubescent""]"
+holcus mollis|ecoflora,holcus mollis,ecoflora,spinescence,0,0,1,1,0,True,False,True,False,"[""spinescent""]",[],[],"[""spinescent""]"
+holcus mollis|ecoflora,holcus mollis,ecoflora,inflorescence arrangement,0,0,2,2,0,True,False,True,False,"[""panicle"", ""spikelet""]",[],[],"[""panicle"", ""spikelet""]"
+holcus mollis|ecoflora,holcus mollis,ecoflora,flower sex,0,0,1,1,0,True,False,True,False,"[""bisexual""]",[],[],"[""bisexual""]"
+hydrocotyle vulgaris|ecoflora,hydrocotyle vulgaris,ecoflora,indumentum,0,0,1,1,0,True,False,True,False,"[""hairy""]",[],[],"[""hairy""]"
+hydrocotyle vulgaris|ecoflora,hydrocotyle vulgaris,ecoflora,leaf shape,1,1,0,1,2,True,True,True,False,"[""orbicular""]","[""orbicular"", ""peltate""]","[""peltate""]",[]
+hydrocotyle vulgaris|ecoflora,hydrocotyle vulgaris,ecoflora,leaf base,0,1,0,0,1,False,True,True,False,[],"[""orbicular""]","[""orbicular""]",[]
+hydrocotyle vulgaris|ecoflora,hydrocotyle vulgaris,ecoflora,inflorescence arrangement,0,0,1,1,0,True,False,True,False,"[""umbel""]",[],[],"[""umbel""]"
+hydrocotyle vulgaris|ecoflora,hydrocotyle vulgaris,ecoflora,fruit type,0,0,1,1,0,True,False,True,False,"[""mericarp""]",[],[],"[""mericarp""]"
+mentha aquatica|bhl|22883976.0,mentha aquatica,bhl,habitat,0,1,0,0,1,False,True,True,False,[],"[""terrestrial""]","[""terrestrial""]",[]
+mentha aquatica|bhl|22883976.0,mentha aquatica,bhl,indumentum,1,0,2,3,1,True,True,True,False,"[""glabrous"", ""hirsute"", ""pubescent""]","[""pubescent""]",[],"[""glabrous"", ""hirsute""]"
+mentha aquatica|bhl|22883976.0,mentha aquatica,bhl,inflorescence arrangement,0,0,1,1,0,True,False,True,False,"[""spike""]",[],[],"[""spike""]"
+plantago lanceolata|bhl|7934546.0,plantago lanceolata,bhl,habitat,0,1,0,0,1,False,True,True,False,[],"[""terrestrial""]","[""terrestrial""]",[]
+plantago lanceolata|bhl|7934546.0,plantago lanceolata,bhl,habit,0,1,0,0,1,False,True,True,False,[],"[""erect leafy""]","[""erect leafy""]",[]
+plantago lanceolata|bhl|7934546.0,plantago lanceolata,bhl,clonality,0,1,0,0,1,False,True,True,False,[],"[""rhizomatous""]","[""rhizomatous""]",[]
+plantago lanceolata|bhl|7934546.0,plantago lanceolata,bhl,perennial organ,0,1,0,0,1,False,True,True,False,[],"[""rhizome""]","[""rhizome""]",[]
+plantago lanceolata|bhl|7934546.0,plantago lanceolata,bhl,plant min. height [m],0,0,1,1,0,True,False,True,False,"[""0.15""]",[],[],"[""0.15""]"
+plantago lanceolata|bhl|7934546.0,plantago lanceolata,bhl,plant max. height [m],0,0,1,1,0,True,False,True,False,"[""0.5""]",[],[],"[""0.5""]"
+plantago lanceolata|bhl|7934546.0,plantago lanceolata,bhl,indumentum,0,0,1,1,0,True,False,True,False,"[""strigose""]",[],[],"[""strigose""]"
+plantago lanceolata|bhl|7934546.0,plantago lanceolata,bhl,leaf apex,1,1,0,1,2,True,True,True,False,"[""acute""]","[""acute"", ""lanceolate""]","[""lanceolate""]",[]
+plantago lanceolata|bhl|7934546.0,plantago lanceolata,bhl,petal fusion,0,0,1,1,0,True,False,True,False,"[""fusion""]",[],[],"[""fusion""]"
+plantago lanceolata|bhl|7934546.0,plantago lanceolata,bhl,fruit type,0,0,1,1,0,True,False,True,False,"[""capsule""]",[],[],"[""capsule""]"
+plantago lanceolata|bhl|7934546.0,plantago lanceolata,bhl,seeds per fruit max,0,0,1,1,0,True,False,True,False,"[""2.0""]",[],[],"[""2.0""]"
+plantago lanceolata|bhl|7934546.0,plantago lanceolata,bhl,seeds per fruit min.,0,0,1,1,0,True,False,True,False,"[""2.0""]",[],[],"[""2.0""]"
+plantago lanceolata|bhl|7934546.0,plantago lanceolata,bhl,seed min. length [mm],0,1,0,0,1,False,True,True,False,[],"[""2.0""]","[""2.0""]",[]
+plantago lanceolata|bhl|7934546.0,plantago lanceolata,bhl,seed max. length [mm],0,1,0,0,1,False,True,True,False,[],"[""4.0""]","[""4.0""]",[]

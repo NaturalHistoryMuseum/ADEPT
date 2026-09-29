@@ -1,0 +1,2 @@
+averaging,records,taxa,fields,excluded_cells,reference_values,predicted_values,tp,fp,fn,precision,recall,f1
+micro,50,49,80,0,1299,1194,1081,113,218,0.9053601340033501,0.8321785989222479,0.8672282390693943

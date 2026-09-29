@@ -1,0 +1,81 @@
+trait,species_count
+habitat,380
+habit,380
+clonality,380
+perennial organ,379
+life form,367
+leaf min. length [cm],327
+leaf max. length [cm],327
+leaf shape,309
+leaf apex,303
+plant min. height [m],302
+plant max. height [m],302
+inflorescence arrangement,276
+indumentum,264
+leaf min. width [cm],264
+leaf max. width [cm],264
+leaf margin,250
+leaf architecture,204
+leaf base,192
+flower colour,185
+ploidy level (2n),176
+seed min. length [mm],174
+seed max. length [mm],174
+dispersal mode,165
+fruit type,162
+fruit structure,157
+fruit dehiscence,155
+stamen number,141
+fruit shape,132
+leaf position,118
+seed colour,116
+corolla colour,98
+petal colour,87
+leaf arrangement,83
+corolla tube min. length [cm],82
+corolla tube max. length [cm],82
+petal fusion,73
+seed min. width [mm],73
+seed max. width [mm],73
+fruit colour,71
+bract colour,70
+flower sex,70
+reproduction system,61
+inflorescence orientation,56
+flower orientation,56
+succulence,52
+calyx min. length [cm],45
+calyx max. length [cm],45
+flower architecture,40
+petal min. width [cm],38
+petal max. width [cm],38
+calyx colour,38
+reproduction architecture,34
+seeds per fruit min,26
+seeds per fruit max,26
+flower shape,25
+carpel/ovary number,23
+stamen min. length [cm],22
+stamen max. length [cm],22
+spinescence,16
+labellum colour,16
+labellum min. width [cm],15
+labellum max. width [cm],15
+flower symmetry,14
+spur min. length [cm],12
+spur max. length [cm],12
+reward,12
+seed min. diameter [mm],7
+seed max. diameter [mm],7
+root min. depth [cm],5
+root max. depth [cm],5
+bracteole colour,3
+stamen arrangement,3
+pollen colour,1
+pollination,1
+flower merosity,0
+corolla tube lipped,0
+stamenoid number,0
+staminodium,0
+gynoecium arrangement,0
+heterostyly,0
