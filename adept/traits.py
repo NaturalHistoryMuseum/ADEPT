@@ -3,6 +3,7 @@ import sqlite3
 import uuid
 import yaml
 import numpy as np
+import string
 
 from adept.config import ASSETS_DIR
 from adept.utils.helpers import get_words
@@ -18,7 +19,12 @@ class Traits():
         return self._get_traits_by_type('discrete', group) 
     
     def get_colour_traits(self, group=None):
-        return self._get_traits_by_type('colour', group)    
+        return self._get_traits_by_type('colour', group)   
+
+    def get_colour_mappings(self, group=None):
+        df = self.get_colour_traits(group)
+        df = df[['term', 'character']].drop_duplicates()
+        return dict(zip(df['term'], df['character']))     
     
     def get_unique_colour_terms(self, group=None):
         df = self.get_colour_traits(group)
@@ -57,15 +63,14 @@ class SimpleTraitTextClassifier:
             return False
         
         words = text.lower().split()
-        
-        matching_terms = self._trait_terms.intersection(words)
-        
+        cleaned = [word.strip(string.punctuation).removesuffix("s") for word in words]
+        matching_terms = self._trait_terms.intersection(cleaned)
         ratio = len(matching_terms) / len(words) 
         
         if len(matching_terms) < self.min_terms:
             return False     
         
-        if self.min_ratio and len(matching_terms) / len(words)  < self.min_ratio:
+        if self.min_ratio and ratio  < self.min_ratio:
             return False
         
         return True   
