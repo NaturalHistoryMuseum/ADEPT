@@ -41,24 +41,28 @@ class EflorasDescriptionTask(BaseDescriptionTask, metaclass=ABCMeta):
 
         if not search_results:
             logger.info(f'No search results for {self.taxon} in efloras {self.flora_id}')
-            return None
+            return {}
 
         taxon_id =  search_results.get(self.flora_id.value)
         if not taxon_id:
             logger.debug('No results for %s - %s', self.taxon, self.flora_id.value) 
-            return None
+            return {}
            
-        return self._parse_description(taxon_id)     
+        return {
+            'source_id': taxon_id, 
+            'description': self._parse_description(taxon_id)     
+        }
            
     def _parse_description(self, taxon_id):
                         
         url = f'{EFLORAS_BASE_URL}/florataxon.aspx'  
+
         try:      
             soup = RequestSoup(url, flora_id=self.flora_id.value, taxon_id=taxon_id)
         except Exception as e:
             logger.error('Requests exception: %s', e)
             return
-        
+
         taxon_treatment = soup.markup.find('div', {'id': 'panelTaxonTreatment'})   
         
         if not taxon_treatment:
@@ -66,6 +70,7 @@ class EflorasDescriptionTask(BaseDescriptionTask, metaclass=ABCMeta):
             return          
         
         p_text = [p.get_text() for p in taxon_treatment.find_all('p') if p.get_text(strip=True) and not p.find('table')]     
+
         descriptions = [p for p in p_text if self.trait_classifier.is_description(p)]
         
         if descriptions:
@@ -95,4 +100,4 @@ class EflorasMossChinaDescriptionTask(EflorasDescriptionTask):
     flora_id = EflorasDescriptionTask.EFloras.MOSS_FLORA_OF_CHINA   
 
 if __name__ == "__main__":    
-    luigi.build([EflorasChinaDescriptionTask(taxon='Eleocharis palustris', force=True)], local_scheduler=True)  
+    luigi.build([EflorasNorthAmericaDescriptionTask(taxon='achillea millefolium', force=True)], local_scheduler=True)  

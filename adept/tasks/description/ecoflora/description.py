@@ -19,16 +19,28 @@ class EcofloraDescriptionTask(BaseDescriptionTask):
         return EcofloraIndexTask()    
             
     def get_taxon_description(self):
-        
+
+        result = {}
+
         with self.input().open('r') as f:        
             taxa_index = json.load(f)
+
+        taxa_index = {
+            name.strip().casefold(): taxon_no
+            for name, taxon_no in taxa_index.items()
+        }            
                                 
         try:
-            taxon_no = taxa_index[self.taxon]
+            taxon_no = taxa_index[self.taxon.strip().casefold()]
         except KeyError:
             logger.info('Taxon %s not found in the EcoFLora taxa index', self.taxon)
         else:            
-            return self._parse_description(taxon_no)
+            description = self._parse_description(taxon_no)
+            result['source_id'] = taxon_no
+            result['description'] = description
+
+        return result
+
             
     def _parse_description(self, taxon_no):
         
@@ -49,4 +61,4 @@ class EcofloraDescriptionTask(BaseDescriptionTask):
         return luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'ecoflora' / f'{self.taxon}.yaml')    
     
 if __name__ == "__main__":    
-    luigi.build([EcofloraDescriptionTask(taxon='Eleocharis palustris', force=True)], local_scheduler=True)     
+    luigi.build([EcofloraDescriptionTask(taxon='chrysosplenium oppositifolium', force=True)], local_scheduler=True)     

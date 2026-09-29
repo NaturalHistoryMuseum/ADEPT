@@ -62,9 +62,13 @@ class EflorasSearchTask(luigi.ExternalTask):
             parsed_url = urllib.parse.urlparse(a.get('href'))
             qs = urllib.parse.parse_qs(parsed_url.query) 
             search_results[int(qs['flora_id'][0])] = int(qs['taxon_id'][0]) 
-        
-        return search_results    
 
+        return search_results    
             
     def output(self):
         return luigi.LocalTarget(INTERMEDIATE_DATA_DIR / 'efloras' / 'search' / f'{self.taxon}.yaml')   
+
+
+
+if __name__ == "__main__":    
+    luigi.build([EflorasSearchTask(taxon='Bellis perennis')], local_scheduler=True)     

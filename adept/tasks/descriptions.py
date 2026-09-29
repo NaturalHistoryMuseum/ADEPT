@@ -41,7 +41,8 @@ class DescriptionsTask(BaseTask):
     def run(self):    
            
         field_mappings = self._get_tpl_field_mappings() if self.template_path else None
-        if field_mappings:
+        if field_mappings:            
+
             logger.info('Using %s field mappings from %s for %s', self.taxonomic_group, self.template_path, self.taxon)
                 
         data = []

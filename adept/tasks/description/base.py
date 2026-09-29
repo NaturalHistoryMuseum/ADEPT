@@ -12,7 +12,7 @@ class BaseDescriptionTask(BaseTask, metaclass=ABCMeta):
     
     @abstractmethod
     def get_taxon_description(self):
-        return None  
+        return {}  
     
     @property
     @abstractmethod
@@ -23,11 +23,14 @@ class BaseDescriptionTask(BaseTask, metaclass=ABCMeta):
         return None               
         
     def run(self):                
-        description = self.get_taxon_description()   
+        result = self.get_taxon_description()  
+
         data = [{
-            'text': description,
+            'text': result.get('description', None),
             'taxon': self.taxon,
-            'source':self.source_name
-        }]     
+            'source': self.source_name,
+            'source_id': result.get('source_id', None)
+        }]    
+
         with self.output().open('w') as f:
             f.write(yaml.dump(data, explicit_start=True, default_flow_style=False)) 
